@@ -130,9 +130,19 @@ $\text{Output} = \left\lfloor \frac{W - F + 2P}{S} \right\rfloor + 1$
 % ================================================================
 \begin{multicols}{3}
 
+\section{Linear Regression}
+
+Model: $\hat{y} = \mathbf{x}^T\mathbf{w}$ \quad (augment $\mathbf{x}$ with 1 for bias)
+
+\textbf{Normal Equation}: $\mathbf{w} = (X^TX)^{-1}X^TY$ \quad ($O(N^3)$)
+
+Decision boundary (logistic): $w_0 + w_1x_1 + \cdots = 0$
+
 \section{Loss Function Formulas}
 
 \textbf{MSE}: $\frac{1}{P}\sum_{i=1}^{P}(\hat{y}_i - y_i)^2$
+
+\textbf{MSE Gradients}: $\frac{\partial}{\partial W} = \frac{2}{P}\sum(\hat{y}-y)\cdot X$, \quad $\frac{\partial}{\partial b} = \frac{2}{P}\sum(\hat{y}-y)$
 
 \textbf{Sigmoid}: $\sigma(t) = \frac{1}{1+e^{-t}}$
 
@@ -141,8 +151,6 @@ $\text{Output} = \left\lfloor \frac{W - F + 2P}{S} \right\rfloor + 1$
 \textbf{Softmax}: $\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$
 
 \textbf{Multi-class CE}: $-\frac{1}{P}\sum_p \log(\text{softmax prob of true class})$
-
-\textbf{Normal Equation}: $\mathbf{w} = (X^TX)^{-1}X^TY$
 
 \subsection{Logistic vs Softmax at a Glance}
 \begin{tabular}{@{}l|l|l@{}}
@@ -266,6 +274,376 @@ optimizer.step()       # update weights
 \end{lstlisting}
 
 \texttt{nn.CrossEntropyLoss}: input = raw logits (NOT softmax!)
+
+\end{multicols}
+
+\newpage
+
+% ================================================================
+% PAGE 3 --- PYTHON / PYTORCH LAB OPERATIONS CHEATSHEET
+% ================================================================
+\begin{multicols}{4}
+
+\section{NumPy Basics (Lab 1)}
+
+\subsection{Array Creation}
+\begin{lstlisting}
+import numpy as np
+a = np.array([1, 2, 3])
+z = np.zeros((2, 3))
+o = np.ones((3, 2))
+r = np.random.rand(2, 4)
+data = np.random.rand(100, 5)
+noise = np.random.normal(0, 0.2, size=(100,1))
+\end{lstlisting}
+
+\subsection{Array Attributes}
+\begin{lstlisting}
+a.shape   # (3,)
+a.dtype   # int64 / float64
+a.ndim    # number of dimensions
+\end{lstlisting}
+
+\subsection{Arithmetic \& Broadcasting}
+\begin{lstlisting}
+arr1 + arr2   # element-wise add
+arr1 * arr2   # element-wise multiply
+matrix + vector  # broadcasting
+matrix * 2       # scalar multiply
+matrix ** 2      # element-wise power
+\end{lstlisting}
+
+\subsection{Indexing \& Slicing}
+\begin{lstlisting}
+m[1, 2]      # single element
+m[1]         # row 1
+m[:, 2]      # column 2
+m[0:2, 0:2]  # submatrix
+\end{lstlisting}
+
+\subsection{Reshape \& Flatten}
+\begin{lstlisting}
+a.reshape(3, 4)
+a.reshape(2, 2, 3)
+a.flatten()
+\end{lstlisting}
+
+\subsection{Linear Algebra}
+\begin{lstlisting}
+A @ B           # matrix multiply
+A * B           # element-wise multiply
+v1 @ v2         # dot product
+matrix.T        # transpose
+np.linalg.inv(X.T @ X) @ X.T @ Y  # normal eq
+\end{lstlisting}
+
+\subsection{Normalization}
+\begin{lstlisting}
+means = np.mean(data, axis=0)
+stds = np.std(data, axis=0)
+normalized = (data - means) / stds
+\end{lstlisting}
+
+\subsection{Train/Test Split (Manual)}
+\begin{lstlisting}
+train = data[:80]
+test = data[80:]
+\end{lstlisting}
+
+\subsection{MSE \& Gradients}
+\begin{lstlisting}
+def mse(y_hat, y):
+    return (1/len(y)) * np.sum((y_hat-y)**2)
+
+def grad_w(X, y_hat, y):
+    return (2/len(y)) * np.sum((y_hat-y)*X)
+
+def grad_b(y_hat, y):
+    return (2/len(y)) * np.sum(y_hat - y)
+\end{lstlisting}
+
+\subsection{Training Loop (NumPy)}
+\begin{lstlisting}
+lr = 0.01
+for i in range(100):
+    y_hat = W * X + b
+    loss = mse(y_hat, y)
+    W -= lr * grad_w(X, y_hat, y)
+    b -= lr * grad_b(y_hat, y)
+\end{lstlisting}
+
+\section{PyTorch Fundamentals (Lab 2)}
+
+\subsection{Imports}
+\begin{lstlisting}
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import matplotlib.pyplot as plt
+torch.manual_seed(42)
+\end{lstlisting}
+
+\subsection{Data Prep}
+\begin{lstlisting}
+from sklearn.datasets import make_moons
+X, y = make_moons(n_samples=200, noise=0.2,
+                   random_state=42)
+
+# Convert to tensors
+X_train = torch.FloatTensor(X[:n_train])
+y_train = torch.LongTensor(y[:n_train])
+\end{lstlisting}
+
+\subsection{Define a Network (nn.Module)}
+\begin{lstlisting}
+class SimpleNN(nn.Module):
+    def __init__(self):
+        super(SimpleNN, self).__init__()
+        self.fc1 = nn.Linear(2, 8)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(8, 2)
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        return x
+
+model = SimpleNN()
+\end{lstlisting}
+
+\subsection{Forward Pass}
+\begin{lstlisting}
+sample = X_train[0].unsqueeze(0)
+output = model(sample)
+probs = torch.softmax(output, dim=1)
+\end{lstlisting}
+
+\subsection{Loss \& Optimizer Setup}
+\begin{lstlisting}
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+\end{lstlisting}
+
+\subsection{Training Loop (PyTorch)}
+\begin{lstlisting}
+for epoch in range(200):
+    optimizer.zero_grad()
+    outputs = model(X_train)
+    loss = criterion(outputs, y_train)
+    loss.backward()
+    optimizer.step()
+\end{lstlisting}
+
+\subsection{Evaluation}
+\begin{lstlisting}
+with torch.no_grad():
+    outputs = model(X_test)
+    predicted = torch.argmax(outputs, dim=1)
+    correct = (predicted == y_test).sum().item()
+    accuracy = correct / y_test.size(0)
+\end{lstlisting}
+
+\subsection{Custom Optimizer Pattern}
+\begin{lstlisting}
+from torch.optim import Optimizer
+
+class MyOptimizer(Optimizer):
+    def __init__(self, params, lr=0.01):
+        defaults = dict(lr=lr)
+        super().__init__(params, defaults)
+
+    def step(self, closure=None):
+        for group in self.param_groups:
+            for p in group['params']:
+                if p.grad is not None:
+                    p.data.add_(p.grad.data,
+                                alpha=-group['lr'])
+\end{lstlisting}
+
+\subsection{AdamW Internals}
+\begin{lstlisting}
+# 1st moment (mean of gradients)
+exp_avg.mul_(b1).add_(grad, alpha=1-b1)
+# 2nd moment (mean of squared gradients)
+exp_avg_sq.mul_(b2).addcmul_(grad, grad,
+                              value=1-b2)
+# Bias correction
+m_hat = exp_avg / (1 - b1**step)
+v_hat = exp_avg_sq / (1 - b2**step)
+# Decoupled weight decay
+p.mul_(1 - lr * weight_decay)
+# Update
+p.addcdiv_(m_hat, v_hat.sqrt().add_(eps),
+           value=-lr)
+\end{lstlisting}
+
+\subsection{Learning Rate Scheduler}
+\begin{lstlisting}
+scheduler = torch.optim.lr_scheduler.StepLR(
+    optimizer, step_size=50, gamma=0.1)
+
+# Inside training loop:
+    optimizer.step()
+    scheduler.step()
+\end{lstlisting}
+
+\section{CNN with PyTorch (Lab 3)}
+
+\subsection{Data Loading (FashionMNIST)}
+\begin{lstlisting}
+import torchvision
+import torchvision.transforms as transforms
+
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))
+])
+
+trainset = torchvision.datasets.FashionMNIST(
+    root='./data', train=True,
+    download=True, transform=transform)
+trainloader = torch.utils.data.DataLoader(
+    trainset, batch_size=32, shuffle=True)
+\end{lstlisting}
+
+\subsection{Device Setup}
+\begin{lstlisting}
+device = torch.device(
+    'cuda' if torch.cuda.is_available()
+    else 'cpu')
+model = model.to(device)
+# In loop:
+inputs = inputs.to(device)
+labels = labels.to(device)
+\end{lstlisting}
+
+\subsection{Conv Layers \& Blocks}
+\begin{lstlisting}
+nn.Conv2d(in_ch, out_ch, kernel_size=3,
+          padding=1)
+nn.ReLU()
+nn.MaxPool2d(kernel_size=2, stride=2)
+
+# VGG-style block
+block = nn.Sequential(
+    nn.Conv2d(64, 128, 3, padding=1),
+    nn.ReLU(),
+    nn.Conv2d(128, 128, 3, padding=1),
+    nn.ReLU(),
+    nn.MaxPool2d(2, 2)
+)
+\end{lstlisting}
+
+\subsection{Flatten for FC Layer}
+\begin{lstlisting}
+x = x.view(x.size(0), -1)  # flatten
+\end{lstlisting}
+
+\subsection{Classifier Head}
+\begin{lstlisting}
+classifier = nn.Sequential(
+    nn.Linear(512, 4096),
+    nn.ReLU(),
+    nn.Linear(4096, 4096),
+    nn.ReLU(),
+    nn.Linear(4096, 10)   # num classes
+)
+\end{lstlisting}
+
+\subsection{He (Kaiming) Initialization}
+\begin{lstlisting}
+import math
+def init_weights(m):
+    if isinstance(m, nn.Conv2d):
+        fan_in = (m.in_channels
+                  * m.kernel_size[0]
+                  * m.kernel_size[1])
+        std = math.sqrt(2.0 / fan_in)
+        m.weight.data.normal_(0, std)
+        if m.bias is not None:
+            m.bias.data.zero_()
+    elif isinstance(m, nn.Linear):
+        fan_in = m.in_features
+        std = math.sqrt(2.0 / fan_in)
+        m.weight.data.normal_(0, std)
+        if m.bias is not None:
+            m.bias.data.zero_()
+
+model.apply(init_weights)
+\end{lstlisting}
+
+\subsection{Full Training Loop (CNN)}
+\begin{lstlisting}
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(),
+                       lr=0.001)
+
+for epoch in range(10):
+    model.train()
+    running_loss = 0.0
+    n = 0
+    for inputs, labels in trainloader:
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item()
+        n += 1
+    print(f'Loss: {running_loss/n:.4f}')
+\end{lstlisting}
+
+\subsection{Evaluation (Overall)}
+\begin{lstlisting}
+model.eval()
+correct = 0; total = 0
+with torch.no_grad():
+    for inputs, labels in testloader:
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+        outputs = model(inputs)
+        _, pred = torch.max(outputs, 1)
+        total += labels.size(0)
+        correct += (pred == labels).sum().item()
+acc = 100 * correct / total
+\end{lstlisting}
+
+\subsection{Per-Class Accuracy}
+\begin{lstlisting}
+class_correct = [0] * 10
+class_total = [0] * 10
+with torch.no_grad():
+    for inputs, labels in testloader:
+        outputs = model(inputs.to(device))
+        _, pred = torch.max(outputs, 1)
+        c = (pred == labels.to(device))
+        for i in range(len(labels)):
+            l = labels[i].item()
+            class_correct[l] += c[i].item()
+            class_total[l] += 1
+\end{lstlisting}
+
+\subsection{Visualize Images}
+\begin{lstlisting}
+images, labels = next(iter(trainloader))
+img = images[0] * 0.5 + 0.5  # unnormalize
+npimg = img.numpy().squeeze()
+plt.imshow(npimg, cmap='gray')
+\end{lstlisting}
+
+\subsection{Plotting Loss}
+\begin{lstlisting}
+plt.plot(losses)
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Training Loss')
+plt.show()
+\end{lstlisting}
 
 \end{multicols}
 \end{document}
