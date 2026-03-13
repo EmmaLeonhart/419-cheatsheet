@@ -1,0 +1,166 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\pagestyle{plain}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+\titleformat{\section}{\bfseries\Large}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\bfseries\large}{}{0em}{}
+\titlespacing{\section}{0pt}{10pt}{6pt}
+\titlespacing{\subsection}{0pt}{6pt}{3pt}
+
+\title{\textbf{COSC 419 --- Study Notes}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% ==============================================================
+\section{Foundational Regression and Classification}
+% ==============================================================
+
+\textbf{Linear Regression vs.\ Logistic Regression:}
+Linear regression is linear. Logistic regression is a sigmoid classifier.
+
+% ==============================================================
+\section{Loss Functions}
+% ==============================================================
+
+\subsection{Step Loss}
+Bad to use because it is not differentiable.
+
+\subsection{MSE (Mean Squared Error)}
+Doesn't penalize wrong classification answers well enough (does penalize outlier numerical answers decently).
+
+\subsection{Sigmoid}
+An activation function that squashes inputs into a range between 0 and 1, often used in binary classification. It is prone to saturation, which causes vanishing gradients in deep networks.
+
+\subsection{Cross-Entropy}
+A log-based loss function that penalizes incorrect classifications harshly, with the cost approaching infinity as the predicted probability for the true class approaches zero.
+
+\subsection{Relation between Cross-Entropy and Softmax}
+Softmax is the activation function that turns raw scores (logits) into a probability distribution summing to 1. Cross-Entropy is the loss function that measures the distance between that distribution and the one-hot encoded true label.
+
+% ==============================================================
+\section{Regularization Techniques}
+% ==============================================================
+
+\subsection{L1 Regularization}
+Adds the sum of absolute weights to the loss; it promotes sparsity, effectively performing feature selection by shrinking unimportant weights to exactly zero.
+
+\subsection{L2 Regularization (Weight Decay)}
+Adds the sum of squared weights to the loss; it prefers spreading weight evenly across all features, which improves stability and handles correlated features better than L1.
+
+\subsection{Elastic Net}
+Combines L1 and L2 using separate constants to balance sparsity and stability.
+
+\subsection{Dropout}
+Randomly sets neurons to zero each forward pass. Forces redundant learning.
+
+\subsection{Batch Normalization}
+Normalizes layer inputs using mini-batch mean and variance. It stabilizes training, allows for higher learning rates, and reduces internal covariate shift.
+
+% ==============================================================
+\section{Optimization Algorithms}
+% ==============================================================
+
+\subsection{Full-batch Gradient Descent}
+Uses the entire dataset to compute one gradient update. Smooth loss and expensive.
+
+\subsection{Mini-batch SGD}
+Computes updates using a subset of the data, and updates based on a noisy estimate of the true gradient.
+
+\subsection{SGD + Momentum}
+SGD that has ``momentum'' that lets it move over some local minima.
+
+\subsection{AdaGrad}
+An adaptive algorithm that scales the learning rate for each parameter based on historical squared gradients.
+
+\subsection{RMSProp}
+A variation of AdaGrad that uses a moving average of squared gradients to prevent the learning rate from shrinking too quickly.
+
+\subsection{Adam}
+Combination of Momentum and RMSProp; it is often faster than standard SGD and handles sparse gradients well.
+
+\subsection{AdamW}
+Decouples weight decay from gradient updates in Adam.
+
+% ==============================================================
+\section{Multi-Layer Perceptrons (MLP)}
+% ==============================================================
+
+\textbf{Feature Transforms:} The process of projecting data into a new geometric space where previously inseparable data becomes linearly separable.
+
+\textbf{Non-linearity:} Activation functions like ReLU or Sigmoid stop it from being linear, letting it learn more.
+
+\textbf{Forward Pass:} Applying the weights in order through the neural network to make a prediction.
+
+\textbf{Backpropagation:} Applying the chain rule to compute the partial derivative of the loss with respect to every weight, allowing for model updates.
+
+All nodes are connected on each layer. Lots of sources means overfitting is a big risk.
+
+% ==============================================================
+\section{Convolutional Neural Networks (CNN)}
+% ==============================================================
+
+\subsection{CNN vs.\ MLP}
+CNNs use weight sharing and locality (receptive fields) to handle spatial data efficiently, whereas MLPs are fully connected and require a unique parameter for every single input-output connection.
+
+\subsection{Different Components}
+Includes Convolutional layers for feature extraction, Pooling layers (Max/Average) for downsampling, and Fully Connected layers for the final classification.
+
+\subsection{Calculations of Tensor Dimensions}
+The size of a feature map is calculated as:
+\[
+\text{Output} = \left\lfloor \frac{W - F + 2P}{S} \right\rfloor + 1
+\]
+where $W$ is input size, $F$ is filter size, $P$ is padding, and $S$ is stride.
+
+% ==============================================================
+\section{CNN Architectures}
+% ==============================================================
+
+\begin{itemize}[nosep]
+  \item \textbf{AlexNet} (2012) --- ReLU over tanh, 6$\times$ faster training
+  \item \textbf{VGG} (2014) --- 3$\times$3 filters, more depth (19 layers)
+  \item \textbf{GoogLeNet} (2014) --- Inception modules with parallel paths
+  \item \textbf{ResNet} (2015) --- Introduced Skip Connections to solve vanishing gradients in very deep (152-layer) networks
+  \item \textbf{ConvNeXt} (2022) --- Outcompetes transformers sometimes
+\end{itemize}
+
+% ==============================================================
+\section{Training Your Neural Network}
+% ==============================================================
+
+\subsection{Activation Functions}
+ReLU is the default for CNNs; Leaky ReLU fixes ``Dying ReLU'' (neurons stuck at 0); Sigmoid is reserved for output layers in binary tasks. ReLU is good because it is ``jagged'' across time.
+
+\subsection{Weight Initialization}
+He initialization is used for ReLU networks, double the variance of Xavier to make up for ReLU jaggedness; Xavier initialization is used for Sigmoid/Tanh to keep activation scales stable.
+
+\subsection{Choosing Hyperparameters}
+Key ``knobs'' include learning rate (most important), batch size, and weight decay (L2 regularization).
+
+% ==============================================================
+\section{Recurrent Neural Networks (RNN)}
+% ==============================================================
+
+\subsection{Language Modeling}
+The task of predicting the next word or character in a sequence based on previous context.
+
+\subsection{Sequence-to-Sequence}
+An encoder-decoder framework used for tasks like translation, where one RNN compresses the input and another generates the output.
+
+\subsection{RNN vs.\ LSTM}
+Standard RNNs struggle with vanishing gradients over long sequences. LSTMs solve this using a Cell State (long-term memory highway) and gates (Forget, Input, Output) to regulate information flow.
+
+\end{document}

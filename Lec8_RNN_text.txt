@@ -1,0 +1,1292 @@
+1
+Dr. Mohamed Shehata
+Computer Science
+University of British Columbia
+COSC419/519:DEEP LEARNING
+Recurrent Neural Networks (RNN)
+
+---PAGE---
+2
+The Problem of Sequential Data
+▪Standard Feed-Forward NNs assume inputs and outputs are 
+fixed-size tensors
+▪In reality, data can be sequential and variable in length:
+▪NLP: Sentences of varying word counts
+▪Time-Series: Stock prices over arbitrary timeframes
+▪Core failure of FFNNs: Lack of memory 
+▪Processing 𝑥𝑡happens independently of 𝑥𝑡−1
+▪This means the model is memoryless, i.e. it has no 
+memory of anything before.
+• sometimes long-distance context can be important such as 
+in the context of NLP (you need the past words to 
+understand the current one)
+
+---PAGE---
+3
+Language Modeling (LM)
+▪Language Modeling is foundational task of predicting the next 
+word.
+▪Given a sequence of words: 𝑥1, … , 𝑥𝑡
+▪Task: Compute the probability distribution of the next word 𝑥𝑡+1
+▪Mathematically: 𝑃𝑥𝑡+1 𝑥1, … , 𝑥𝑡)
+▪Vocabulary V is a predefined finite set of discrete tokens.
+▪Any sequence probability can be factored completely:
+▪To evaluate the joint likelihood of an entire sentence, we 
+multiply conditional probabilities.
+𝑃𝑥1, … , 𝑥𝑇= ෑ
+𝑡=1
+𝑇
+𝑃𝑥𝑡
+𝑥1, … , 𝑥𝑡−1
+▪Thus, an accurate LM allows us to score the fluency of any 
+sequence.
+
+---PAGE---
+4
+Evaluating LMs: Perplexity
+▪In NLP, we evaluate Language Models using Perplexity.
+▪Perplexity is the inverse probability of the corpus, normalized by 
+the number of words.
+▪corpus is a large, structured dataset of text or spoken 
+language (e.g., the complete works of Shakespeare)
+▪It is equivalent to the exponentiation of the Cross-Entropy loss:
+Perplexity = exp 𝐽𝜃
+where 𝐽𝜃: The loss function (typically cross-entropy) parameterized by 𝜃
+▪Lower perplexity indicates the model is less 'confused' by test 
+data.
+
+---PAGE---
+5
+Traditional Approach: n-gram LMs
+▪An n-gram is a consecutive chunk of n tokens.
+▪To simplify, we make a Markov assumption:
+▪𝑥𝑛depends ONLY on the preceding (𝑛−1) words.
+▪Example (4-gram LM): 𝑃𝑤4 𝑤1, 𝑤2, 𝑤3 .
+▪We calculate probabilities via Maximum Likelihood Estimation 
+(MLE) based on raw corpus counts.
+
+---PAGE---
+6
+Transitioning to Neural Language Models
+▪Idea: Learn distributed, dense representations (embeddings) of 
+words.
+▪Instead of exact string matching, neural nets map tokens to a 
+continuous geometric space.
+▪This solves the sparsity problem: similar words yield similar 
+vectors.
+▪More on this when we talk about attention and transformers
+
+---PAGE---
+7
+Fixed-Window Neural LM 
+(Bengio et al., 2003)
+▪Input: A fixed window of previous words (e.g., 4 words).
+▪Step 1: Convert each word to dense vector embedding: 
+𝒆= 𝒆𝟏; 𝒆𝟐; 𝒆𝟑; 𝒆𝟒
+▪Step 2: Feed through non-linear hidden layer: 
+𝒉= 𝒇𝑾∗𝒆+ 𝒃𝟏
+▪Step 3: Output layer with softmax: 
+ොy = 𝒔𝒐𝒇𝒕𝒎𝒂𝒙𝑼∗𝒉+ 𝒃𝟐
+U is the weight matrix of the output layer and h is hidden layer
+▪Output: A dense probability distribution over |𝑉|
+
+---PAGE---
+8
+The Asymmetry Problem
+▪The "Fixed-Window" approach is inefficient: it treats the exact 
+same word differently just because it appears in a different spot 
+in the sentence. This is known as The Asymmetry Problem.
+▪In this model, the large weight matrix 𝑊is essentially chopped 
+into sections (sub-matrices). 
+▪Position 1 (𝑒1) is multiplied by 𝑊1 .Position 2 (𝑒2) is multiplied 
+by 𝑊2 . Even if the word "apple" appears in both positions, the 
+math used to process it is completely different because 𝑊1
+and 𝑊2 are separate sets of numbers. 
+▪There is NO parameter sharing across time steps.
+▪The window is rigidly fixed.
+▪If the subject of a sentence was mentioned 10 words ago, and 
+window size is 5, the model has literally zero mathematical 
+access to the subject.
+▪Expanding the window size substantially increases parameter 
+counts.
+
+---PAGE---
+9
+Core Design Requirements for Sequence Models
+▪To process language properly, our architecture MUST possess:
+▪Ability to handle variable-length sequences dynamically.
+▪Capacity to track long-term dependencies (arbitrary history 
+size).
+▪Maintenance of sequential order.
+▪Parameter sharing across the sequence (position-invariant 
+rules).
+
+---PAGE---
+10
+RNN
+
+---PAGE---
+11
+Recurrent Neural Network (RNN)
+▪The RNN is an architecture designed specifically to fulfill all 
+sequence requirements.
+▪Core concept: Introduce a Hidden State ℎ𝑡that evolves over 
+time.
+▪The network applies a continuous recurrence formula at every 
+discrete time step.
+▪Crucially, the exact same weights are reused at every single 
+step 𝒕.
+
+---PAGE---
+12
+The Concept of the Hidden State
+▪At every time step 𝑡, the RNN computes a hidden state vector ℎ𝑡
+▪ℎ𝑡is a function of the current input x𝑡AND the previous hidden state ℎ𝑡−1
+▪Therefore, ℎ𝑡theoretically contains information from x𝑡, x𝑡−1, … , back to x1
+▪ℎ𝑡acts as the network internal short-term memory
+Key idea: RNNs have an 
+“internal state” that is 
+updated as a sequence is 
+processed
+
+---PAGE---
+13
+Vanilla RNN: Formal Equations
+▪At each timestep t, the network computes hidden state 𝒉𝒕 and output ොyt
+𝒉𝒕=𝒇𝒘(𝒉𝒕−𝟏 , 𝒙𝒕)
+ෝ𝒚𝒕= 𝒇𝒘𝒚 𝒉𝒕
+Example:
+𝒉𝒕= 𝒕𝒂𝒏𝒉𝑾𝒉𝒉∗𝒉𝒕−𝟏+ 𝑾𝒙𝒉∗𝒙𝒕+ 𝒃𝒉
+ෝ𝒚𝒕=  𝒔𝒐𝒇𝒕𝒎𝒂𝒙𝑾𝒚∗ 𝒉𝒕+ 𝒃𝒚
+𝑥𝑡: Input vector at time t.
+ℎ𝑡: Hidden state vector representing accumulated context.
+𝑊ℎℎ, 𝑊𝑥ℎ, 𝑊𝑦: Learnable shared weight matrices.
+new state
+a function with
+parameters W
+input vector at 
+time step t
+Old state
+output
+new state
+another
+function with
+parameters 𝒘𝒚
+𝑾𝒚
+𝑾𝒉𝒉
+𝑾𝒙𝒉
+Sometimes called a “Vanilla RNN” or an “Elman RNN” after Prof. Jeffrey Elman
+
+---PAGE---
+14
+Dimensionality of RNN Parameters
+▪Let 𝒅 = embedding size, 𝑫𝒉 = hidden state size.
+𝑥𝑡 is a vector in 𝑑× 1
+𝑊𝑥ℎ is a matrix in 𝑅𝐷ℎ×𝑑
+𝑊ℎℎ is a matrix in 𝑅𝐷ℎ×𝐷ℎ
+𝑊𝑦 is a matrix in 𝑅|𝑉|×𝐷ℎ
+▪Total parameter count is strictly bounded, completely independent of 
+sequence length T.
+
+---PAGE---
+15
+RNN Design Patterns
+▪One-to-Many: Image Captioning (Image -> Text sequence).
+▪input image, output: [A man sitting on a chair]
+▪Many-to-One: Sentiment Analysis (Sequence -> Single label).
+▪input “The food experience was fantastic“, output: [positive]
+▪Many-to-Many (Aligned): e.g., Part-of-Speech (POS) Tagging
+▪input "The black cat jumped“, output: [Article, Adjective, Noun, Verb]
+▪Many-to-Many (Seq2Seq): Machine Translation (Encoder-Decoder framework). 
+▪input "I love cats“ [length=3], output: “J'aime les chats” [length=4]
+
+---PAGE---
+16
+Unrolling the RNN
+▪To conceptualize how an RNN processes a sequence, we 'unroll' it in time.
+▪An unrolled RNN resembles a standard deep feed-forward network, where 
+the 'depth' is the sequence length T.
+▪Nodes represent time steps, and edges represent the flow of data via 𝑊.
+▪This visualization is critical to understand backpropagation.
+▪The weights and biases are shared between all time steps
+𝑾𝒉𝒉
+𝑾𝒉𝒉
+𝑾𝒙𝒉
+𝑾𝒙𝒉
+𝑾𝒙𝒉
+𝑾𝒚
+𝑾𝒚
+𝑾𝒚
+𝒉𝒕=𝒇𝒘(𝒉𝒕−𝟏 , 𝒙𝒕)
+ෝ𝒚𝒕= 𝒇𝒘𝒚 𝒉𝒕
+
+---PAGE---
+17
+Forward Pass Dynamics
+▪Let's trace the forward pass step-by-step.
+▪Initialize ℎ0(usually as a vector of zeros).
+▪At 𝒕= 𝟏: 𝒉𝟏= tanh 𝑾𝒉𝒉∗ 𝒉𝟎+ 𝑾𝒙𝒉∗ 𝒙𝟏
+▪At 𝒕= 𝟐: 𝒉𝟐= tanh 𝑾𝒉𝒉∗ 𝒉𝟏+ 𝑾𝒙𝒉∗ 𝒙𝟐
+▪And so on…
+Notice the composition of functions: 𝒉𝟐 contains information embedded from 
+𝒙𝟐 𝒂𝒏𝒅 𝒙𝟏(via 𝒉𝟏)
+𝑾𝒉𝒉
+𝑾𝒉𝒉
+𝑾𝒙𝒉
+𝑾𝒙𝒉
+𝑾𝒙𝒉
+𝑾𝒚
+𝑾𝒚
+𝑾𝒚
+Ignore bias 𝑏
+
+---PAGE---
+18
+Simple RNN Example
+▪This one sums its inputs:
+assume the activation function to be the identity function 
+(meaning no non-linearity is applied) and the biases are zero
+
+---PAGE---
+19
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+x3
+…
+x2
+x1
+RNN: Computational Graph
+RNN: Computational Graph
+hT
+
+---PAGE---
+20
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+x3
+…
+x2
+x1
+W
+RNN: Computational Graph
+RNN: Computational Graph
+Re-use the same weight matrix at every time-step
+hT
+
+---PAGE---
+21
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+x3
+yT
+…
+x2
+x1
+W
+RNN: Computational Graph: Many to Many
+RNN: Computational Graph: Many to Many
+hT
+y3
+y2
+y1
+
+---PAGE---
+22
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+x3
+yT
+…
+x2
+x1
+W
+RNN: Computational Graph: Many to Many
+RNN: Computational Graph: Many to Many
+hT
+y3
+y2
+y1
+L1
+L2
+L3
+LT
+
+---PAGE---
+23
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+x3
+yT
+…
+x2
+x1
+W
+RNN: Computational Graph: Many to Many
+hT
+y3
+y2
+y1
+L1
+L2
+L3
+LT
+L
+𝐽𝜃= 1
+T ෍
+𝑡=1
+𝑇
+𝐽𝑡𝜃
+𝐽𝑡𝜃= −෍
+𝑗=1
+|V|
+𝑦𝑡,𝑗log ො𝑦𝑡,𝑗
+
+---PAGE---
+24
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+x3
+y
+…
+x2
+x1
+W
+RNN: Computational Graph: Many to One
+RNN: Computational Graph: Many to One
+hT
+Standard Many-to-One
+𝐽𝜃= −෍
+𝑗=1
+|V|
+𝑦𝑗log ො𝑦𝑗 where ො𝑦𝑗=  𝑠𝑜𝑓𝑡𝑚𝑎𝑥𝑊𝑦∗ ℎT + 𝑏𝑦
+
+---PAGE---
+25
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+x3
+y
+…
+x2
+x1
+W
+RNN: Computational Graph: Many to One
+RNN: Computational Graph: Many to One
+Lecture 7
+-
+47
+Stanford CS231n 10th
+Anniversary
+hT
+April 22, 2025
+Global/Pooling Many-to-One
+𝐽𝜃= −෍
+𝑗=1
+|V|
+𝑦𝑗log ො𝑦𝑗 where ො𝑦𝑡=  𝑠𝑜𝑓𝑡𝑚𝑎𝑥𝑊𝑦∗ Aggregate(ℎ1. . . ℎ𝑇) + 𝑏𝑦
+Practical Example: Sentiment Analysis:
+Imagine the sentence: "The movie was not actually that good.“
+In a standard model, if ℎ𝑇 focuses only on the word "good," it might predict Positive. 
+In this model, the direct arrow from ℎ4 (representing the word "not") helps the final output 𝑦 capture 
+the negation immediately, leading to a correct Negative prediction
+
+---PAGE---
+26
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+yT
+…
+x
+W
+RNN: Computational Graph: One to Many
+RNN: Computational Graph: One to Many
+hT
+y3
+y2
+y1
+
+---PAGE---
+27
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+yT
+…
+x
+W
+RNN: Computational Graph: One to Many
+RNN: Computational Graph: One to Many
+hT
+y3
+y2
+y1
+?
+?
+?
+
+---PAGE---
+28
+yT-1
+h0
+fW
+h1
+fW
+h2
+fW
+h3
+yT
+…
+x
+W
+RNN: Computational Graph: One to Many
+RNN: Computational Graph: One to Many
+hT
+y3
+y2
+y1
+y1
+y2
+L
+L1
+LT
+L2
+L3
+𝐽𝜃= 1
+T ෍
+𝑡=1
+𝑇
+𝐽𝑡𝜃
+𝐽𝑡𝜃= −෍
+𝑗=1
+|V|
+𝑦𝑡,𝑗log ො𝑦𝑡,𝑗
+
+---PAGE---
+29
+Language Modeling
+▪This is one way to use RNNs as a language model
+▪Each word is represented as an embedding vector, the model predicts a 
+distribution, and we can train it with cross-entropy loss.
+▪During the Training Phase of a Language Model, we use a Many-to-Many 
+architecture.
+▪We give the model all the correct words as inputs (Teacher Forcing) and 
+ask it to predict the next ones.
+▪This model can learn long-distance dependencies.
+
+---PAGE---
+30
+Language Modeling-Generation
+▪When we generate from the model (i.e. compute samples from 
+its distribution over sentences), the outputs feed back into the 
+network as inputs.
+▪This is One-to-Many. We give it one word, and it must use its 
+own previous predictions as the next inputs to "dream" up a 
+sentence.
+
+---PAGE---
+31
+A more practical 
+example: 
+Character-level 
+Language Model
+Vocabulary: 
+[h,e,l,o]
+Example training 
+sequence: “hello”
+Character-level Language Model
+
+---PAGE---
+32
+A more practical 
+example: 
+Character-level 
+Language Model
+Vocabulary: 
+[h,e,l,o]
+Example training 
+sequence: 
+“hello”
+
+---PAGE---
+33
+Vocabulary:
+[h,e,l,o]
+At test-time sample characters 
+one at a time, feed back to
+model
+.03
+.84
+.00
+.13
+Softmax
+“e
+”
+“l”
+.25
+.20
+.05
+.50
+“l”
+“o
+”
+.11
+.11
+.17
+.02
+.68
+.08
+.03
+.79
+Sample
+
+---PAGE---
+34
+.03
+.84
+.00
+.13
+Softmax
+“e
+”
+“l”
+.25
+.20
+.05
+.50
+“l”
+“o
+”
+.11
+.11
+.17
+.02
+.68
+.08
+.03
+.79
+Sample
+Vocabulary:
+[h,e,l,o]
+At test-time sample characters 
+one at a time, feed back to
+model
+
+---PAGE---
+35
+.03
+.84
+.00
+.13
+.25
+.20
+.50
+.05
+Softmax
+“e
+”
+“l”
+“l”
+“o
+”
+.11
+.11
+.17
+.02
+.68
+.08
+.03
+.79
+Sample
+Vocabulary:
+[h,e,l,o]
+At test-time sample characters 
+one at a time, feed back to
+model
+
+---PAGE---
+36
+.03
+.84
+.00
+.13
+.25
+.20
+.50
+.05
+.11
+.17
+.68
+.03
+.11
+.02
+.08
+.79
+Softmax
+“e
+”
+“l”
+“l”
+“o
+”
+Sample
+Vocabulary:
+[h,e,l,o]
+At test-time sample characters 
+one at a time, feed back to
+model
+
+---PAGE---
+37
+[w11 w12 w13 w14] [1]
+[w11] 
+[w21 w22 w23 w14] [0] = [w21]
+[w31 w32 w33 w14] [0] 
+[w41 w42 w43 w44][0]
+[w31]
+[w41]
+Matrix multiplication with a one-hot vector 
+just extracts a column from the weight matrix. 
+We often put a separate embedding layer 
+between the input and hidden layers.
+.03
+.13
+.00
+.84
+.25
+.20
+.05
+.50
+.11
+.17
+.68
+.03
+.11
+.17
+.68
+.03
+Embedding
+layer
+
+---PAGE---
+38
+From Geoff Hinton’s course, an example of a paragraph generated by an RNN
+language model one character at a time:
+He was elected President during the Revolutionary War and
+forgave Opus Paul at Rome. The regime of his crew of England,
+is now Arab women's icons in and the demons that use something
+between the characters‘ sisters in lower coil trains were always
+operated on the line of the ephemerable street, respectively, the
+graphic or other facility for deformation of a given proportion of
+large segments at RTUS). The B every chord was a "strongly cold
+internal palette pour even the white blade.”
+J. Martens and I. Sutskever, 2011. Learning recurrent neural networks with Hessian-free optimization.
+http://machinelearning.wustl.edu/mlpapers/paper_files/ICML2011Martens_532.pdf
+
+---PAGE---
+39
+From example to train an RNN to write like William Shakespeare, an example of a 
+paragraph generated by an RNN language model one character at a time:
+
+---PAGE---
+40
+Training RNN
+
+---PAGE---
+41
+Training an RNN: Sequence Cross-Entropy
+▪At each time step t, the model outputs a probability distribution ෝ𝒚𝒕.
+▪The true target 𝑦𝑡 is a one-hot vector representing the actual next word.
+▪We compute the Cross-Entropy Loss at each time step:
+𝐽𝑡𝜃= −෍
+𝑗=1
+|V|
+𝑦𝑡,𝑗log ො𝑦𝑡,𝑗
+▪The total Cross-Entropy Loss calculation changes depending on the 
+architecture.
+▪To train the network, we minimize 𝐽𝜃by updating weight matrices 
+𝑊ℎℎ, 𝑊𝑥ℎ, 𝑊𝑦
+
+---PAGE---
+42
+Backpropagation Through Time (BPTT)
+▪Because parameters are shared across time, a loss at time t depends on the 
+hidden state at time t, which depends on t-1, and so on.
+▪We must backpropagate the error signal backwards through the unrolled 
+temporal graph.
+▪This specific application of backpropagation is called Backpropagation 
+Through Time (BPTT).
+Loss
+
+---PAGE---
+43
+BPTT: The Multivariate Chain Rule
+▪If a variable depends on multiple intermediate paths, its 
+derivative is the sum of the derivatives along all paths.
+▪In an RNN, the matrix 𝑊ℎℎ is used at step 1, step 2, ..., step t.
+▪To find the effect of 𝑊ℎℎ on the loss at time 𝑡, we must sum its 
+contributions from EVERY preceding time step 𝑗.
+▪Since 𝑗= σ 𝑗𝑡 , the total derivative w.r.t 𝑊ℎℎ is:
+▪Let's isolate a single timestep loss, 𝐽𝑡, and see how it affects 
+𝑊ℎℎ.
+𝜕𝐽
+𝜕𝑊ℎℎ
+= ෍
+𝑡=1
+𝑇
+𝜕𝐽𝑡
+𝜕𝑊ℎℎ
+
+---PAGE---
+44
+BPTT: (Chain Rule Expansion)
+▪𝐽𝑡depends on ℎ𝑡. But ℎ𝑡 depends on 𝑊ℎℎAND ℎ𝑡−1
+▪ℎ𝑡−1 depends on 𝑊ℎℎAND ℎ𝑡−2 and so on.
+▪Applying the multivariate chain rule:
+𝜕𝐽𝑡
+𝜕𝑊ℎℎ
+= ෍
+𝑘=1
+𝑡
+𝜕𝐽𝑡
+𝜕ℎ𝑡
+𝜕ℎ𝑡
+𝜕ℎ𝑘
+𝜕ℎ𝑘
+𝜕𝑊ℎℎ
+σ𝑘=1
+𝑡
+ This represents summing the contributions from every preceding time step k up to the current step t
+𝜕ℎ𝑡
+𝜕ℎ𝑘 This term accounts for the "hidden-to-hidden" chain of dependencies through time
+Bengio et al, “Learning long-term dependencies with gradient descent is difficult”, IEEE Transactions on Neural Networks, 1994
+Pascanu et al, “On the difficulty of training recurrent neural networks”,ICML 2013
+
+---PAGE---
+45
+The Critical Term: The Jacobian
+▪In the BPTT equation, the most important term is the Jacobian 
+matrix: 
+𝜕ℎ𝑡
+𝜕ℎ𝑘.
+▪This matrix (size 𝐷ℎ× 𝐷ℎ) measures how a small change in the 
+hidden state at past time k affects the state at future time t.
+▪This term dictates whether the network can remember long-term 
+context.
+
+---PAGE---
+46
+Why the Jacobian Matters
+▪If  
+𝜕ℎ𝑡
+𝜕ℎ𝑘 is very small (approaches 0), the loss 𝐽𝑡 provides no 
+gradient signal to update weights for time k
+▪The network suffers from 'amnesia'
+▪If 
+𝜕ℎ𝑡
+𝜕ℎ𝑘 is very large, the gradient signal explodes
+
+---PAGE---
+47
+Expanding the Jacobian
+▪Because state transitions are sequential, this derivative is 
+expanded via the chain rule as a product of consecutive 
+Jacobians:
+𝜕ℎ𝑡
+𝜕ℎ𝑘
+= ෑ
+𝑗=𝑘+1
+𝑡
+𝜕ℎ𝑗
+𝜕ℎ𝑗−1
+
+---PAGE---
+48
+The Local Derivative (dh_j / dh_j-1)
+▪Recall ℎ𝑗= tanh 𝑊ℎℎℎ𝑗−1 + 𝑊𝑥ℎ 𝑥𝑗+ 𝑏
+▪Taking the derivative w.r.t ℎ𝑗−1:
+𝜕ℎ𝑗
+𝜕ℎ𝑗−1
+= [𝑑𝑖𝑎𝑔 𝑓′ 𝑧𝑗
+] ∗ 𝑊ℎℎ
+Where 𝑓′ is the derivative of tanh, and 𝑑𝑖𝑎𝑔() turns the vector into 
+a diagonal matrix.
+
+---PAGE---
+49
+The Tanh Derivative
+▪The derivative of tanh(𝑥) is: 1 −tanh2 𝑥
+▪The maximum value of this derivative is exactly 1 (when 𝒙 =  𝟎).
+▪For all other values of 𝑥, the derivative is strictly less than 1.
+▪Keep this bounding characteristic in mind.
+𝜕ℎ𝑗
+𝜕ℎ𝑗−1
+= [diag 1 −tanh2 𝑊ℎℎℎ𝑗−1 + 𝑊ℎ𝑥𝑥𝑗+ 𝑏
+ ] ∗ 𝑊ℎℎ
+
+---PAGE---
+50
+Repeated Multiplication
+▪Substituting back into our product series:
+𝜕ℎ𝑡
+𝜕ℎ𝑘
+= ෑ
+𝑗=𝑘+1
+𝑡
+[𝑑𝑖𝑎𝑔 𝑓′ 𝑧𝑗
+] ∗ 𝑊ℎℎ
+▪We are multiplying the EXACT SAME weight matrix 𝑊ℎℎ repeatedly (𝑡 − 𝑘 
+times).
+▪What happens when you multiply a matrix by itself N times?
+
+---PAGE---
+51
+Spectral Radius Theory
+▪The behavior of 𝑊ℎℎ
+𝒕−𝒌 is governed by the eigenvalues of 
+𝑊ℎℎ
+▪Let 𝜆𝑚𝑎𝑥 be the largest eigenvalue (spectral radius)
+▪Theorem (Pascanu et al., 2013):
+▪If 𝜆𝑚𝑎𝑥 < 1, is sufficient for gradients exponentially vanish.
+▪If 𝜆𝑚𝑎𝑥 > 1, is necessary for gradients exponentially explode.
+
+---PAGE---
+52
+The Exploding Gradient
+▪If 𝜆𝑚𝑎𝑥 > 1, the product (𝜆𝑚𝑎𝑥)𝑡−𝑘 grows exponentially to infinity.
+▪When gradients explode and the optimization surface contains 
+steep cliffs −> Model becomes unstable and "crashes".
+
+---PAGE---
+53
+Numerical Example: Exploding Gradients
+▪Model a simplified scalar RNN over 𝑻 =  𝟓𝟎 steps.
+▪Assume the effective weight | 𝑾| =  𝟏. 𝟓
+▪Recall:
+𝜕𝐽𝑡
+𝜕𝑊ℎℎ
+= ෍
+𝑘=1
+𝑡
+𝜕𝐽𝑡
+𝜕ℎ𝑡
+𝜕ℎ𝑡
+𝜕ℎ𝑘
+𝜕ℎ𝑘
+𝜕𝑊ℎℎ
+𝜕ℎ𝑡
+𝜕ℎ𝑘
+≤ෑ
+𝑗=𝑘+1
+𝑡
+𝑑𝑖𝑎𝑔 𝑓′ 𝑧𝑗
+∗
+𝑊ℎℎ
+▪The bound of 
+𝜕ℎ𝑡
+𝜕ℎ𝑘 is entirely driven by: 𝑊ℎℎ
+𝒕−𝒌
+▪Gradient scaling over 50 steps: 𝑊ℎℎ
+𝒕−𝒌= 1.550 ≅637,621,500.
+▪Recall:
+ New Weight = 𝑂𝑙𝑑 𝑊𝑒𝑖𝑔ℎ𝑡−(𝐿𝑒𝑎𝑟𝑛𝑖𝑛𝑔 𝑅𝑎𝑡𝑒 ×  Gradient)
+▪If your gradient is 637 million and your learning rate is 0.01, your weight 
+change is multiplied by 6.37 million. 
+▪This massive jump moves the weights so far away from their optimal values 
+that the model becomes mathematically "broken“ → Weights are instantly 
+destroyed.
+
+---PAGE---
+54
+Symptoms of Exploding Gradients
+▪Model weights become NaN (Not a Number) due to floating-
+point overflow.
+▪Loss immediately diverges to infinity.
+▪Training process crashes abruptly.
+
+---PAGE---
+55
+The Vanishing Gradient
+▪If 𝜆𝑚𝑎𝑥 < 1, the product (𝜆𝑚𝑎𝑥)𝑡−𝑘 shrinks exponentially to 0.
+▪Vanishing gradients are insidious. The model doesnot crash but 
+it just fails to learn.
+▪Early layers (early time steps) receive effectively zero gradient 
+update.
+
+---PAGE---
+56
+Numerical Example: Vanishing Gradients
+▪Model a simplified scalar RNN over 𝑻 =  𝟓𝟎 steps.
+▪Assume the effective weight | 𝑾| =  0. 𝟓
+▪Gradient scaling over 50 steps: 𝑊ℎℎ
+𝒕−𝒌= 0.550 ≅8.88 x 10−16.
+▪Floating-point precision treats this as absolute zero.
+▪Step 𝑇= 1 receives absolutely no learning signal from the loss 
+at step 50.
+
+---PAGE---
+57
+Symptoms of Vanishing Gradients
+▪The model performs well on short sequences but fails on length 
+20+.
+▪In text generation, the model produces locally fluent text but 
+loses the overarching topic entirely.
+▪The RNN effectively acts as a short-window n-gram model.
+
+---PAGE---
+58
+Fixing Exploding Gradients: Gradient Clipping
+▪Exploding gradients are mathematically severe but easy to fix 
+heuristically.
+▪Solution: Gradient Clipping (Pascanu et al., 2012).
+▪Algorithm: Compute the L2 norm of the gradient vector ||𝑔||
+▪If ||𝑔|| >  𝑡ℎ𝑟𝑒𝑠ℎ𝑜𝑙𝑑, scale it down:
+𝑔 = 𝑔 ∗ (𝑡ℎ𝑟𝑒𝑠ℎ𝑜𝑙𝑑 )
+||𝑔||
+
+---PAGE---
+59
+Why Clipping Works
+▪Clipping preserves the exact multidimensional direction of the 
+gradient vector.
+▪It strictly bounds its maximum length (putting a 'speed limit' on 
+the update).
+▪This prevents the model from stepping off an optimization cliff.
+Pascanu et al. (2013)
+The Cliff: As the black dots (the training steps) 
+move through the ravine, one step lands exactly on 
+the face of an extremely steep cliff. 
+The Explosion: Because the slope is nearly 
+vertical, the mathematical gradient becomes 
+massive.
+The Catapult: When the model multiplies its 
+learning rate by that massive gradient, it results in 
+a gigantic update. The next black dot is propelled 
+completely out of the optimal valley, undoing all 
+previous learning.
+
+---PAGE---
+60
+Why Clipping Cannot Fix Vanishing Gradients
+▪You cannot 'clip' a vanished gradient.
+▪If the signal is 10−16, it is indistinguishable from floating-point 
+numerical noise.
+▪Scaling it up multiplies the noise, destroying the signal.
+▪Vanishing gradients require a fundamental architectural change.
+
+---PAGE---
+61
+LSTM
+
+---PAGE---
+62
+Long Short-Term Memory (LSTM)
+▪Long Short-Term Memory (LSTM) is a popular architecture that 
+makes it easy to remember information over long time periods.
+▪Introduced by Hochreiter and Schmidhuber (1997).
+▪Designed specifically to solve the vanishing gradient problem.
+▪LSTMs separate memory into two tracks.
+▪It is composed of memory cells which have controllers saying 
+when to store or forget information.
+
+---PAGE---
+63
+The Dual-State Architecture
+▪A Vanilla RNN has one state ℎ𝑡.
+▪An LSTM separates the state into two distinct vectors:
+1. The Cell State (𝐶𝑡): Long-term memory running as a structural 
+backbone.
+2. The Hidden State (ℎ𝑡): Short-term memory used for 
+immediate predictions.
+Vanilla RNN                                    LSTM
+Cell state
+Hidden state
+Four gates
+
+---PAGE---
+64
+Long Short Term Memory (LSTM)
+☉
+ct-1
+ht-1
+xt
+f
+i 
+g
+o
+W
+☉
++
+ct
+tanh
+☉
+ht
+stack
+[Hochreiter et al., 1997]
+
+---PAGE---
+65
+The Cell State: The Conveyor Belt
+▪The Cell State (𝐶𝑡) acts as a high-speed data highway (conveyor 
+belt) running straight down the entire sequence.
+▪It undergoes strictly linear interactions (pointwise addition and 
+multiplication).
+▪It is very easy for gradients to flow backwards along it 
+unchanged.
+Backpropagation from 𝑐𝑡 
+to 𝑐𝑡−1 only elementwise 
+multiplication by 𝑓, no 
+matrix multiply
+
+---PAGE---
+66
+LSTM Gradient Flow
+More on this in the next few slides
+
+---PAGE---
+67
+Regulating Information with Gates
+▪The LSTM controls information flow into and out of the Cell State 
+using 'Gates'.
+▪A gate acts as a mathematical valve.
+▪It uses a Sigmoid activation function to squash values into [0, 1].
+▪0.0 = completely blocked (forget).
+▪1.0 = completely open (remember).
+
+---PAGE---
+68
+Regulating Information with Gates
+▪Equation: 
+𝑮𝒂𝒕𝒆 =  𝝈 ( 𝑾 ∗ [𝒉𝒕−𝟏, 𝒙𝒕] )
+▪The gate vector is multiplied element-wise with the target vector 
+(see the ⨀ in the diagram)
+▪An LSTM uses three distinct gates: Forget (𝑓), Input (𝑖), and 
+Output (𝑜).
+
+---PAGE---
+69
+LSTM Step 1: The Forget Gate
+▪Goal: Decide what information in the long-term memory (𝑪𝒕−𝟏) 
+should be erased.
+𝑓𝑡=  𝜎 𝑊𝑓∗ℎ𝑡−1, 𝑥𝑡
+▪Example: If the subject changes from 'Bob' to 'Alice', the Forget 
+Gate outputs 0s to erase Bob's masculine pronouns from the 
+Cell State.
+
+---PAGE---
+70
+LSTM Step 2: The Input Gate & g Gate
+▪Goal: Decide what NEW information to store in the Cell State.
+▪Part A: g Gate (The new data).
+𝑔𝑡= 𝑡𝑎𝑛ℎ 𝑊𝑔∗ℎ𝑡−1, 𝑥𝑡
+▪Part B: Input Gate (What percentage of data to keep).
+𝑖𝑡=  𝜎 𝑊𝑖∗ℎ𝑡−1, 𝑥𝑡
+
+---PAGE---
+71
+LSTM Step 3: Updating the Cell State
+▪Now, we compute the new Long-Term Memory (𝐶𝑡).
+𝐶𝑡= 𝑓𝑡⊙ 𝐶𝑡−1 + 𝑖𝑡⊙𝑔𝑡
+The ⊙ denotes element-wise multiplication
+▪Notice the ADDITION operator (+). We take the old memory, 
+erase parts, and ADD new memory.
+
+---PAGE---
+72
+The Mathematical Magic: Addition
+▪This is the most critical math in the LSTM: 𝐶𝑡= … + …
+▪Because the operation is ADDITIVE, the backward pass 
+derivative distributes the gradient equally.
+▪We have bypassed the repeated matrix multiplication curse.
+
+---PAGE---
+73
+The Constant Error Carousel (CEC)
+▪This mechanism is called the Constant Error Carousel.
+▪Error signals trapped in the cell state can revolve indefinitely 
+without decaying or exploding.
+▪This enables LSTMs to track dependencies across thousands of 
+steps.
+
+---PAGE---
+74
+LSTM Step 4: The Output Gate
+▪Goal: Decide what to output as the new Hidden State (Short-
+Term Memory).
+𝑜𝑡=  𝜎 𝑊𝑜∗ℎ𝑡−1, 𝑥𝑡
+▪We do not want to output the entire long-term memory at once. 
+The Output gate filters it.
+
+---PAGE---
+75
+LSTM Step 5: Final Hidden State
+ℎ𝑡= 𝑜𝑡∗𝑡𝑎𝑛ℎ 𝐶𝑡
+▪We push the Cell State through 𝑡𝑎𝑛ℎ (normalizing to [−1, 1]) 
+and multiply by the Output Gate
+▪This ℎ𝑡 is used to predict the next token, and is passed as the 
+short-term memory to next cell.
+
+---PAGE---
+76
+LSTM Parameter Complexity
+▪An LSTM is powerful, but computationally heavy.
+▪A vanilla RNN uses one weight matrix 𝑊ℎℎ.
+▪An LSTM uses FOUR independent sets of matrices (Forget, 
+Input, g , Output).
+▪Parameter count and memory footprint are roughly 4x larger.
+
+---PAGE---
+77
+LSTM and ResNet
+▪The ResNet Highway
+▪ResNets solve vanishing gradients in deep 
+networks using Skip Connections 
+𝐻(𝑥) =  𝐹(𝑥) +  𝑥.
+▪The additive +𝑥 creates an identity highway where 
+the gradient is exactly 1, allowing gradients to flow 
+backward through many layers unaltered.
+▪The LSTM Conveyor Belt (Sequence Modeling)
+▪LSTMs use a remarkably similar additive 
+mechanism for their cell state 
+𝐶𝑡= 𝑓𝑡⊙𝐶𝑡−1 + 𝑖𝑡⊙𝑔𝑡.
+▪Instead of a static "+1" connection, the LSTM uses 
+a Dynamic Skip Connection.
+▪When the forget gate 𝑓𝑡≈1, the cell state acts like 
+an identity function (𝐶𝑡≈𝐶𝑡−1). 
+▪This mimics a ResNet skip connection, preventing 
+gradients from vanishing over long sequences.
+
+---PAGE---
+78
+Do LSTMs solve the vanishing gradient?
+▪The LSTM architecture makes it easier for the RNN to preserve 
+information over many timesteps
+▪e.g. if the f = 1 and the i = 0, then the information of that cell is 
+preserved indefinitely.
+▪By contrast, it’s harder for vanilla RNN to learn a recurrent 
+weight matrix 𝑊ℎ that preserves info in hidden state
+▪LSTM doesn’t guarantee that there is no vanishing/exploding 
+gradient, but it does provide an easier way for the model to learn 
+long-distance dependencies
+
+---PAGE---
+79
+Modern RNNs
+▪Gated Recurrent Units (GRU) was Introduced by Cho et al. in 
+2014 as a computationally lighter alternative to LSTM.
+▪Motivation: Retain the additive gradient highway, but reduce 
+parameters.
+▪GRUs merge the Cell State and Hidden State into one unified 
+vector h_t.
+
+---PAGE---
+80
+Multi-Layer (Deep) RNNs
+▪RNNs can be stacked vertically (depth).
+▪The hidden state sequence from Layer 1 
+acts as the input sequence to Layer 2.
+▪Allows the network to compute highly 
+abstract hierarchical representations (e.g., 
+Layer 1 = Syntax, Layer 3 = Semantics).
+▪Usually capped at 2 to 4 layers; deeper 
+networks become unstable.
+
+---PAGE---
+81
+Neural Machine Translation
+▪We’d like to translate, e.g., English to French sentences, and we 
+have pairs of translated sentences to train on.
+▪What’s wrong with the following setup?
+•
+The sentences might not be the same length, and the words might not align perfectly.
+•
+You might need to resolve ambiguities using information from later in the sentence.
+
+---PAGE---
+82
+Neural Machine Translation
+▪Sequence-to-sequence architecture: the network first reads and memorizes the 
+sentence. When it sees the end token, it starts outputting the translation.
+▪The encoder and decoder are two different networks with different weights
+▪Encoder: An LSTM reads the English sentence and compresses it into a final 
+hidden state h_T.
+▪Decoder: A separate LSTM takes h_T as its initial state and generates French 
+word-by-word.
+▪This dominated Google Translate from 2014-2017.
+▪
+Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation, K. Cho, B. van Merrienboer,C. 
+Gulcehre, D. Bahdanau, F. Bougares, H. Schwenk, Y. Bengio. EMNLP 2014.
+▪
+Sequence to Sequence Learning with Neural Networks, Ilya Sutskever, Oriol Vinyals and Quoc Le, NIPS 2014.
+
+---PAGE---
+83
+LSTM vs Transformers
+
+---PAGE---
+84
+Transformers vs LSTMs
+▪Are LSTMs Dead?
+No 
+▪Transformers require 𝑂𝑁2  memory relative to the sequence 
+length N.
+▪For infinitely long, continuous data streams (e.g., IoT sensor 
+data, heart rate monitors), Transformers run out of RAM.
+▪LSTMs use 𝑂(1) memory regarding sequence length, 
+maintaining their state indefinitely.
+▪Because an LSTM processes data step-by-step and 
+summarizes the history into a fixed-size Hidden State (ℎ𝑡) and 
+Cell State (𝐶𝑡), the amount of RAM it uses stays the same 
+whether it has processed 10 tokens or 10 million tokens.
+▪LSTMs remain standard in embedded edge devices.
+
+---PAGE---
+85
+Next Time
+▪Attention
+▪Transformers
+
+---PAGE---

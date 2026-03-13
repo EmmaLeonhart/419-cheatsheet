@@ -1,0 +1,3710 @@
+1
+Dr. Mohamed Shehata
+Computer Science
+University of British Columbia
+COSC419/519:DEEP LEARNING
+Neural Networks and Backpropagation
+
+---PAGE---
+2
+The Classification Problem
+Geometric Viewpoint
+x1
+x2
+Can you find a linear classifier to 
+correctly separate the output 
+(green and blue classes) based on 
+the two input features (x1, x2)?
+No linear classifier can do that!
+Solution: project the current space 
+into another space using some 
+sort of Feature Transform.
+
+---PAGE---
+3
+
+---PAGE---
+4
+
+---PAGE---
+5
+
+---PAGE---
+6
+Feature Transforms
+▪Also known as feature maps
+▪ We can convert linear models into nonlinear models using 
+feature maps.
+ 
+ 
+ 
+𝑦= 𝑤𝑇𝑓(𝑥)
+▪If 𝑓𝑥= (1, 𝑥, … . , 𝑥𝑀)𝑇, then y is a polynomial in 𝑥. This model is 
+known as polynomial regression.
+▪Feature maps let us fit  nonlinear models, but it can be hard 
+to choose good features.
+▪Before deep learning, most of the effort in building a practical machine 
+learning system was feature engineering. 
+
+---PAGE---
+7
+Green is the ground truth.
+
+---PAGE---
+8
+Examples of Feature Extraction Methods
+
+---PAGE---
+9
+Image Features: Color Histogram
++1
+Ignores texture, 
+spatial positions
+
+---PAGE---
+10
+Image Features: SIFT
+▪SIFT is a DETECTOR followed by a DESCRIPTOR
+▪It detects and describes local features
+▪SIFT in one sentence
+▪Histogram of gradients @ Harris-corner-like-points
+Test image
+Detector: where are 
+the local features?
+Descriptor: how to 
+describe them?
+
+---PAGE---
+11
+..
+Scales (by Gaussian Blurring )
+1st octave
+2nd octave
+3rd octave
+4th octave
+
+---PAGE---
+12
+Image Features: SIFT
+Example: Notice when 
+this blob is going to be 
+a local minima
+
+---PAGE---
+13
+Find Keypoints: Example
+Adapted from Lana Lazebnik
+Problem: strong response along edges
+
+---PAGE---
+14
+Generate a feature vector for each keypoint
+Gradient orientation around keypoint
+▪Take 16x16 window around the keypoint
+▪Divide the above window into 4x4 sub-windows
+▪For each 4x4 window, create orientation histogram with 8 bins
+Each orientation added to histogram is weighted by 
+  a) its gradient magnitude 
+  b) and by a spatial Gaussian weight
+Total bins (features): 128
+8 orientations  X  4x4 sub-windows
+
+---PAGE---
+15
+Step 6: Generate a feature vector for each keypoint
+▪The feature vector for a keypoint is the 128 bins of orientations 
+in the neighbourhood of that keypoint. 
+▪This feature vector is unique for each keypoint.
+▪To achieve rotation invariance, the orientations in the feature 
+vector are computed relative to the keypoint orientation. 
+▪To reduce the effect of illumination changes, the feature 
+vector is normalized.
+Total bins (features): 128
+8 orientations  X  4x4 sub-windows
+
+---PAGE---
+16
+Image Features: Histogram of Oriented 
+Gradients (HoG)
+1.
+Compute edge direction / 
+strength at each pixel
+2.
+Divide image into 8x8 regions
+3.
+Within each region compute a
+histogram of edge directions 
+weighted by edge strength
+This is a global descriptor 
+vs SIFT which was local 
+descriptor
+
+---PAGE---
+17
+1.
+Compute edge direction / 
+strength at each pixel
+2.
+Divide image into 8x8 regions
+Example: 320x240 image gets 
+divided into 40x30 bins; 8 
+directions per bin; feature vector
+3.
+Within each region compute a
+histogram of edge directions 
+weighted by edge strength
+has 30*40*9 = 10,800 numbers
+Dalal and Triggs, "Histograms of oriented gradients for human detection," CVPR 2005
+
+---PAGE---
+18
+1.
+Compute edge direction / 
+strength at each pixel
+2.
+Divide image into 8x8 regions
+3.
+Within each region compute a 
+histogram of edge directions
+Example: 320x240 image gets 
+divided into 40x30 bins; 8 
+directions per bin; feature vector 
+has 30*40*9 = 10,800 numbers
+Weak edges
+Strong diagonal 
+edges
+Edges in all 
+directions
+Captures 
+texture and 
+position, 
+robust to 
+small image 
+changes
+
+---PAGE---
+19
+Bag of Words: Bags of features for object recognition
+▪
+Do something similar for images
+▪
+An image can be treated as a document, and features extracted from the image are considered as 
+the "visual words"
+▪
+Find features with descriptors and build a bag of features
+▪
+Now we can say that the picture has a face, flowers, building, …etc
+▪
+Works pretty well for image-level classification and for recognizing object 
+instances
+Csurka, Gabriella, et al. "Visual categorization with bags of keypoints."Workshop on statistical learning in computer vision, ECCV. Vol. 1. No. 1-22. 2004.
+Lazebnik, Svetlana, Cordelia Schmid, and Jean Ponce. "Beyond bags of features: Spatial pyramid matching for recognizing natural scene categories.“ Computer 
+Vision and Pattern Recognition, 2006 IEEE Computer Society Conference on. Vol. 2. IEEE, 2006.
+
+---PAGE---
+20
+
+---PAGE---
+21
+Bag-of-features for image classification
+Compute distance
+Classification
+matrix
+Step 3
+SVM
+Extract regions
+Compute 
+descriptors
+Find clusters 
+and frequencies
+Step 2
+Step 1
+
+---PAGE---
+22
+
+---PAGE---
+23
+Example: Winner of 2011 ImageNet challenge
+F. Perronnin, J. Sánchez, “Compressed Fisher vectors for LSVRC”, PASCAL VOC / ImageNet workshop, ICCV, 2011.
+Low level feature extraction: 10k patches per image
+•
+SIFT: 128-dim features
+•
+Color: 96-dim features 
+Then reduced to 64-dim using PCA
+FV extraction and compression:
+•
+N=1,024 Gaussians, R=4 regions 
+•
+520K dim x 2
+•
+Compression: G=8, b=1 bit per dimension
+Used one-vs-all SVM learning with SGD
+
+---PAGE---
+24
+Image Features vs Neural Networks
+FeatureExtraction
+f
+training
+training
+10 numbers giving 
+scores for classes
+10 numbers
+giving scores
+for classes
+Classifier
+(SVM)
+Krizhevsky, Sutskever, and Hinton, “Imagenet classification
+with deep convolutional neural networks”, NIPS 2012.
+Figure copyright Krizhevsky, Sutskever, and Hinton, 2012.
+Reproduced with permission.
+
+---PAGE---
+25
+Reading: 
+Artificial Neural Networks
+Ch. 6 - deep learning, I. Goodfellow
+Sections 6.0-6.3
+
+---PAGE---
+26
+Artificial Neural Networks (ANN)
+▪ANN is a digital simulation of biological neural networks in 
+humans' brain
+
+---PAGE---
+27
+Artificial Neural Networks (ANN)
+▪Inputs: features (some numbers)
+▪Outputs: object classes (class-1, class-2)
+▪Multiple layers, each with multiple neurons (nodes).
+▪Each neuron uses a summation function to combine its inputs then 
+applies a transformation function to the result (e.g., Sigmoid, ReLU)
+▪Each arrow corresponds to a weight that modifies the value that 
+goes through that arrow.
+2 hidden layers
+Input 
+Output 
+Image Classification 
+example
+
+---PAGE---
+28
+ANN usually has 
+few hidden layers
+When training the NN, the 
+model needs to figure out the 
+right weights and biases
+Usually fully 
+connected layers!
+usually fully 
+connected
+
+---PAGE---
+29
+Multi-Layer Perceptron
+▪We can connect the neurons as a directed 
+acyclic graph.
+▪This gives a feed-forward neural network.
+▪Typically,  neurons are grouped together 
+into layers.
+▪In the simplest case, all outputs from 
+previous layer are connected to all input of 
+the next layer. We call this a fully connected 
+layer.
+▪A multilayer network consisting of fully 
+connected layers is called a multilayer 
+perceptron (MLP). This is important as we 
+will use it as one of the building blocks in 
+transformers!
+input
+output
+
+---PAGE---
+30
+Activation Functions 
+•
+ReLU is a good default choice for most problems
+•
+ReLU can suffer from the “dying ReLU” problem, where a neuron with a 
+weighted sum (plus bias) is consistently negative, the neuron may never 
+activate, resulting in a “dead” neuron. To avoid this, variants of ReLU have 
+been proposed, such as leaky ReLU
+•
+This because when the output is always zero, then the gradient is zero as well. 
+And since there’s no gradient, the neuron’s weights don’t update
+
+---PAGE---
+31
+Why Nonlinear Activation Functions?
+Designing an MLP network to compute XOR
+▪Consider this non-linear problem: the XOR problem
+▪Input: two variables 𝑥1, 𝑥2
+▪ො𝑦= 𝑓𝑥; 𝜃, where θ is the model parameters 
+▪𝐽=
+1
+4 ∑ො𝑦 −𝑦2, where 𝑦 is the ground truth and ො𝑦 is the output prediction.
+▪Let us try to create a linear model 𝑓𝑥; 𝜃= 𝑤2𝑥2 + 𝑤1𝑥1 + 𝑤0 
+that minimizes 𝐽 for our 4 training examples shown below:
+▪Differentiate 𝐽 w.r.t. W and set to zero
+▪𝑤2 = 0, 𝑤1 = 0 𝑎𝑛𝑑 𝑤0 =
+1
+2 minimizes 𝐽
+▪but the model simply outputs ො𝑦= 0.5 
+    for all inputs!
+▪𝐽=
+1
+4 ∑ො𝑦 −𝑦2 =
+1
+4 { 0.5 −0 2 + 0.5 −1 2
++ 0.5 −1 2+(0.5 −0)2=
+1
+4 × 1 = 0.25
+Table of XOR values – ground truth 𝑦
+𝑥1 
+𝑥2
+𝑦
+0
+0
+0
+0
+1
+1
+1
+0
+1
+1
+1
+0
+
+---PAGE---
+32
+Why Nonlinear Activation Functions?
+▪There is no linear classifier that can correctly classify the inputs.
+Solution: 
+▪Use a Feature Transform to transform the 
+original parameter space into a new space
+o Use a feed-forward neural network with a 
+non-linear activation function
+𝑥1
+𝑥2
+ℎ1
+ℎ2
+ො𝑦
+𝑤1,2
+𝑤2,1
+𝑤1,1
+𝑤2,2
+𝑏2
+𝑤′1
+𝑤′2
+𝑏′
+𝑥
+ℎ
+𝑤
+𝑏
+ො𝑦
+𝑏′
+𝑤′
+𝑏1
+ℎ𝑖= 𝑔(𝑤𝑖𝒙+ 𝑏𝑖)
+𝑔( ) is a non-linear 
+activation function
+
+---PAGE---
+33
+Why Nonlinear Activation Functions?
+• Let’s use a two-layer MLP for this classification problem. The 
+activation function we will use is the ReLU (Rectified Linear Unit).
+𝑔𝑧= max{0, 𝑧}
+𝑥1
+𝑥2
+ℎ1
+ℎ2
+ො𝑦
+𝑤1,2
+𝑤2,1
+𝑤1,1
+𝑤2,2
+𝑏2
+𝑤′1
+𝑤′2
+𝑏′
+𝑏1
+Let’s say that after training, we get the following parameters for 
+the first layer:
+𝑊=
+1
+1
+1
+1 , 𝑏=
+0
+−1
+And we know that: 
+ℎ𝑖= 𝑔(𝑤𝑖𝒙+ 𝑏𝑖)
+
+---PAGE---
+34
+•Then from the diagram, we know:
+ℎ1 = max 0, 𝑧1 = max 0, 𝑤1,1  𝑥1 + 𝑤2,1 𝑥2 + 𝑏1 , and
+ℎ2 = max 0, 𝑧2 = max 0, 𝑤1,2𝑥1 + 𝑤2,2𝑥2 + 𝑏2 .
+•Computing the h values for all four of our training examples:
+• The new learned space (h) has values 
+(now called activations) that can be 
+separated using the second layer 
+(𝑤′1and 𝑤′1).  
+𝑥1
+𝑥2
+ℎ1
+ℎ2
+ො𝑦
+𝑤1,2
+𝑤2,1
+𝑤1,1
+𝑤2,2
+𝑏2
+𝑤′1
+𝑤′2
+𝑏′
+𝑏1
+𝑥1 
+𝑥2
+ℎ1
+ℎ2
+0
+0
+0
+0
+0
+1
+1
+0
+1
+0
+1
+0
+1
+1
+2
+1
+Linear classifier 
+decision boundary
+𝑊=
+1
+1
+1
+1 , 𝑏=
+0
+−1
+ℎ𝑖= 𝑔(𝑤𝑖𝒙+ 𝑏𝑖)
+
+---PAGE---
+35
+MLP and Feature Transforms
+
+---PAGE---
+36
+
+---PAGE---
+37
+
+---PAGE---
+38
+Dataset:
+3 neurons
+4 neurons
+8 neurons
+Dataset:
+3 neurons (1 
+hidden layer)
+8 neurons (1 
+hidden layer)
+24 neurons (3 hidden 
+layer)
+16 neurons (2 hidden 
+layers)
+•
+The more hidden layers and/or neurons, the more capacity (ability to fit complex data) 
+•
+Bottom row increases both depth and width simultaneously
+•
+However, too much capacity can lead to overfitting 
+1 hidden layer
+
+---PAGE---
+39
+Mathematical Notations of MLP
+(In practice we will usually add a learnable bias for each neuron as well)
+D = dimension of the input 
+H = dimension of the first hidden layer
+C = dimension of the output layer
+Before: Linear score function: 
+𝑓= 𝑊𝑥
+Now: 2-layer Neural Network with ReLU activation: 
+𝑓= 𝑊2 max 0, 𝑊1𝑥
+ 
+where 𝑥∈𝑅𝐷×1, 𝑊1 ∈ℝ𝐻×𝐷, 𝑊2 ∈ ℝ𝐶×𝐻
+This is 
+ℝ𝐻×1 
+i.e. 𝑥 is a D-dimensional 
+column vector
+
+---PAGE---
+40
+Example
+Let’s consider a neural network with the following architecture:
+𝐷= 4 𝐻= 3 𝐶= 2
+Input 
+Hidden
+𝒉𝟏
+Output 
+𝑓= 𝑊2ℎ1, ℎ1= max(0, 𝑊1𝑥)
+𝑊1 ∈ℝ𝐻×𝐷→ℝ3×4,
+𝑥∈ℝ𝐷×1 →ℝ4×1
+ℎ1 =
+3×4
+4×1
+∴ℎ1∈ ℝ3×1 
+𝑊2 ∈ℝ𝐶×𝐻→ℝ2×3, ℎ1 ∈ℝ𝐻×1 →ℝ3×1
+𝑓=
+2×3
+3×1
+∴𝑓∈ ℝ2×1 
+(In practice we will usually add a
+learnable bias for each  hidden 
+and output neuron as well)
+ℎ1= max(0, 𝑊1𝑥)
+𝑓= 𝑊2ℎ1
+
+---PAGE---
+41
+Generalizing to Larger Networks
+A 3-layer Neural Network would look like this: 
+𝑓= 𝑊3max(0, 𝑊2 max 0, 𝑊1𝑥)
+where 𝑥∈𝑅𝐷×1, 𝑊1 ∈ℝ𝐻1×𝐷, 𝑊2 ∈ ℝ𝐻2×𝐻1, 𝑊3 ∈ ℝ𝐶×𝐻2
+In general: 
+𝑊𝐿∈ ℝ𝐻𝐿×𝐻𝐿−1
+Or, we can say that the shape of the weight matrix for layer L is: 
+𝑜𝑢𝑡𝑝𝑢𝑡_𝑑𝑖𝑚× 𝑖𝑛𝑝𝑢𝑡_𝑑𝑖𝑚.
+(In practice we will usually add a learnable bias for each neuron as well)
+
+---PAGE---
+42
+•
+Element (𝑖, 𝑗) of 𝑊1 gives
+the effect on ℎ𝑖 from 𝑥𝑗
+•
+In MLP: All elements of 𝑥
+affect all elements of ℎ
+Element (𝑖, 𝑗) of 𝑊2 
+gives the effect on 
+𝑠𝑖 from ℎ𝑗
+All elements of 
+ℎaffect all elements 
+of 𝑠
+Fully-connected neural network
+“Multi-Layer Perceptron” (MLP)
+
+---PAGE---
+43
+Depth= 7 layers (we have 1 input, 5 hidden, and 1 output)
+Width= depends on the layer; ex, input width is 3072
+Nested form:
+𝑠= 𝑊6 max(0, 𝑊5 max (0, 𝑊4 max (0, 𝑊3 max(0, 𝑊2 max(0, 𝑊1𝑥)))))
+Width: The 
+number of 
+neurons in 
+each layer.
+depth = total number of layers including input/output 
+Output: 10
+Input: 
+3072
+h₁ = max(0, W₁x)
+h₂ = max(0, W₂h₁)
+h₃ = max(0, W₃h₂)
+h₄ = max(0, W₄h₃)
+h₅ = max(0, W₅h₄)
+s = W₆h₅ (no activation on output)
+
+---PAGE---
+44
+ANN: Learning process
+Feedforward
+Input 
+layer
+𝑿
+Output 
+layer
+෡𝒀
+Ground 
+truth
+𝒀
+loss
+Calculate Gradients
+Update weights
+1
+2
+3
+4
+5
+6
+▪This process is repeated until the model converges to the 
+optimal weights for the current task
+
+---PAGE---
+45
+How do we compute the gradients?
+More on this later!
+∇𝑤𝐿𝑤= ∇𝑤𝔼𝑥,𝑦~𝑃𝑑𝑎𝑡𝑎𝐿𝑥, 𝑦, 𝑤+ 𝜆𝑅(𝑤)
+∴∇𝑤𝐿𝑤= 1
+𝑁෍
+𝑖=1
+𝑁
+∇𝑤𝐿𝑥𝑖, 𝑦𝑖, 𝑤+ ∇𝑤𝜆𝑅(𝑤) 
+Approximate 
+expectation 
+via sampling 
+(eg. Using 
+minibatches)
+
+---PAGE---
+46
+Example: Fashion-MNIST Classification
+▪Fashion-MNIST is a dataset of clothing and fashion item images 
+▪The dataset contains 60,000 training images and 10,000 testing images of 
+fashion items.
+Each image is normalized 
+to a 28x28 grayscale 
+image centered on the 
+item
+
+---PAGE---
+47
+Input layer
+input image
+28*28=784
+Each neuron will have a value between 0 and 1 called its activation, which 
+represents the scaled greyscale value of the corresponding pixel 
+(0 is black, 1 is white, any value in between is a grayscale value)
+28 px
+28 px
+
+---PAGE---
+48
+Model architecture: 
+• Input layer with 784 neurons - one for each input pixel,
+• 2 hidden layers, each with 16 neurons - these are design choices,
+• Output layer with 10 neurons - one for each clothing category
+The activations in the 
+output layer represent 
+the probability that the 
+image belongs to that 
+clothing category.
+Hidden layers
+2x16
+
+---PAGE---
+49
+The brighter the neuron is, the higher its activation value
+Activations from one layer drives the activations in the following layers
+
+---PAGE---
+50
+• The learning process: finding the weights and biases using 
+training examples such that it gives us the right answers on 
+unseen (test) examples! 
+The number of parameters:
+In a fully connected NN, every 
+neuron is connected to every 
+other neuron.
+𝑛𝑢𝑚 𝑤𝑒𝑖𝑔ℎ𝑡𝑠
+= 784 × 16 + 16 × 16 + 16 × 10 
+= 𝟏𝟐𝟗𝟔𝟎
+n𝑢𝑚 𝑏𝑖𝑎𝑠 𝑡𝑒𝑟𝑚𝑠= 16 + 16 + 10 = 𝟒𝟐 
+Every neuron after the input layer also has 
+a bias
+So, the total number of parameters for 
+our small sample network is 13002
+28 px
+28 px
+
+---PAGE---
+51
+More on training in a few slides!
+
+---PAGE---
+52
+▪Building Intuition – what could be going on in these layers:
+• We can imagine that the input 
+layer activations will only trigger 
+neurons in the first hidden layer 
+corresponding to small patterns 
+like edges, lines, and simple 
+textures.
+• And then, activations in the first 
+hidden layer only trigger 
+neurons corresponding to larger 
+patterns like sleeves, collars, 
+pockets, or shoe shapes in the 
+second hidden layer.
+• And these activations only 
+trigger the neuron corresponding 
+to the clothing class like "T-
+shirt", "Dress", or "Sneaker".
+•
+One can imagine that each layer is responsible for learning some 
+combination of patterns
+
+---PAGE---
+53
+•
+But what really happens in the MLP?
+•
+We really don’t know
+•
+We can train the model to get high accuracy on the dataset, and then visualize what 
+the hidden layer neurons “look for”, by seeing the activations for each neuron, from 
+each hidden pixel
+•
+This demonstrates the "black box" nature of neural networks:
+•
+Even though we might expect neurons to learn interpretable features (like sleeves or 
+collars)
+•
+The actual learned patterns that look random and are not obvious to humans
+•
+This is why neural networks are often called "black boxes"
+
+---PAGE---
+54
+•
+An extension of this problem - even if the model has high accuracy on our 
+dataset, it might confidently misclassify a completely random input!
+•
+Even with completely random input, the network confidently predicts 'Coat’
+•
+This shows a key limitation of neural networks - they can be fooled by 
+nonsensical inputs.
+•
+These are some limitations of old-school ANN’s. However, they are 
+important to learn about before going into more advanced networks such as 
+CNN’s and Transformers.
+Surprise!
+
+---PAGE---
+55
+Interactive Demo
+http://playground.tensorflow.org
+▪In this link, you can experiment with different neural network 
+structures and input features and see how they can be trained to 
+classify data.
+
+---PAGE---
+56
+Reading: 
+Backpropagation
+Ch. 6 - deep learning, I. Goodfellow
+Section 6.5
+
+---PAGE---
+57
+Learning process
+Feedforward
+Input 
+layer
+𝑿
+Output 
+layer
+෡𝒀
+Ground 
+truth
+𝒀
+loss
+Calculate Gradients
+Update weights
+1
+2
+3
+4
+5
+6
+1.
+The input X provides information that propagates through the hidden 
+layers until it produces the output Y → Forward propagation
+2.
+During training → Forward propagation is used to calculate the  loss
+3.
+The Backpropagation allows information to flow backwards to 
+compute gradient, which we use to update the weights and improve 
+the model
+
+---PAGE---
+58
+Computing Gradients
+So how do we compute the gradients?
+∇𝑤𝐿𝑤= ∇𝑤𝔼𝑥,𝑦~𝑃𝑑𝑎𝑡𝑎𝐿𝑥, 𝑦, 𝑤+ 𝜆𝑅(𝑤)
+∴∇𝑤𝐿𝑤= 1
+𝑁෍
+𝑖=1
+𝑁
+∇𝑤𝐿𝑥𝑖, 𝑦𝑖, 𝑤+ ∇𝑤𝜆𝑅(𝑤) 
+Approximate 
+expectation 
+via sampling 
+(eg. Using 
+minibatches)
+▪Partial derivative of the loss function with respect to the weights:
+Idea #1: compute the analytical expression and numerically 
+evaluate its value → Bad idea!
+•
+Not feasible for complex models with many layers
+•
+Very expensive (lots of matrix multiplications)
+•
+If we change the loss function, we start all over
+Idea #2: use backpropagation (AKA reverse-mode automatic 
+differentiation (reverse-mode AD) ) → Good idea 
+
+---PAGE---
+59
+Backpropagation (Reverse-Mode AD)
+▪Backpropagation is also known as reverse-mode automatic 
+differentiation (reverse-mode AD): compute gradients of a scalar 
+loss 𝐿 w.r.t. all weights/biases efficiently.
+▪Key idea: each layer’s backward step is a vector–Jacobian 
+product (VJP); overall cost is a small constant times a forward 
+pass (e.g. If a forward pass takes ~1 ms, then forward plus 
+backward might take ~2–3 ms.).
+▪Two-phase algorithm:
+▪Forward pass: compute layer activations and cache them for 
+derivatives calculations.
+▪Backward pass: propagate error signal backward using 
+vector–Jacobian products.
+
+---PAGE---
+60
+Some things to note about backpropagation:
+• Backpropagation is an algorithm used to compute gradients; it 
+is not the whole learning process.
+• Backpropagation is used to compute different types of gradients 
+at different part of the network (e.g., before and after activation)
+• We need another algorithm (e.g. optimization algorithm like 
+SGD) to perform learning using these gradients.
+• SGD will use the gradients to update both the weights and the 
+biases 
+• Backpropagation is not specific to neural networks; it can be 
+used to compute the gradient of any function 𝑓.
+• ∇𝑥𝑓(𝑥, 𝑦) → differentiate 𝑓 with respect to 𝑥
+
+---PAGE---
+61
+Computational Graph
+▪Computational graph representation:
+▪Nodes: variables 
+▪Edges: operations/functions
+𝑎= 𝑓𝑏, 𝑐
+Example
+𝑦= 𝑓𝑔ℎ𝑥
+𝑢= ℎ𝑥
+𝑣= 𝑔𝑢
+𝑦= 𝑓𝑣
+𝑥
+𝑢
+𝑣
+𝑦
+ℎ
+𝑔
+𝑓
+a
+b
+c
+
+---PAGE---
+62
+Example-1: Computational Graphs
+For example, consider the following loss function for one training 
+example:
+𝐿= max 0,
+1 −ො𝑦⋅𝑦+ 𝜆𝑅(𝑊) 
+Hinge loss
+Regularization Term
+ො𝑦 model prediction
+𝑦 ground truth
+x
+W
+hinge
+loss
+R
++
+L
+*
+ො𝑦= 𝑊𝑥
+*
+𝜆
+𝑅(𝑊)
+
+---PAGE---
+63
+Hinge Loss
+▪Used in Support Vector Machines (SVM)
+ 
+• ො𝑦 is the model prediction
+• 𝑦 is ground truth (-1 or +1)
+• 𝜆 𝑅(𝑊) is the regularization term that prevents overfitting
+Hinge loss penalizes points within the 
+margin and misclassified points
+𝐿= max 0,
+1 −ො𝑦⋅𝑦+ 𝜆𝑅(𝑊) 
+Correct & confident: Beyond margin  
+(ŷ · y ≥ 1) ⇒ (distance ≥ 1) ⇒ L=0 ⇒ no 
+penalty
+Correct but uncertain: Within margin 
+(distance < 1) ⇒ (ŷ · y < 1) ⇒ L > 0 ⇒ 
+penalized for low confidence
+Incorrect classification: High penalty 
+loss that decreases linearly toward the 
+boundary ⇒ ŷ and y have opposite 
+signs ⇒ L > 1
+
+---PAGE---
+64
+Examples of Computational Graphs
+What is (d)?
+
+---PAGE---
+65
+Computational Graph Forward Mapping
+Initialize Inputs:
+•Assign the elements of the input vector to the initial nodes of the computational graph.
+Propagate Computations:
+•Iterate through the remaining nodes of the graph in order.
+•For each node, gather the computed values from its parent nodes.
+•Apply the node's specific function to these values to determine its output.
+Final Output:
+•The value computed by the final node is returned as the scalar output of the entire procedure
+
+---PAGE---
+66
+Generalized Forward propagation: 
+computation in MLP
+Initialize Inputs
+•Set the first layer of the network equal to the input data to start the process.
+Layer-by-Layer Processing
+•Iterate through each hidden layer of the network.
+Linear Step: Calculate a weighted sum of the previous layer's data and add a bias term.
+Activation Step: Pass the result through a non-linear function (like Sigmoid) to determine the layer's output.
+Generate Prediction
+•The output of the final layer becomes the model’s estimated prediction.
+Calculate Total Cost
+•Compute the error by comparing the prediction against the ground truth (target).
+•Add a regularization penalty to prevent the model from overfitting.
+
+---PAGE---
+67
+Backpropagation using Computational Graphs
+Forward pass: Compute outputs
+𝑖𝑛𝑝𝑢𝑡𝑠𝒙= 𝟑, 𝒚= −𝟐, 𝒛= 𝟓
+x = 3
+*
++
+𝑓
+y = −2
+z = 5
+Output: f = (x ∗ y) + z
+To explain the backpropagation concept:
+•
+We are only showing the chain rule mechanics
+•
+We will assume that there is no loss function
+•
+We do not care about prediction vs ground truth
+
+---PAGE---
+68
+Backpropagation using Computational Graphs
+𝑖𝑛𝑝𝑢𝑡𝑠𝒙= 𝟑, 𝒚= −𝟐, 𝒛= 𝟓
+x = 3
+*
++
+𝑓
+y = −2
+z = 5
+Output: f = (x ∗ y) + z
+−𝟔
+Forward Pass:
+Step 1: Multiplication
+𝒒=
+𝒙∗𝒚
+
+---PAGE---
+69
+Backpropagation using Computational Graphs
+𝑖𝑛𝑝𝑢𝑡𝑠𝒙= 𝟑, 𝒚= −𝟐, 𝒛= 𝟓
+x = 3
+*
++
+𝑓
+y = −2
+z = 5
+Output: f = (x ∗ y) + z
+Forward Pass:
+Step 1: Multiplication
+Step 2: Addition
+𝒇= 𝒒+ 𝒛
+−𝟏
+−𝟔
+𝒒=
+𝒙∗𝒚
+Hence the output 𝑓 is -1 
+
+---PAGE---
+70
+Backpropagation using Computational Graphs
+𝑖𝑛𝑝𝑢𝑡𝑠𝒙= 𝟑, 𝒚= −𝟐, 𝒛= 𝟓
+x = 3
+*
++
+𝑓
+y = −2
+z = 5
+Output: f = (x ∗ y) + z
+Forward Pass:
+Step 1: Multiplication
+Step 2: Addition
+Backward Pass:
+Step 1: Base gradient
+𝒆𝒓𝒓𝒐𝒓𝑺𝒊𝒈𝒏𝒂𝒍= 𝝏 𝒍𝒐𝒔𝒔
+𝝏𝒇 
+Since there is no loss function (MSE or cross-
+entropy)
+We can say simplify: errorSignal =
+𝝏𝒇
+𝝏𝒇 = 𝟏 
+                     
+𝒇= 𝒒+ 𝒛
+−𝟏
+𝒆𝒓𝒓𝒐𝒓𝑺𝒊𝒈𝒏𝒂𝒍
+𝝏𝒇
+𝝏𝒇 =1
+−𝟔
+𝒒=
+𝒙∗𝒚
+In real life we must account for the loss function.
+errorSignal =
+𝝏 𝒍𝒐𝒔𝒔
+𝝏𝒇 =
+𝝏 
+𝝏𝒇 (
+𝟏
+𝑵∑ෝ𝒚−𝒚𝟐 ) for MSE
+
+---PAGE---
+71
+Backpropagation using Computational Graphs
+𝑖𝑛𝑝𝑢𝑡𝑠𝒙= 𝟑, 𝒚= −𝟐, 𝒛= 𝟓
+x = 3
+*
++
+𝑓
+y = −2
+z = 5
+Output: f = (x ∗ y) + z
+Forward Pass:
+Step 1: Multiplication
+Step 2: Addition
+Backward Pass:
+Step 1: Base gradient
+Step 2: Gradient at z
+𝝏𝒇
+𝝏𝒛 = 
+𝝏
+𝝏𝒛𝒒+ 𝒛=1
+𝝏𝒇
+𝝏𝒇 =1
+𝝏𝒇
+𝝏𝒛 = 1
+𝒇= 𝒒+ 𝒛
+−𝟏
+−𝟔
+𝒒=
+𝒙∗𝒚
+
+---PAGE---
+72
+Backpropagation using Computational Graphs
+𝑖𝑛𝑝𝑢𝑡𝑠𝒙= 𝟑, 𝒚= −𝟐, 𝒛= 𝟓
+x = 3
+*
++
+𝑓
+y = −2
+z = 5
+Output: f = (x ∗ y) + z
+Forward Pass:
+Step 1: Multiplication
+Step 2: Addition
+Backward Pass:
+Step 1: Base gradient
+Step 2: Gradient at z
+𝝏𝒇
+𝝏𝒛 = 
+𝝏
+𝝏𝒛𝒒+ 𝒛=1
+Step 3: Gradient at q
+𝝏𝒇
+𝝏𝒒 = 
+𝝏
+𝝏𝒒 (𝒒+ 𝒛) = 𝟏
+𝝏𝒇
+𝝏𝒇 =1
+𝝏𝒇
+𝝏𝒛 = 1
+𝝏𝒇
+𝝏𝒒 = 1
+𝒇= 𝒒+ 𝒛
+−𝟏
+−𝟔
+q=
+𝒙∗𝒚
+
+---PAGE---
+73
+Backpropagation using Computational Graphs
+𝑖𝑛𝑝𝑢𝑡𝑠𝒙= 𝟑, 𝒚= −𝟐, 𝒛= 𝟓
+x = 3
+*
++
+𝑓
+y = −2
+z = 5
+Output: f = (x ∗ y) + z
+Forward Pass:
+Step 1: Multiplication
+Step 2: Addition
+Backward Pass:
+Step 1: Base gradient
+Step 2: Gradient at z
+𝝏𝒇
+𝝏𝒛 = 
+𝝏
+𝝏𝒛𝒒+ 𝒛=1
+Step 3: Gradient at q
+𝝏𝒇
+𝝏𝒒 = 
+𝝏
+𝝏𝒒 (𝒒+ 𝒛) = 𝟏
+Step 4: Gradient at x
+𝝏𝒇
+𝝏𝒙 = 
+𝝏𝒇
+𝝏𝒒
+𝝏𝒒
+𝝏𝒙 = 𝟏∗
+𝝏
+𝝏𝒙 (𝒙∗𝒚)
+= 𝟏∗𝒚= −𝟐
+𝝏𝒇
+𝝏𝒇 =1
+𝝏𝒇
+𝝏𝒛 = 1
+𝝏𝒇
+𝝏𝒒 = 1
+𝒇= 𝒒+ 𝒛
+−𝟏
+−𝟔
+q=
+𝒙∗𝒚
+Chain rule
+𝝏𝒇
+𝝏𝒙 = −𝟐 
+
+---PAGE---
+74
+Backpropagation using Computational Graphs
+x = 3
+*
++
+𝑓
+y = −2
+z = 5
+Output: f = (x ∗ y) + z
+Forward Pass:
+Step 1: Multiplication
+Step 2: Addition
+Backward Pass:
+Step 1: Base gradient
+Step 2: Gradient at z
+𝝏𝒇
+𝝏𝒛 = 
+𝝏
+𝝏𝒛𝒒+ 𝒛=1
+Step 3: Gradient at q
+𝝏𝒇
+𝝏𝒒 = 
+𝝏
+𝝏𝒒 (𝒒+ 𝒛) = 𝟏
+Step 4: Gradient at x
+𝝏𝒇
+𝝏𝒙 = 
+𝝏𝒇
+𝝏𝒒
+𝝏𝒒
+𝝏𝒙 = 𝟏∗
+𝝏
+𝝏𝒙 (𝒙∗𝒚)
+= 𝟏∗𝒚= −𝟐
+Step 5: Gradient at y
+𝝏𝒇
+𝝏𝒚 = 
+𝝏𝒇
+𝝏𝒒
+𝝏𝒒
+𝝏𝒚 = 𝟏∗
+𝝏
+𝝏𝒚 (𝒙∗𝒚)
+= 𝟏∗𝒙= 𝟑
+𝝏𝒇
+𝝏𝒇 =1
+𝝏𝒇
+𝝏𝒛 = 1
+𝝏𝒇
+𝝏𝒒 = 1
+𝒇= 𝒒+ 𝒛
+−𝟏
+−𝟔
+q=
+𝒙∗𝒚
+Chain rule
+𝝏𝒇
+𝝏𝒙 = −𝟐 
+𝝏𝒇
+𝝏𝒚 = 𝟑
+
+---PAGE---
+75
+Side: The Chain Rule
+• For any scalar functions 𝑓, 𝑔 mapping from ℝ→ℝ: 
+𝑦= 𝑔𝑥 𝑎𝑛𝑑 𝑧= 𝑓(𝑦)
+𝑑𝑧
+𝑑𝑥= 𝑑𝑧
+𝑑𝑦
+𝑑𝑦
+𝑑𝑥 
+𝑥
+𝑦
+𝑧
+𝑔
+𝑓
+• Generalizing: 𝑥∈ℝ𝑚, 𝑦 ∈ℝ𝑛, 𝑔∶ℝ𝑚→ℝ𝑛, 𝑓∶ℝ𝑛→ℝ
+𝛿𝑧
+𝛿𝑥𝑖
+= ෍
+𝑗
+𝛿𝑧
+𝛿𝑦𝑗
+𝛿𝑦𝑗
+𝛿𝑥𝑖
+∇𝑥𝑧=
+𝛿𝑦
+𝛿x
+𝑇
+∇𝑦𝑧
+The 𝑛× 𝑚 Jacobian matrix of 𝑔 
+• In backpropagation, the gradient is computed by successively 
+multiplying Jacobians and gradients through each step of the 
+computation 
+
+---PAGE---
+76
+Generalization of Backpropagation
+𝒇
+𝒙
+𝒚
+𝒒
+
+---PAGE---
+77
+Generalization of Backpropagation
+𝒇
+𝒙
+𝒚
+𝒒
+𝜕𝐿
+𝜕𝑞
+Upstream Gradient
+(coming from previous 
+stage)
+
+---PAGE---
+78
+Generalization of Backpropagation
+𝒇
+𝒙
+𝒚
+𝒒
+𝜕𝐿
+𝜕𝑞
+Upstream 
+gradient
+𝜕𝑞
+𝜕𝑥
+𝜕𝑞
+𝜕𝑦
+Local Gradients
+(easy to calculate)
+
+---PAGE---
+79
+Generalization of Backpropagation
+𝒇
+𝒙
+𝒚
+𝒒
+𝜕𝐿
+𝜕𝑞
+Upstream 
+gradient
+𝜕𝑞
+𝜕𝑥
+𝜕𝑞
+𝜕𝑦
+Local Gradients
+(easy to calculate)
+Downstream gradient 
+(we can now calculate)
+𝜕𝐿
+𝜕𝑥= 𝜕𝐿
+𝜕𝑞
+𝜕𝑞
+𝜕𝑥
+𝜕𝐿
+𝜕𝑥= 𝜕𝐿
+𝜕𝑞
+𝜕𝑞
+𝜕𝑦
+[Downstream] = [Upstream]* [Local] 
+
+---PAGE---
+80
+#Python Code:
+# Forward pass q = f(x, y)
+# Backward pass
+# 1. Compute local gradients 
+local_grad_x = dq_dx(x, y) 
+local_grad_y = dq_dy(x, y)
+# 2. Get upstream gradient 
+upstream_grad = dL_dq
+# 3. Apply chain rule
+grad_x = local_grad_x * upstream_grad 
+grad_y = local_grad_y * upstream_grad
+local_grad_x = ∂q/∂x 
+local_grad_y = ∂q/∂y
+grad_x = ∂L/∂q × ∂q/∂x 
+grad_y = ∂L/∂q × ∂q/∂y
+
+---PAGE---
+81
+Another Example
+
+---PAGE---
+82
+Forward pass: Compute outputs
+
+---PAGE---
+83
+𝒆𝒓𝒓𝒐𝒓𝑺𝒊𝒈𝒏𝒂𝒍
+Backward pass: Compute gradients
+1
+𝒆𝒓𝒓𝒐𝒓𝑺𝒊𝒈𝒏𝒂𝒍= 𝝏 𝒍𝒐𝒔𝒔
+𝝏𝒇 
+Since there is no loss function (e.g, MSE, cross-entropy)
+We can assume errorSignal =
+𝝏𝒇
+𝝏𝒇 = 𝟏 
+
+---PAGE---
+84
+Backward pass: Compute gradients
+Upstream 
+Gradient
+Local Gradient
+Downstream 
+Gradient
+1
+-0.91
+𝝏𝒇
+𝝏𝒇 = 𝟏 is now the upstream gradient
+𝒆𝒓𝒓𝒐𝒓𝑺𝒊𝒈𝒏𝒂𝒍= 𝝏 𝒍𝒐𝒔𝒔
+𝝏𝒇 
+Since there is no loss function (e.g, MSE, cross-entropy)
+We can assume errorSignal =
+𝝏𝒇
+𝝏𝒇 = 𝟏 
+
+---PAGE---
+85
+Backward pass: Compute gradients
+Upstream 
+Gradient
+Local Gradient
+Downstream 
+Gradient
+1
+-0.91
+-0.91
+
+---PAGE---
+86
+Backward pass: Compute gradients
+Upstream 
+Gradient
+Local Gradient
+Downstream 
+Gradient
+*.
+1
+-0.91
+-0.91
+-0.05
+
+---PAGE---
+87
+Backward pass: Compute gradients
+Upstream 
+Gradient
+Local Gradient
+Downstream 
+Gradient
+1
+-0.91
+-0.91
+-0.05
+0.05
+
+---PAGE---
+88
+Backward pass: Compute gradients
+Local Gradient
+Downstream 
+Gradient
+Upstream 
+Gradient
+1
+-0.91
+-0.91
+-0.05
+0.05
+0.05
+0.05
+
+---PAGE---
+89
+Backward pass: Compute gradients
+Local Gradient
+Downstream 
+Gradient
+Upstream 
+Gradient
+1
+-0.91
+-0.91
+-0.05
+0.05
+0.05
+0.05
+0.05
+0.05
+
+---PAGE---
+90
+Backward pass: Compute gradients
+Local Gradient
+Downstream Gradient
+Upstream 
+Gradient
+1
+-0.91
+-0.91
+-0.05
+0.05
+0.05
+0.05
+0.05
+0.05
+0.09
+0.07
+
+---PAGE---
+91
+Backward pass: Compute gradients
+Local Gradient
+Downstream Gradient
+Upstream 
+Gradient
+1
+-0.91
+-0.91
+-0.05
+0.05
+0.05
+0.05
+0.05
+0.09
+0.07
+0.05
+0.18
+-0.02
+
+---PAGE---
+92
+1
+-0.91
+-0.91
+-0.05
+0.05
+0.05
+0.05
+0.05
+0.09
+0.07
+0.05
+0.18
+-0.02
+Sigmoid
+Backward pass: Compute gradients
+Computational graph is not 
+unique: we can use primitives 
+that have simple local gradients
+
+---PAGE---
+93
+1
+-0.91
+-0.91
+-0.05
+0.05
+0.05
+0.05
+0.05
+0.09
+0.07
+0.05
+0.18
+-0.02
+Sigmoid
+Backward pass: Compute gradients
+Computational graph is not 
+unique: we can use primitives 
+that have simple local gradients
+Sigmoid local 
+gradient:
+
+---PAGE---
+94
+1
+-0.91
+-0.91
+-0.05
+0.05
+0.05
+0.05
+0.05
+0.09
+0.07
+0.05
+0.18
+-0.02
+Sigmoid
+Backward pass: Compute gradients
+Computational graph is not 
+unique: we can use primitives 
+that have simple local gradients
+Sigmoid local 
+gradient:
+[Downstream] = [Local] * [Upstream]
+= [(1 – 0.95) * 0.95 ]* [1.0] = 0.05
+
+---PAGE---
+95
+Patterns in Gradient Flow
+add gate: gradient distributor 
+4
++
+9
+3
+3
+5
+3
+
+---PAGE---
+96
+Patterns in Gradient Flow
+add gate: gradient distributor 
+4
++
+9
+3
+3
+5
+3
+copy gate: gradient adder
+5
+5
+2+7=9
+2
+5
+7
+
+---PAGE---
+97
+Patterns in Gradient Flow
+mul gate: “swap multiplier” 
+4
+×
+8
+6
+2*6=12
+2
+4*6=24
+add gate: gradient distributor 
+4
++
+9
+3
+3
+5
+3
+copy gate: gradient adder
+5
+5
+2+7=9
+2
+5
+7
+
+---PAGE---
+98
+Patterns in Gradient Flow
+max
+max gate: gradient router 
+7
+9
+5
+0
+9
+5
+add gate: gradient distributor 
+4
++
+9
+3
+3
+5
+3
+copy gate: gradient adder
+5
+5
+2+7=9
+2
+5
+7
+mul gate: “swap multiplier” 
+4
+×
+8
+6
+2*6=12
+2
+4*6=24
+
+---PAGE---
+99
+Example
+Backprop Implementation:
+”Flat” gradient code:
+Forward pass: 
+Compute output
+∑
+𝜎
+𝑥1
+𝑥0
+𝑤0
+𝑤1
+𝑤2
+0.95
+1.00
+𝑠3
+𝑠2
+𝑠0
+𝑠1
+Example of neuron with two inputs and one bias:
+1.5
+2
+-0.5
+4
+2
+3
+-2
+1
+3
+
+---PAGE---
+100
+Example
+Example of neuron with two inputs and one bias:
+Forward pass: 
+Compute output
+Backward pass: 
+Compute grads
+downstream= local gradient × upstream
+e.g. local gradient of 𝜎= 1 −𝜎𝜎 
+0.95
+1.00
+𝑠3
+𝑠2
+𝑠0
+𝑠1
+1.5
+2
+-0.5
+4
+2
+3
+-2
+1
+3
+aka error signal
+
+---PAGE---
+101
+Example
+Forward pass: 
+Compute output
+Sigmoid
+0.95
+1.00
+𝑠3
+𝑠2
+𝑠0
+𝑠1
+1.5
+2
+-0.5
+4
+2
+3
+-2
+1
+3
+
+---PAGE---
+102
+0.95
+1.00
+𝑠3
+𝑠0
+𝑠1
+1.5
+2
+-0.5
+4
+2
+3
+-2
+1
+3
+Example
+Forward pass: 
+Compute output
+Add
+Addition acts as 
+a distributor!
+𝑠2
+0.05
+0.05
+0.05
+0.09
+0.07
+0.05
+0.18
+-0.02
+0.05
+
+---PAGE---
+103
+0.95
+1.00
+𝑠3
+𝑠0
+𝑠1
+1.5
+2
+-0.5
+4
+2
+3
+-2
+1
+3
+𝑠2
+0.05
+0.05
+0.05
+0.09
+0.07
+0.05
+0.18
+-0.02
+0.05
+Example
+Forward pass: 
+Compute output
+Add
+
+---PAGE---
+104
+0.95
+1.00
+𝑠3
+𝑠0
+𝑠1
+1.5
+2
+-0.5
+4
+2
+3
+-2
+1
+3
+𝑠2
+𝑤2
+0.05
+0.05
+0.05
+0.09
+0.07
+0.05
+0.18
+-0.02
+0.05
+Forward pass: 
+Compute output
+Multiply
+Example
+0.2*-2
+0.2*-3
+
+---PAGE---
+105
+0.95
+1.00
+𝑠3
+𝑠0
+𝑠1
+1.5
+2
+-0.5
+4
+2
+3
+-2
+1
+3
+𝑠2
+𝑤2
+0.05
+0.05
+0.05
+0.09
+0.07
+0.05
+0.18
+-0.02
+0.05
+Forward pass: 
+Compute output
+Multiply
+Example
+
+---PAGE---
+106
+Backward Computation for MLP
+
+---PAGE---
+107
+Backward Computation for MLP
+This says: do the 
+above step 
+(computing 
+downstream 
+gradient) on both 
+the weights AND 
+biases, and include 
+the regularization 
+term
+J is the cost function
+Downstream 
+gradient
+Local 
+Gradient
+Upstream 
+Gradient
+∇𝑤(𝑘)𝐽
+∇𝑏(𝑘)𝐽
+
+---PAGE---
+108
+Backpropagation with Vectors
+𝒇
+𝒙
+𝒚
+𝒒
+𝑞 ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑄𝑥1
+𝑥 ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑋𝑥1
+𝑦 ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑌𝑥1
+
+---PAGE---
+109
+𝒇
+𝒙
+𝒚
+𝒒
+ 𝑄𝑥1
+ 𝑋𝑥1
+ 𝑌𝑥1
+𝜕𝐿
+𝜕𝑞
+Upstream Gradient
+For each element of q, how 
+much does it influence L?
+Loss L still a scalar!
+𝜕𝐿
+𝜕𝑞ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑄𝑥1
+ 𝑄𝑥1
+
+---PAGE---
+110
+𝒇
+𝒙
+𝒚
+𝒒
+ 𝑄𝑥1
+ 𝑋𝑥1
+ 𝑌𝑥1
+𝜕𝐿
+𝜕𝑞
+Upstream Gradient
+For each element of q, how 
+much does it influence L?
+Loss L still a scalar!
+𝜕𝐿
+𝜕𝑞ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑄𝑥1
+ 𝑄𝑥1
+𝜕𝑞
+𝜕𝑥
+𝜕𝑞
+𝜕𝑦
+Local Jacobian Matrices Gradients 
+ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑋𝑥𝑄 and 
+ 𝑌𝑥𝑄
+ 𝑌𝑥𝑄
+ 𝑋𝑥𝑄
+
+---PAGE---
+111
+𝒇
+𝒙
+𝒚
+𝒒
+ 𝑄𝑥1
+ 𝑋𝑥1
+ 𝑌𝑥1
+𝜕𝐿
+𝜕𝑞
+Upstream Gradient
+For each element of q, how 
+much does it influence L?
+Loss L still a scalar!
+𝜕𝐿
+𝜕𝑞ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑄𝑥1
+ 𝑄𝑥1
+𝜕𝑞
+𝜕𝑥
+𝜕𝑞
+𝜕𝑦
+Local Jacobian Matrices Gradients 
+ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑋𝑥𝑄 and 
+ 𝑌𝑥𝑄
+ 𝑌𝑥𝑄
+ 𝑋𝑥𝑄
+Downstream gradient
+ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 𝑋𝑥1 and 
+ 𝑌𝑥1
+𝜕𝐿
+𝜕𝑥= 𝜕𝑞
+𝜕𝑥
+𝜕𝐿
+𝜕𝑞
+𝜕𝐿
+𝜕𝑌=
+𝜕𝑞
+𝜕𝑌
+𝜕𝐿
+𝜕𝑞 (𝑚𝑎𝑡𝑟𝑖𝑥 𝑣𝑒𝑐𝑡𝑜𝑟 𝑚𝑢𝑙tiply)
+ 𝑌𝑥1
+ 𝑋𝑥1
+
+---PAGE---
+112
+4D input x:
+[ 1 ]
+[ -2 ]
+[ 3 ]
+[ -1 ]
+4D output q: 
+[ 1 ]
+[ 0 ]
+[ 3 ]
+[ 0 ]
+f(x) = max(0,x)
+(elementwise)
+f(x) is a ReLU
+Forward Pass
+ 4𝑥1
+ 4𝑥1
+Example
+
+---PAGE---
+113
+f(x) = max(0,x)
+(elementwise)
+4D input x:
+[ 1 ]
+[ -2 ]
+[ 3 ]
+[ -1 ]
+4D output q: 
+[ 1 ]
+[ 0 ]
+[ 3 ]
+[ 0 ]
+4D dL/dq: 
+[ 4 ]
+[ -1 ]
+[ 5 ]
+[ 9 ]
+Upstream 
+gradient
+(given to us)
+Backward Pass
+𝜕𝐿
+𝜕𝑞ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 4𝑥1
+
+---PAGE---
+114
+f(x) = max(0,x)
+(elementwise)
+4D input x:
+[ 1 ]
+[ -2 ]
+[ 3 ]
+[ -1 ]
+4D output y: 
+[ 1 ]
+[ 0 ]
+[ 3 ]
+[ 0 ]
+Hint: Derivative of ReLu is 0 for (input ≤0) and 1 for (input > 0)
+𝜕𝑞
+𝜕𝑥 ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 4𝑥4
+4D dL/dq: 
+[ 4 ]
+[ -1 ]
+[ 5 ]
+[ 9 ]
+Upstream 
+gradient
+(given to us)
+Local Jacobian Matrices Gradients 
+𝜕𝑞
+𝜕𝑥 =
+
+---PAGE---
+115
+Quick Reference for Backpropagation
+Operation
+Forward
+∂z/∂x
+∂z/∂y
+Addition
+z = x + y
+∂z/∂x = 1
+∂z/∂y = 1
+Multiplication
+z = x × y
+∂z/∂x = y
+∂z/∂y = x
+Power
+z = xⁿ
+∂z/∂x = n·xⁿ⁻¹
+—
+Exponential
+z = eˣ
+∂z/∂x = eˣ
+—
+Max
+z = max(x, y)
+∂z/∂x = 1 if x > y else 0
+∂z/∂y = 1 if y > x else 0
+ReLU
+z = max(0, x)
+∂z/∂x = 1 if x > 0 else 0
+—
+Side: Common Operations - Local Gradients
+
+---PAGE---
+116
+f(x) = max(0,x)
+(elementwise)
+4D input x:
+[ 1 ]
+[ -2 ]
+[ 3 ]
+[ -1 ]
+4D output y: 
+[ 1 ]
+[ 0 ]
+[ 3 ]
+[ 0 ]
+4D dL/dq: 
+[ 4 ]
+[ -1 ]
+[ 5 ]
+[ 9 ]
+Upstream 
+gradient
+(given to us)
+Local Jacobian Matrices Gradients 
+𝜕𝑞
+𝜕𝑥
+𝜕𝐿
+𝜕𝑞 
+Calculate the downstream loss
+
+---PAGE---
+117
+f(x) = max(0,x)
+(elementwise)
+4D input x:
+[ 1 ]
+[ -2 ]
+[ 3 ]
+[ -1 ]
+4D output y: 
+[ 1 ]
+[ 0 ]
+[ 3 ]
+[ 0 ]
+4D dL/dq: 
+[ 4 ]
+[ -1 ]
+[ 5 ]
+[ 9 ]
+Upstream 
+gradient
+(given to us)
+Local Jacobian Matrices Gradients 
+𝜕𝑞
+𝜕𝑥
+𝜕𝐿
+𝜕𝑞 
+Downstream
+ gradient
+𝜕𝐿
+𝜕𝑥
+[ 4 ]
+[ 0 ]
+[ 5 ]
+[ 0 ]
+𝜕𝐿
+𝜕𝑥 ℎ𝑎𝑠 𝑣𝑒𝑐𝑡𝑜𝑟 𝑠ℎ𝑎𝑝𝑒
+ 4𝑥1
+
+---PAGE---
+118
+f(x) = max(0,x)
+(elementwise)
+4D input x:
+[ 1 ]
+[ -2 ]
+[ 3 ]
+[ -1 ]
+4D output y: 
+[ 1 ]
+[ 0 ]
+[ 3 ]
+[ 0 ]
+4D dL/dq: 
+[ 4 ]
+[ -1 ]
+[ 5 ]
+[ 9 ]
+Upstream 
+gradient
+(given to us)
+Local Jacobian Matrices Gradients 
+𝜕𝑞
+𝜕𝑥
+𝜕𝐿
+𝜕𝑞 
+Downstream
+ gradient
+𝜕𝐿
+𝜕𝑥
+[ 4 ]
+[ 0 ]
+[ 5 ]
+[ 0 ]
+Jacobian is sparse: off-diagonal entries all zero! Never explicitly form 
+Jacobian; instead use implicit multiplication
+Problems with this Method
+
+---PAGE---
+119
+f(x) = max(0,x)
+(elementwise)
+4D input x:
+[ 1 ]
+[ -2 ]
+[ 3 ]
+[ -1 ]
+4D output y: 
+[ 1 ]
+[ 0 ]
+[ 3 ]
+[ 0 ]
+dL/dq: 
+[ 4 ]
+[ -1 ]
+[ 5 ]
+[ 9 ]
+Upstream 
+gradient
+(given to us)
+Local Jacobian Matrices Gradients 
+Downstream
+ gradient
+𝜕𝐿
+𝜕𝑥
+[ 4 ]
+[ 0 ]
+[ 5 ]
+[ 0 ]
+Problem: Jacobian is sparse: off-diagonal entries all zero!
+Never explicitly form Jacobian; instead use implicit multiplication
+𝜕𝐿
+𝜕𝑥= ൞
+𝜕𝐿
+𝜕𝑞
+𝑖
+,
+𝑥𝑖> 0
+0,
+𝑜𝑡ℎ𝑒𝑟𝑤𝑖𝑠𝑒
+
+---PAGE---
+120
+In reality, we have Tensors
+Backpropagation with Tensors
+𝒇
+𝒙
+𝒚
+𝒒
+𝑞 ℎ𝑎𝑠 𝑠ℎ𝑎𝑝𝑒
+ 𝑄×𝑄
+𝑥 ℎ𝑎𝑠 𝑠ℎ𝑎𝑝𝑒
+ 𝑋×𝑋
+𝑦 ℎ𝑎𝑠 𝑠ℎ𝑎𝑝𝑒
+ 𝑌×𝑌
+
+---PAGE---
+121
+Backpropagation with Tensors
+𝒇
+𝒙
+𝒚
+𝒒
+𝑞 ℎ𝑎𝑠 𝑠ℎ𝑎𝑝𝑒
+ 𝑄×𝑄
+𝑥 ℎ𝑎𝑠 𝑠ℎ𝑎𝑝𝑒
+ 𝑋×𝑋
+𝑦 ℎ𝑎𝑠 𝑠ℎ𝑎𝑝𝑒
+ 𝑌×𝑌
+Loss L still a scalar!
+dL/dx always has the 
+same shape as x
+
+---PAGE---
+122
+𝒇
+𝒙
+𝒚
+𝒒
+ 𝑄𝑥𝑄
+ 𝑋×𝑋
+ 𝑌×𝑌
+𝜕𝐿
+𝜕𝑞
+Upstream Gradient
+Loss L still a scalar!
+𝜕𝐿
+𝜕𝑞 𝑠ℎ𝑎𝑝𝑒 𝑖𝑠
+ 𝑄𝑥𝑄
+ 𝑄𝑥𝑄
+
+---PAGE---
+123
+𝒇
+𝒙
+𝒚
+𝒒
+ 𝑄𝑥𝑄
+𝜕𝐿
+𝜕𝑞
+Loss L still a scalar!
+𝜕𝑞
+𝜕𝑥
+𝜕𝑞
+𝜕𝑦
+Local Jacobian Matrices Gradients 
+ℎ𝑎𝑠 𝑠ℎ𝑎𝑝𝑒
+ (𝑌×𝑌)×(𝑄×𝑄) and 
+ (𝑋×𝑋)×(𝑄×𝑄)
+ (𝑌×𝑌)×(𝑄×𝑄)
+Upstream Gradient
+𝜕𝐿
+𝜕𝑞 𝑠ℎ𝑎𝑝𝑒 𝑖𝑠
+ 𝑄𝑥𝑄
+ 𝑄𝑥𝑄
+ 𝑋×𝑋
+ 𝑌×𝑌
+ (𝑋×𝑋)×(𝑄×𝑄)
+
+---PAGE---
+124
+𝒇
+𝒙
+𝒚
+𝒒
+ 𝑄𝑥1
+𝜕𝐿
+𝜕𝑞
+Loss L still a scalar!
+𝜕𝑞
+𝜕𝑥
+𝜕𝑞
+𝜕𝑦
+Local Jacobian Matrices Gradients 
+ℎ𝑎𝑠 𝑠ℎ𝑎𝑝𝑒
+ (𝑌×𝑌)×(𝑄×𝑄) and 
+ (𝑋×𝑋)×(𝑄×𝑄)
+ (𝑌×𝑌)×(𝑄×𝑄)
+Upstream Gradient
+𝜕𝐿
+𝜕𝑞 𝑠ℎ𝑎𝑝𝑒 𝑖𝑠
+ 𝑄𝑥𝑄
+ 𝑄𝑥𝑄
+ 𝑋×𝑋
+ 𝑌×𝑌
+ (𝑋×𝑋)×(𝑄×𝑄)
+𝜕𝐿
+𝜕𝑥= 𝜕𝑞
+𝜕𝑥
+𝜕𝐿
+𝜕𝑞
+𝜕𝐿
+𝜕𝑌=
+𝜕𝑞
+𝜕𝑦
+𝜕𝐿
+𝜕𝑞 (𝑚𝑎𝑡𝑟𝑖𝑥−𝑣𝑒𝑐𝑡𝑜𝑟 𝑚𝑢𝑙tiply)
+ 𝑌×𝑌
+ 𝑋×𝑋
+
+---PAGE---
+125
+Example: Matrix Multiplication
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+
+---PAGE---
+126
+Example: Matrix Multiplication
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Jacobians: 
+dy/dx: [(N×D)×(N×M)]
+dy/dw: [(D×M)×(N×M)]
+For a neural net we may have 
+N=64, D=M=4096
+Each Jacobian takes 256 GB of memory!
+Must work with them implicitly!
+
+---PAGE---
+127
+Example: Matrix Multiplication
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx1,1
+[ ? ? ? ? ]
+[ ? ? ? ? ]
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+
+---PAGE---
+128
+Example: Matrix Multiplication
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice:
+dy/dx1,1
+[ ? ? ? ? ]
+[ ? ? ? ? ]
+dy1,1/dx1,1
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+
+---PAGE---
+129
+Example: Matrix Multiplication
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[
+[
+[
+3
+2
+3
+2 1 -1]
+1 3 2]
+2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice:
+dy/dx1,1
+[ ? ? ? ? ]
+dy1,1/dx1,1
+[ ? ? ? ? ]
+y1,1 = x1,1w1,1 + x1,2w2,1 + x1,3w3,1
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+
+---PAGE---
+130
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[
+[
+[
+3
+2
+3
+2 1 -1]
+1 3 2]
+2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice:
+dy/dx1,1
+[ 3 ? ? ? ]
+dy1,1/dx1,1
+[ ? ? ? ? ]
+y1,1 = x1,1w1,1 + x1,2w2,1 + x1,3w3,1
+=> dy1,1/dx1,1 = w1,1
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+131
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx1,1
+[ 3 ? ? ? ]
+[ ? ? ? ? ]
+dy1,2/dx1,1
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+132
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3
+[ 2
+[ 3
+2
+1
+2
+1 -1]
+3 2]
+1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx1,1
+[ 3 ? ? ? ]
+dy1,2/dx1,1
+[ ? ? ? ? ]
+y1,2 = x1,1w1,2 + x1,2w2,2 + x1,3w3,2
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+133
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3
+[ 2
+[ 3
+2
+1
+2
+1 -1]
+3 2]
+1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx1,1
+[ 3 2 ? ? ]
+dy1,2/dx1,1
+[ ? ? ? ? ]
+y1,2 = x1,1w1,2 + x1,2w2,2 + x1,3w3,2
+=> dy1,2/dx1,1 = w1,2
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+134
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice:
+dy/dx1,1
+[ 3 2 1 -1 ] 
+[ ? ? ? ? ]
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+135
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx1,1
+[ 3 2 1 -1 ] 
+[ ? ? ? ? ]
+dy2,1/dx1,1
+y2,1 = x2,1w1,1 + x2,2w2,1 + x2,3w3,1
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+136
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx1,1
+[ 3 2 1 -1 ] 
+[ 0 ? ? ? ]
+dy1,2/dx1,1
+y2,1 = x2,1w1,1 + x2,2w2,1 + x2,3w3,1
+=> dy2,1/dx1,1 = 0
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+137
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx1,1
+[ 3 2 1 -1 ]
+[ 0 0 0 0 ]
+dy1,2/dx1,1
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+138
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx1,1
+[ 3 2 1 -1 ]
+[ 0 0 0 0 ]
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+Example: Matrix Multiplication
+
+---PAGE---
+139
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M]
+2 3 -3 9
+[
+]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ 0
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice:
+dy/dx1,1
+[ 3 2 1 -1 ]
+[ 0 0 0 0 ]
+dL/dx1,1
+= (dy/dx1,1) · (dL/dy)
+= (w1,:) · (dL/dy1,:)
+= 3*2 + 2*3 + 1*(-3) + (-1)*9 = 0
+Example: Matrix Multiplication
+
+---PAGE---
+140
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D]
+0 16 -9
+-24 9 -30
+[ ?
+?
+? ]
+[ ?
+?
+? ]
+Local Gradient Slice: 
+dy/dx
+[ 0 0 0 0 ]
+[ 3 2 1 -1 ]
+dy2,1/dx1, :
+dL/dx2,1
+= (dy/dx2,1) · (dL/dy)
+y2,1 = x2,1w1,1 + x2,2w2,1 + x2,3w3,1
+dy2,1/dx2, :
+= (w1,:) · (dL/dy2,:)
+= 3*(-8) + 2*1 + 1*4 + (-1)*6 = -24
+Example: Matrix Multiplication
+
+---PAGE---
+141
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+-8 1 4 6
+[
+]
+0 16 -9
+-24 9 -30
+dL/dx: [N×D] 
+[ 0
+?
+? ]
+[ -24 ?
+]
+-30
+Local Gradient Slice: 
+dy/dx2,3
+[ 0 0 0 0 ]
+[ 3 2 1 -2 ]
+dL/dx2,3
+= (dy/dx2,3) · (dL/dy)
+= (w3,:) · (dL/dy2,:)
+= 3*(-8) + 2*1 + 1*4 + (-2)*6 = -30
+Example: Matrix Multiplication
+
+---PAGE---
+142
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D] 
+[ 0 16 -9 ]
+[-24 9 -30 ]
+dL/dxi,j
+= (dy/dxi,j) · (dL/dy)
+= (wj,:) · (dL/dyi,:)
+Example: Matrix Multiplication
+
+---PAGE---
+143
+Example: Matrix Multiplication
+
+---PAGE---
+144
+x: [N×D]
+[ 2 1 -3 ]
+[ -3 4 2 ]
+w: [D×M]
+[ 3 2 1 -1]
+[ 2 1 3 2]
+[ 3 2 1 -2]
+Matrix Multiply y = xw
+y: [N×M]
+[-1 -1 2 6 ]
+[ 5 2 11 7 ]
+dL/dy: [N×M] 
+[ 2 3 -3 9 ]
+[ -8 1 4 6 ]
+dL/dx: [N×D] 
+[ 0 16 -9 ]
+[-24 9 -30 ]
+dL/dxi,j
+= (dy/dxi,j) · (dL/dy)
+= (wj,:) · (dL/dyi,:)
+dL/dx = (dL/dy) wT
+[N x D]
+[N x M] [M x D]
+Easy way to remember: 
+It’s the only way the 
+shapes work out!
+This here means that we are not computing full Jacobian 
+matrices, we are instead using implicit multiplication to 
+compute the gradient.
+Example: Matrix Multiplication
+
+---PAGE---
+145
+Vanishing/Exploding Gradients
+
+---PAGE---
+146
+Forward vs. Backward Pass
+▪There is a difference between the forward and backward passes:
+▪In the forward pass we use squashing non-linear activation functions (like 
+sigmoid, tanh, ReLU) that bound the outputs 
+• e.g, sigmoid maps any input to (0, 1)
+• Prevent activations from exploding as signals flow forward through layers
+▪During backpropagation, gradients flow backward through the network
+▪The backward pass, is completely linear. Even though the forward pass 
+is non-linear, backpropagation is a linear operation.
+•  If you double the error derivatives at the final layer, all the error derivatives 
+will double. 
+▪The forward pass computes activations 𝑎= 𝑓(𝑧). During backprop, we 
+calculate 𝛿𝑓= 𝛿𝑓
+𝑙𝑜𝑐𝑎𝑙× 𝛿𝑓
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚
+• The chain rule multiplies local gradients at each layer
+• 𝛿𝑓
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚𝑎𝑛𝑑 𝛿𝑓
+𝑙𝑜𝑐𝑎𝑙 are just numbers and hence this is a linear operation 
+
+---PAGE---
+147
+The Problem of Vanishing/Exploding Gradients
+▪This repeated multiplication can cause gradients to either vanish or explode
+▪Vanish (→ 0) if local gradients < 1
+• When local gradients are small, this is called saturation
+▪Explode (→ ∞) if local gradients > 1
+▪Typical shallow feed-forward neural nets can cope with these exponential 
+effects because they only have a few hidden layers.
+▪Practical symptoms:
+▪Vanishing: early layers learn very slowly, training plateaus
+▪Exploding: loss becomes NaN/Inf, unstable updates
+
+---PAGE---
+148
+Why this happens?
+▪Causes for Vanishing Gradient:
+▪The chain rule repeated multiplication 
+    can cause gradients to vanish
+• Vanish (→ 0) if local gradients < 1
+▪Activation functions:
+• Sigmoid: 𝜎′ 𝑥∈0, 0.25
+• Tanh: 𝑡𝑎𝑛ℎ′ 𝑥∈0, 1
+• Derivatives < 1 multiplied through the layers
+• Depth makes it worse: repeated multiplication by numbers < 1
+▪Poor weight initialization: Small random weights can lead to a combined 
+effect of gradient vanishing
+▪Causes for Exploding Gradient:
+▪The chain rule repeated multiplication can cause gradients to explode
+• Explode (→ ∞) if local gradients > 1
+▪Poor weight initialization: Large random weights combined with no proper 
+normalization can lead to gradient exploding
+
+---PAGE---
+149
+Solutions
+▪Solutions include using ReLU
+▪Recall that: ReLU:𝑓𝑧= max 0 𝑧 ,
+ and its derivative: 𝑓′ 𝑧= ቊ1
+𝑧> 0
+0
+𝑧≤0
+▪Benefits:
+▪avoids saturation on the positive side (keeps derivative ~1)
+▪improved gradient flow vs sigmoid/tanh
+▪Problems:
+▪dead ReLU (too many 𝑧≤0 → zero gradient)
+▪deep stacks can still face instability depending on 
+initialization/scale
+
+---PAGE---
+150
+Solutions
+▪Quick fix for exploding gradient by using Gradient Clipping 
+𝑔←𝑔⋅min(1 ,
+𝜏
+∥𝑔∥ ) where 𝜏 is a threshold and 𝑔 is the gradient
+𝝉≈𝟏. 𝟓
+−1.5
+1.5
+
+---PAGE---
+151
+Solutions
+▪Other Solutions also include:
+▪Normalization (BatchNorm / LayerNorm): stabilizes activation 
+distribution and gradients
+▪Residual/skip connections (CNN  ResNet): provide an 
+identity path for gradients
+▪Proper Initialization to keep signal/gradient scale stable: He or 
+Xavier weight initialization, 
+More on this later!
+
+---PAGE---
+152
+Example: Backpropagation
+You are given a neural network with:
+-
+Input units: A, B, C
+-
+Hidden units: D, E
+-
+Output unit: F
+-
+A bias unit b=0.5, connected to every hidden and output unit.
+The connection weights are:
+A → D = -0.5, B → D = 0.0, C → D = 1.0
+A → E = 0.0, B → E = 0.0, C → E = 0.5
+D → F = -0.5, E → F = 0.5
+The network is trained on a single input vector: [A, B, C] = [1, 0, 1]. Assume using a Sigmoid 
+activation function and training using backpropagation and error signal of 1.
+A) Calculate the forward pass of this network and write the down the numbers after each node.
+B) What is the local gradient of node F, D, and E?
+C) What is the gradient after nodes F, D, and E during the backward pass?
+Now assume that there is an MSE loss function at the output node F and the groundTruth was 1.0
+D) Calculate the new weights after one pass of back propagation if you are using a SGD with 
+learning rate of 0.001
+
+---PAGE---
+153
+Solution
+A
+B
+C
+D
+E
+F
+b
+b
+-0.5
+0
+0.5
+0
+0
+1
+-0.5
+0.5
+0.5
+0.5
+0.5
+a) Node D:
+𝑍𝐷= 𝐴⋅−0.5 + 𝐵⋅0.0 + 𝐶⋅1.0 + 𝑏𝑖𝑎𝑠
+∴𝑍𝐷= 1 ⋅−0.5 + 0 + 1 ⋅1 + 0.5 = 1, ∴𝑎𝐷= 𝜎1.0 =
+1
+1+𝑒−1 ≈0.7311 
+Node E:
+𝑍𝐸= 𝐴⋅0.0 + 𝐵⋅0.0 + 𝐶⋅0.5 + 𝑏𝑖𝑎𝑠
+∴𝑍𝐸= 0 + 0 + 0.5 + 0.5 = 1, ∴𝑎𝐸= 𝜎1.0 =
+1
+1+𝑒−1 ≈0.7311 
+
+---PAGE---
+154
+A
+B
+C
+D
+E
+F
+b
+b
+-0.5
+0
+0.5
+0
+0
+1
+-0.5
+0.5
+0.5
+0.5
+0.5
+Node F:
+𝑍𝐹= 𝐷⋅−0.5 + 𝐸⋅(0.5) + 𝑏𝑖𝑎𝑠
+∴𝑍𝐹= 0.7311 ⋅−0.5 + 0.7311 ⋅0.5 + 0.5 = 0.5, 
+ 
+         ∴𝑎𝐹= 𝜎0.5 =
+1
+1+𝑒−0.5 ≈0.6225 
+Node
+Preactivation (𝑍𝑛𝑜𝑑𝑒)
+Activation (𝑎𝑛𝑜𝑑𝑒)
+D
+1.0
+0.7311
+E
+1.0
+0.7311
+F
+0.5
+0.6225
+Summary of forward pass
+
+---PAGE---
+155
+A
+B
+C
+D
+E
+F
+b
+b
+-0.5
+0
+0.5
+0
+0
+1
+-0.5
+0.5
+0.5
+0.5
+0.5
+𝐿𝑒𝑡 𝛿 𝑏𝑒 𝑡ℎ𝑒 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡
+b) Use 𝛿𝑙𝑜𝑐𝑎𝑙= 𝑎1 −𝑎 (formula for derivative of sigmoid)
+Nodes F, E and D:
+𝛿𝐹
+𝑙𝑜𝑐𝑎𝑙= 0.6225 ⋅1 −0.6225 = 0.2350
+𝛿𝐸
+𝑙𝑜𝑐𝑎𝑙= 0.7311 ⋅1 −0.7311 = 0.1966
+𝛿𝐷
+𝑙𝑜𝑐𝑎𝑙= 0.7311 ⋅1 −0.7311 = 0.1966
+For sigmoid activation function
+Node
+Local gradient (𝛿𝑛𝑜𝑑𝑒
+𝑙𝑜𝑐𝑎𝑙)
+F
+0.2350
+D
+0.1966
+E
+0.1966
+Summary of local gradients
+
+---PAGE---
+156
+c) Calculating the gradients: 
+At node F
+Use𝛿𝐹= 𝛿𝐹
+𝑙𝑜𝑐𝑎𝑙× 𝛿𝐹
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚, since we are given error signal = 1
+∴𝛿𝐹= 0.2350 ⋅1 = 0.2350
+At node D
+We need the upstream at D:
+𝛿𝐷
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚 = 𝛿𝐹 ∗𝑤𝐷→𝐹= 0.2350 ∗−0.5 = −0.1175
+Use𝛿𝐷= 𝛿𝐷
+𝑙𝑜𝑐𝑎𝑙× 𝛿𝐷
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚 =0.1966 ∗−0.1175 = −0.0231
+At node E
+We need the upstream at E:
+𝛿𝐸
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚 = 𝛿𝐹 ∗𝑤𝐸→𝐹= 0.2350 ∗0.5 = 0.1175
+Use𝛿𝐸= 𝛿𝐸
+𝑙𝑜𝑐𝑎𝑙× 𝛿𝐸
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚 =0.1966 ∗0.1175 = 0.0231
+In General:
+𝐷𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡 𝑎𝑡 𝑛𝑜𝑑𝑒= 𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡∗
+𝑙𝑜𝑐𝑎𝑙 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡
+Where: 
+𝑈𝑝𝑠𝑡𝑟𝑒𝑎𝑚 𝑔𝑟𝑎𝑑= ෍(𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚 𝑔𝑟𝑎𝑑𝑒𝑖𝑛𝑡 𝑓𝑟𝑜𝑚 𝑛𝑒𝑥𝑡 𝑙𝑎𝑦𝑒𝑟 𝑜𝑛 𝑟𝑖𝑔ℎ𝑡× 𝑐𝑜𝑟𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑖𝑛𝑔 𝑤𝑒𝑖𝑔ℎ𝑡)
+Note that 𝛿𝑛𝑜𝑑𝑒≈𝛿𝑛𝑜𝑑𝑒
+𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚
+
+---PAGE---
+157
+Node
+After activation 
+(𝛿𝑛𝑜𝑑𝑒
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚)
+Before activation 
+(𝛿𝑛𝑜𝑑𝑒
+𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚 𝑜𝑟𝛿𝑛𝑜𝑑𝑒)
+F
+1.0
+0.2350
+D
+−0.1175
+−0.0231
+E
+0.1175
+0.0231
+Backward Pass Gradients Summary (Error Signal = 1):
+
+---PAGE---
+158
+D) Now do the weight update if there is an MSE loss function at the output node F and the groundTruth 
+was 1.0
+𝑀𝑆𝐸=
+1
+𝑁∑(ො𝑦−𝑦)2 =
+1
+𝑁∑(𝑎𝐹−𝑦)2 = (𝑎𝐹−𝑦)2  //because 𝑁= 1
+First: calculating the gradients: 
+At node F
+𝛿𝐹
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚= 𝜕𝐿
+𝜕𝑎𝐹
+=
+𝜕
+𝜕𝑎𝐹
+(𝑎𝐹−𝑦)2= 2 𝑎𝐹−𝑦= 2(0.6225−1.0)= −0.7550
+Use𝛿𝐹= 𝛿𝐹
+𝑙𝑜𝑐𝑎𝑙× 𝛿𝐹
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚, 
+∴𝛿𝐹= 0.2350 ⋅(−0.7550) = −0.1774
+At node D
+Use𝛿𝐷= 𝛿𝐷
+𝑙𝑜𝑐𝑎𝑙× 𝛿𝐷
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚= 𝛿𝐷
+𝑙𝑜𝑐𝑎𝑙×  (𝛿𝐹
+𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚∗𝑤𝐷→𝐹 ), 
+∴𝛿𝐹= 0.1966 × (−0.1774 × −0.5) = 0.0174
+At node E
+Use𝛿𝐸= 𝛿𝐸
+𝑙𝑜𝑐𝑎𝑙× 𝛿𝐸
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚= 𝛿𝐸
+𝑙𝑜𝑐𝑎𝑙×  (𝛿𝐹
+𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚∗𝑤𝐸→𝐹 ), 
+∴𝛿𝐹= 0.1966 × (−0.1774 × 0.5) = −0.0174
+Node
+After activation (𝛿𝑛𝑜𝑑𝑒
+𝑢𝑝𝑠𝑡𝑟𝑒𝑎𝑚)
+Before activation 
+(𝛿𝑛𝑜𝑑𝑒
+𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚 𝑜𝑟𝛿𝑛𝑜𝑑𝑒)
+F
+− 0.7550
+−0.1774
+D
+0.0887
+0.0174
+E
+− 0.0887
+−0.0174
+Backward Pass Gradients Summary (MSE and GT=1):
+
+---PAGE---
+159
+In general, assume node 𝑥 connects to node 𝑦 with weight 𝑤𝑥→𝑦
+𝜕𝐿
+𝜕𝑤𝑥→𝑦 cannot be evaluated directly, hence we use the chain rule
+𝜕𝐿
+𝜕𝑤𝑥→𝑦
+= 𝜕𝐿
+𝜕𝑧𝑦
+𝜕𝑧𝑦
+𝜕𝑤𝑥→𝑦
+𝜕𝐿
+𝜕𝑧𝑦 is already known because it is simply the 𝛿𝑦𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚
+We need to calculate 
+𝜕𝑧𝑦
+𝜕𝑤𝑥→𝑦. From the forward pass, we know that:  
+𝑧𝑦= 𝑤𝑥→𝑦𝑎𝑥+ 𝑤𝑛𝑜𝑑𝑒1→𝑦𝑎𝑛𝑜𝑑𝑒1 + ⋯
+∴
+𝜕𝑧𝑦
+𝜕𝑤𝑥→𝑦
+= 𝑎𝑥
+Hence, 
+𝜕𝐿
+𝜕𝑤𝑥→𝑦= 𝑎𝑥 × 𝛿𝑦𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚
+𝜕𝐿
+𝜕𝑤𝑥→𝑦 = (𝑎𝑐𝑡𝑖𝑣𝑎𝑡𝑖𝑜𝑛𝑙𝑒𝑓𝑡𝑁𝑜𝑑𝑒× 𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚𝑟𝑖𝑔ℎ𝑡𝑁𝑜𝑑𝑒)
+For the Bias: 
+𝜕𝐿
+𝜕𝑏𝑦=
+𝜕𝐿
+𝜕𝑧𝑦
+𝜕𝑧𝑦
+𝜕𝑏𝑦
+From the forward pass, we know that:  𝑧𝑦= 𝑤𝑥→𝑦𝑎𝑥+ 𝑤𝑛𝑜𝑑𝑒1→𝑦𝑎𝑛𝑜𝑑𝑒1 + ⋯+ 𝑏𝑦
+∴
+𝜕𝑧𝑦
+𝜕𝑏𝑦= 1 AND we know that 
+𝜕𝐿
+𝜕𝑧𝑦 is the 𝛿𝑦𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚
+Hence, 
+𝜕𝐿
+𝜕𝑏𝑦= 1 × 𝛿𝑦𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚= 𝛿𝑦𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚
+𝜕𝐿
+𝜕𝑏𝑦 = 𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚𝑟𝑖𝑔ℎ𝑡𝑁𝑜𝑑𝑒
+
+---PAGE---
+160
+Now calculating using the SGD update:
+𝑁𝑒𝑤 𝑤𝑥→𝑦= 𝑜𝑙𝑑𝑤𝑥→𝑦 −𝛼
+𝜕𝐿
+𝜕𝑤𝑥→𝑦
+𝑁𝑒𝑤 𝑤𝐴→𝐷= −0.5 −0.001
+1.0
+0.0174 = − 0.5000174
+𝑁𝑒𝑤 𝑤𝐵→𝐷= 0 −0.001
+0
+0.0174 = 0.0
+𝑁𝑒𝑤 𝑤𝐶→𝐷= 1 −0.001
+1.0
+0.0174 = 0.9999826
+𝑁𝑒𝑤 𝑤𝐴→𝐸= 0.0000174
+𝑁𝑒𝑤 𝑤𝐵→𝐸= 0.0
+𝑁𝑒𝑤 𝑤𝐶→𝐸= 0.5000174
+𝑁𝑒𝑤 𝑤𝐷→𝐹= −0.5 −0.001
+0.7311
+−0.1774 = − 0.4998703
+𝑁𝑒𝑤 𝑤𝐸→𝐹= 0.5 −0.001
+0.7311
+−0.1774 = 0.5001296
+MSE loss function at the output node F and the 
+groundTruth was 1.0, [A, B, C] = [1, 0, 1], learning 
+rate of 0.001
+𝜕𝐿
+𝜕𝑤𝑥→𝑦 = (𝑎𝑐𝑡𝑖𝑣𝑎𝑡𝑖𝑜𝑛𝑙𝑒𝑓𝑡𝑁𝑜𝑑𝑒× 𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚𝑟𝑖𝑔ℎ𝑡𝑁𝑜𝑑𝑒)
+
+---PAGE---
+161
+For the Bias update using the SGD update:
+𝑁𝑒𝑤 𝑏
+= 𝑜𝑙𝑑 𝑏
+−𝛼
+𝜕𝐿
+𝜕 𝑏
+𝑁𝑒𝑤 𝑏𝐷= 0.5 −0.001
+0.0174 = 0.4999826
+𝑁𝑒𝑤 𝑏𝐸= 0.5 −0.001
+−0.0174 = 0.5000174
+𝑁𝑒𝑤 𝑏𝐹= 0.5 −0.001
+−0.1774 = 0.5001774
+b=0.5
+𝜕𝐿
+𝜕𝑏𝑦 = 𝑑𝑜𝑤𝑛𝑠𝑡𝑟𝑒𝑎𝑚𝑟𝑖𝑔ℎ𝑡𝑁𝑜𝑑𝑒
+
+---PAGE---
+162
+Example with Implementation
+▪The MNIST dataset stands for National Institute of Standards and Technology
+▪The MNIST database contains 60,000 training images and 10,000 testing 
+images of digits.
+▪Each image is put into a 28x28 image by translating it until the center of mass 
+of the pixels is in the center of the image
+▪We need to create an MLP using pytorch and train it
+
+---PAGE---
+163
+Design
+
+---PAGE---
+164
+import torch # Main PyTorch library for tensor operations and neural networks 
+import torch.nn as nn # Neural network module containing layers, loss functions, etc. 
+import torch.optim as optim # Optimization algorithms (SGD, Adam, etc.) 
+import torchvision # Computer vision library with popular datasets and models 
+import torchvision.transforms as transforms # Image transformation utilities
+# transforms.Compose: Chains multiple transformations together into a single pipeline 
+# The transformations are applied sequentially to each image 
+transform = transforms.Compose([ 
+   # transforms.ToTensor(): Converts PIL Image or numpy.ndarray (H x W x C) in range [0, 255] 
+   # to a torch.FloatTensor of shape (C x H x W) in range [0.0, 1.0]  
+   transforms.ToTensor(), 
+   # transforms.Normalize(): Normalizes tensor with mean and standard deviation 
+ 
+   # Formula: output = (input - mean) / std 
+   # Here: (0.5,) is the mean and (0.5,) is the std for single channel (grayscale) 
+      # This transforms values from [0, 1] to [-1, 1] range 
+   transforms.Normalize((0.5,), (0.5,)) 
+]) 
+# DATA LAODING AND PREPRECESSING # 
+#################################################################
+# torchvision.datasets.MNIST: Downloads and loads the MNIST dataset 
+# Parameters: # - root: Directory where dataset is stored/downloaded 
+# - train: If True, loads training set (60,000 images), else test set (10,000 images) 
+# - download: If True, downloads dataset from internet if not found in root 
+# - transform: Function/transform to apply to images 
+trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform) 
+# torch.utils.data.DataLoader: Creates an iterable over the dataset 
+# It handles batching, shuffling, and parallel data loading 
+# Parameters: 
+# - dataset: Dataset object to load from 
+# - batch_size: Number of samples per batch (here: 64 images at a time) 
+# - shuffle: If True, reshuffles data at every epoch (important for training) 
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
+
+---PAGE---
+165
+# NEURAL NETWORK ARCHITECTURE DEFINITION # 
+#################################################################
+# nn.Module: Base class for all neural network modules in PyTorch 
+# Your models should subclass this class 
+class Net(nn.Module): 
+  def __init__(self): 
+    # super().__init__(): Calls the constructor of the parent class (nn.Module) 
+    # This is required to properly initialize the module 
+    super(Net, self).__init__()
+    # nn.Linear: Applies a linear transformation: y = xW^T + b 
+    # Parameters: 
+    # - in_features: Size of input sample (28*28 = 784 for flattened MNIST image) 
+    # - out_features: Size of output sample (512 neurons in this layer) 
+    # This creates a weight matrix of shape (512, 784) and bias vector of shape (512,) 
+    self.fc1 = nn.Linear(28*28, 512) # First fully connected layer 
+    self.fc2 = nn.Linear(512, 256) # Second fully connected layer 
+    self.fc3 = nn.Linear(256, 10) # Output layer (10 classes for digits 0-9)
+  # Defines the forward pass of the network. This method is called when you pass data through the model 
+  # Args: x: Input tensor of shape (batch_size, 1, 28, 28) 
+  #Returns: Output tensor of shape (batch_size, 10) with raw scores for each class
+  def forward(self, x): 
+    # x.view(): Reshapes the tensor without changing its data 
+    # -1 means "infer this dimension from other dimensions" 
+    # Converts (batch_size, 1, 28, 28) to (batch_size, 784) 
+    x = x.view(-1, 28*28) 
+    # Pass through first fully connected layer 
+    x = self.fc1(x)
+    # torch.relu(): Applies Rectified Linear Unit activation function 
+    # ReLU(x) = max(0, x) - zeros out negative values 
+    # This introduces non-linearity, allowing the network to learn complex patterns 
+    x = torch.relu(x) 
+    # Pass through second fully connected layer 
+    x = self.fc2(x) 
+    # Apply ReLU activation 
+    x = torch.relu(x) 
+    # Pass through output layer 
+    # Note: No activation here because CrossEntropyLoss applies softmax internally 
+    x = self.fc3(x) 
+ 
+    return x
+
+---PAGE---
+166
+# TRAINING FUNCTION # 
+#################################################################
+#Train the neural network 
+#Args: model: NN model to train criterion: Loss function (e.g., CrossEntropyLoss) 
+#optimizer: Optimization algorithm (e.g., SGD, Adam) 
+# epochs: Number of complete passes through the training dataset
+def train_model(model, criterion, optimizer, epochs=3): 
+  # Loop over the dataset multiple times 
+  for epoch in range(epochs): 
+    running_loss = 0.0 
+    # Accumulator for loss values # enumerate(): Returns index and data from the iterable 
+    # trainloader yields batches of (images, labels) 
+    # The second parameter (0) is the starting index 
+    for i, data in enumerate(trainloader, 0): 
+      # Unpack the batch 
+      inputs, labels = data # inputs: (64, 1, 28, 28), labels: (64,) 
+      # optimizer.zero_grad(): Clears gradients of all optimized tensors 
+      # PyTorch accumulates gradients by default, so we need to clear them 
+      # before computing gradients for the current batch 
+      optimizer.zero_grad() 
+      # Forward pass: compute predicted outputs by passing inputs to the model 
+      outputs = model(inputs) # Shape: (64, 10) 
+      # criterion(): Computes the loss between predictions and true labels 
+      # CrossEntropyLoss combines nn.LogSoftmax() and nn.NLLLoss() 
+      loss = criterion(outputs, labels) 
+      # loss.backward(): Computes gradients of loss with respect to model parameters 
+      # Uses automatic differentiation (backpropagation) 
+      loss.backward() 
+      # optimizer.step(): Updates model parameters using computed gradients 
+      # Each optimizer (SGD, Adam, etc.) has its own update rule 
+      optimizer.step() 
+      # loss.item(): Extracts the loss value as a Python float 
+      # This is used for monitoring/logging (doesn't require gradients) 
+      running_loss += loss.item() 
+      # Print statistics every 100 mini-batches 
+      if i % 100 == 99: 
+        # Print epoch number, batch number, and average loss 
+        print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 100)) 
+      running_loss = 0.0 # Reset running loss 
+
+---PAGE---
+167
+# TEST ON ONE NEW IMAGE #
+#############################################################
+import matplotlib.pyplot as plt
+# Load test dataset (images the model has never seen) 
+testset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=transform) 
+# Get one test image 
+test_image, true_label = testset[662] # Change the index to change the image
+# Make prediction model_no_bn.eval() 
+# Set to evaluation mode 
+with torch.no_grad(): # Disable gradient calculation 
+  test_image = test_image.unsqueeze(0) # Add batch dimension: (1, 28, 28) -> (1, 1, 28, 28) 
+  output = model_no_bn(test_image) # Get model output 
+  predicted_label = output.argmax().item() # Get the class with highest score 
+# Display the results of test image
+plt.figure()
+# Denormalize: reverse the normalization to get back to [0, 1] range
+img = test_image.squeeze() * 0.5 + 0.5
+plt.imshow(img, cmap='gray')
+plt.title(f'True: {true_label} | Predicted: {predicted_label}', fontsize=14)
+plt.axis('off')
+plt.show()
+The output
+
+---PAGE---
+168
+NEXT: CNN
+https://en.wikipedia.org/wiki/Convolutional_neural_network#/media/File:Typical_cnn.png
+
+---PAGE---

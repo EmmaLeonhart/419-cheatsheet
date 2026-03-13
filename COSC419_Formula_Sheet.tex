@@ -1,0 +1,416 @@
+\documentclass[6pt,landscape,a4paper]{extarticle}
+\usepackage[landscape,margin=0.4cm]{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{listings}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.2pt}
+\setlength{\columnsep}{6pt}
+
+\titleformat{\section}{\bfseries\normalsize}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\bfseries\small}{}{0em}{}
+\titlespacing{\section}{0pt}{3pt}{2pt}
+\titlespacing{\subsection}{0pt}{2pt}{1pt}
+
+\lstset{basicstyle=\ttfamily\fontsize{4.5}{5.5}\selectfont, breaklines=true, frame=none, columns=fullflexible}
+
+\begin{document}
+\begin{multicols}{4}
+
+% ============ COLUMN 1 ============
+\section{Linear Models \& Loss Functions}
+
+\subsection{Linear Regression}
+Predicts a continuous value. Model: $\hat{y} = \mathbf{x}^T\mathbf{w}$ (augment $\mathbf{x}$ with 1 for bias).
+
+\textbf{MSE} (Mean Squared Error): $\frac{1}{P}\sum(\hat{y}_i - y_i)^2$ --- average squared distance from truth. Good for regression, bad for classification.
+
+\textbf{Normal Equation}: Closed-form solution: $\mathbf{w} = (X^TX)^{-1}X^TY$. No iteration needed, but expensive for large data ($O(N^3)$ matrix inverse).
+\begin{lstlisting}
+W = np.linalg.inv(X.T @ X) @ X.T @ Y
+\end{lstlisting}
+
+\subsection{Logistic Regression (Binary)}
+For 2-class classification. Wraps linear model in \textbf{sigmoid}:
+
+$\sigma(t) = \frac{1}{1+e^{-t}}$ --- squashes any real number to $(0,1)$.
+
+Output = probability of class 1. Decide: $>0.5 \to$ class 1, else class 0.
+
+Decision boundary is a hyperplane: $w_0 + w_1x_1 + \cdots = 0$.
+
+\subsection{Loss Functions --- Intuition}
+\textbf{Why not MSE for classification?} MSE treats ``off by 0.1'' the same whether you're near correct or wildly wrong. Cross-entropy punishes confident wrong answers \textit{exponentially} harder.
+
+\textbf{Binary Cross-Entropy}: $-\frac{1}{P}\sum[y\log\hat{y} + (1\!-\!y)\log(1\!-\!\hat{y})]$
+
+Think: ``negative log of the probability you assigned to the TRUE class.'' If you said 0.99 for the right class $\to$ tiny loss. If you said 0.01 $\to$ massive loss.
+
+\textbf{Key}: If predicted=1 but actual=0: loss $\to \infty$ (you were maximally wrong with maximum confidence).
+
+\subsection{Multi-Class Classification}
+\textbf{One-vs-All (OvA)}: Train $C$ separate binary classifiers (``is it class $c$ or not?''). At test time, pick the class with highest score. We train all $C$ weight vectors simultaneously.
+
+\textbf{Softmax}: Turns $C$ raw scores (logits) into probabilities that sum to 1.
+
+$\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$ --- exponential makes big scores dominate.
+
+\textbf{Multi-class CE} (Softmax Loss): $-\frac{1}{P}\sum_p \log(\text{softmax probability of true class})$
+
+\textbf{One-Hot Encoding}: Represent label as vector $[0,0,1,0,\ldots]$ with 1 at true class position.
+
+\textbf{Softmax generalizes sigmoid}: When $C=2$, softmax reduces to sigmoid exactly.
+
+\subsection{Logistic vs Softmax at a Glance}
+\begin{tabular}{@{}l|l|l@{}}
+& \textbf{Logistic} & \textbf{Softmax} \\\hline
+Classes & 2 only & Any $C\ge2$ \\
+Output & Single probability & $C$ probabilities \\
+Activation & Sigmoid & Softmax \\
+Loss & Binary CE & Multi-class CE \\
+\end{tabular}
+
+% ============ COLUMN 2 ============
+\section{Optimizers --- Intuition}
+
+\textbf{Core idea}: All optimizers do $W \leftarrow W - \alpha \cdot (\text{some direction})$. They differ in how they pick direction and step size.
+
+\subsection{Full Batch Gradient Descent}
+Uses \textbf{all} training data for each update. Most accurate gradient, but slowest per step. \textbf{Loss curve}: smooth, monotonically decreasing.
+
+\subsection{Stochastic / Mini-batch SGD}
+Uses small random subset (mini-batch) per step. Noisier gradient but much faster. Noise actually helps escape local minima!
+
+\textbf{SGD updates after every example} (or mini-batch). Full Batch updates after \textbf{entire} dataset. SGD with decaying learning rate improves convergence stability.
+
+\subsection{SGD + Momentum}
+\textbf{Problem it solves}: Vanilla SGD oscillates in steep narrow valleys (zigzags).
+
+\textbf{Idea}: Accumulate a ``velocity'' from past gradients: $v_{t+1} = \rho v_t + \nabla L$, then $w \leftarrow w - \alpha v$. Like a ball rolling downhill --- builds speed in consistent directions, dampens oscillation. $\rho \approx 0.9$ typical.
+
+\textbf{Strength}: Faster convergence, escapes shallow local minima.
+
+\textbf{Weakness}: One more hyperparameter ($\rho$). Can overshoot if $\rho$ too high.
+
+\subsection{AdaGrad (Adaptive Gradient)}
+\textbf{Problem it solves}: Some parameters need big updates, others small (sparse features).
+
+\textbf{Idea}: Track sum of squared gradients per parameter. Divide learning rate by $\sqrt{\text{sum}}$. Parameters that got big gradients get smaller steps over time.
+
+\textbf{Strength}: Great for sparse data --- rare features get bigger updates.
+
+\textbf{Weakness}: Squared gradients \textbf{accumulate monotonically} (only grow, never shrink) $\to$ learning rate decays to essentially zero $\to$ model stops learning prematurely. This is the fatal flaw.
+
+\subsection{RMSProp}
+\textbf{Problem it solves}: AdaGrad's learning rate dies.
+
+\textbf{Idea}: Instead of summing ALL past squared gradients, use \textbf{exponential moving average} (leaky): $gs = \gamma \cdot gs + (1\!-\!\gamma) \cdot dW^2$. Recent gradients matter more, old ones fade away.
+
+\textbf{Strength}: Adaptive like AdaGrad but doesn't die. Works well in practice.
+
+\textbf{Weakness}: Still no momentum. Another hyperparameter ($\gamma$, typically 0.9).
+
+\subsection{Adam (Adaptive Moment Estimation)}
+\textbf{Idea}: Combines \textbf{Momentum} (1st moment of gradients) + \textbf{RMSProp} (2nd moment) + \textbf{bias correction} (early estimates are biased toward 0 since $m,v$ start at 0).
+
+Defaults: $\beta_1\!=\!0.9$, $\beta_2\!=\!0.999$, $\text{lr}\!=\!10^{-3}$.
+
+\textbf{Strength}: Works well out-of-the-box on almost everything. Go-to optimizer.
+
+\textbf{Weakness}: Can generalize slightly worse than well-tuned SGD+Momentum. Weight decay interacts badly with adaptive lr (fixed by AdamW). \textbf{Loss curve}: faster than SGD, may show slight oscillation.
+
+\subsection{AdamW (Adam + Decoupled Weight Decay)}
+\textbf{Problem}: In Adam, L2 regularization gets scaled by the adaptive learning rate, which weakens it for parameters that already have small gradients.
+
+\textbf{Fix}: Apply weight decay \textit{directly} to weights ($\theta \leftarrow \theta - \alpha\lambda\theta$), separate from the gradient update. \textbf{This is the modern default} for training large models.
+
+\subsection{Optimizer Comparison}
+\begin{tabular}{@{}l|cccc@{}}
+& Mom. & Adaptive & Leaky & Bias corr \\\hline
+SGD & & & & \\
++Momentum & \checkmark & & & \\
+AdaGrad & & \checkmark & & \\
+RMSProp & & \checkmark & \checkmark & \\
+Adam & \checkmark & \checkmark & \checkmark & \checkmark \\
+\end{tabular}
+
+\section{Regularization --- Intuition}
+
+Total loss: $\text{data loss} + \lambda \cdot \text{regularization penalty}$
+
+\textbf{L2 (Ridge)}: Penalty $= \sum W^2$. Pushes all weights toward small values. Prefers many small weights over a few large ones. Think: ``spread the work evenly.''
+
+\textbf{L1 (Lasso)}: Penalty $= \sum |W|$. Drives weights to exactly 0 $\to$ automatic feature selection. Think: ``pick only the important features.''
+
+\textbf{Elastic Net}: Combines L1 + L2. Best of both worlds.
+
+\textbf{Dropout}: During training, randomly zero out neurons (e.g., $p=0.5$). Forces the network to not rely on any single neuron $\to$ builds redundancy. \textbf{Only during training!} At test time, use all neurons but scale by $p$. Dropout probability is a \textbf{hyperparameter}.
+
+\textbf{Batch Normalization}: Normalize activations within each mini-batch to mean=0, std=1. Stabilizes training, allows higher learning rates, acts as mild regularization. Has learnable scale ($\gamma$) and shift ($\beta$).
+
+\textbf{Layer order}: Linear $\to$ BatchNorm $\to$ Activation $\to$ Dropout
+
+\textbf{Data Augmentation}: Flip, rotate, crop, color jitter to artificially increase dataset size.
+
+\textbf{Early Stopping}: Stop when validation loss starts going up (model is starting to memorize).
+
+% ============ COLUMN 3 ============
+\section{Neural Networks (MLP)}
+
+\textbf{What}: Stack of fully-connected layers with non-linear activations between them.
+
+\textbf{Why non-linearity?} Without it, stacking layers is pointless---any number of linear layers collapse to a single linear transform. Can't solve XOR!
+
+\textbf{Forward pass}: $h = f(Wx + b)$ layer by layer, input to output.
+
+\textbf{Backprop}: Chain rule through computational graph. Each node: local gradient $\times$ upstream gradient. Reverse-mode autodiff is efficient (one backward pass computes ALL gradients).
+
+\textbf{Explicit Jacobian}: Computing full Jacobian matrices is expensive ($O(n^2)$ per layer). Solution: implicit Jacobians via backprop --- never form the full matrix.
+
+\subsection{Activation Functions}
+\textbf{Sigmoid} $\sigma(x)=\frac{1}{1+e^{-x}}$: Squashes to (0,1). Problem: gradients vanish at extremes (output near 0 or 1), not zero-centered. Use only for binary output layer.
+
+\textbf{Tanh}: Squashes to (-1,1). Zero-centered (better than sigmoid) but still vanishes at extremes.
+
+\textbf{ReLU} $=\max(0,x)$: Simple, fast, no vanishing for positive inputs. Default choice. Weakness: ``dying ReLU'' --- if input always negative, neuron permanently outputs 0.
+
+\textbf{Leaky ReLU} $=\max(0.01x, x)$: Small negative slope means neurons can't die. Slight improvement over ReLU.
+
+\textbf{GELU} $=x\Phi(x)$: Smooth approximation of ReLU. Popular in transformers.
+
+\subsection{Weight Initialization}
+\textbf{Why it matters}: Bad init $\to$ activations explode or vanish through layers $\to$ no learning.
+
+\textbf{All same values}: Catastrophic! All neurons compute the same thing forever (symmetry --- same gradients $\to$ same updates). Must break symmetry with random init.
+
+\textbf{Too large}: Activations saturate (sigmoid goes to 0/1, gradients vanish).
+
+\textbf{Too small}: Activations shrink to 0 layer by layer.
+
+\textbf{Xavier/Glorot} (for sigmoid/tanh): $\text{std} = \sqrt{1/D_{in}}$ --- keeps variance stable through layers.
+
+\textbf{Kaiming/He} (for ReLU): $\text{std} = \sqrt{2/D_{in}}$ --- the $\times 2$ compensates for ReLU killing half the values.
+
+For conv layers: $D_{in} = C_{in} \times K \times K$ (fan-in includes kernel size).
+
+\section{CNN (Convolutional Neural Networks)}
+
+\subsection{Why CNN over MLP?}
+MLP on images: every pixel connects to every neuron $\to$ way too many parameters (28$\times$28$\times$100 $=$ 78,400). No spatial awareness.
+
+CNN exploits spatial structure: \textbf{local receptive fields} (each neuron sees a small region) + \textbf{weight sharing} (same filter everywhere $\to$ 32 filters of 3$\times$3 = only 288 params).
+
+\subsection{Key Concepts}
+\textbf{Filter/Kernel}: Small weight matrix that slides (convolves) over the input. Each filter learns to detect one pattern (edge, corner, texture). Filter always extends through full input depth.
+
+\textbf{Feature/Activation Map}: Output of one filter applied to the input. $N$ filters $\to$ $N$ output channels.
+
+\textbf{Stride}: How far the filter jumps per step. Stride$>$1 downsamples.
+
+\textbf{Padding}: Zeros added around input. ``Same'' padding keeps spatial size. ``Valid'' (no padding) shrinks output.
+
+\textbf{Pooling}: Downsamples (Max or Average). Reduces spatial size, adds translation invariance. \textbf{Zero learnable parameters!}
+
+\textbf{Weight sharing}: Same filter at every position $\to$ translation \textbf{equivariance} (if input shifts, output shifts same way). Pooling adds translation \textbf{invariance} (output doesn't change with small shifts).
+
+\textbf{Receptive field}: Region of the original input that affects one output neuron. Grows with depth --- deeper layers ``see'' more of the image.
+
+\subsection{Dimension Formula}
+\[\boxed{\text{Output} = \left\lfloor\frac{W + 2P - F}{S}\right\rfloor + 1}\]
+CONV weights: $(F \!\times\! F \!\times\! C_{in}) \times C_{out}$ + $C_{out}$ biases
+
+Pool: same formula, depth unchanged, \textbf{0 params}
+
+FC: flatten input $\times$ neurons + biases
+
+\subsection{CNN Calculation Example}
+INPUT $128\!\times\!128\!\times\!3$, CONV-$K$-$N$: $K\!\times\!K$ filter, $N$ filters, stride 1, pad 0:
+\begin{itemize}[nosep,leftmargin=*]
+\item CONV-9-32: $\frac{128-9}{1}\!+\!1\!=\!120 \to 120^2\!\times\!32$, wt$=9^2\!\cdot\!3\!\cdot\!32\!=\!7776$
+\item POOL-2: $60^2\!\times\!32$, wt$=0$
+\item CONV-5-64: $56^2\!\times\!64$, wt$=5^2\!\cdot\!32\!\cdot\!64\!=\!51200$
+\item POOL-2: $28^2\!\times\!64$
+\item CONV-5-64: $24^2\!\times\!64$, wt$=5^2\!\cdot\!64\!\cdot\!64\!=\!102400$
+\item POOL-2: $12^2\!\times\!64$
+\item FC-128: $12^2\!\cdot\!64\!=\!9216$ inputs, wt$=9216\!\cdot\!128$
+\item FC-3: wt$=128\!\cdot\!3\!=\!384$
+\end{itemize}
+
+\subsection{CNN Architectures}
+\textbf{AlexNet} ('12): First big CNN win on ImageNet. Introduced ReLU (instead of sigmoid), dropout, GPU training. 8 layers.
+
+\textbf{ZFNet} ('13): Tweaked AlexNet (smaller filters in layer 1). Introduced deconvolution for visualization.
+
+\textbf{VGG} ('14): Simple idea --- only use 3$\times$3 convs. 3 stacked 3$\times$3 = same receptive field as 7$\times$7 but fewer params ($3 \times 9C^2$ vs $49C^2$) and more non-linearity. Double channels after each pool. Very clean architecture.
+
+\textbf{GoogLeNet/Inception} ('14): Parallel paths (1$\times$1, 3$\times$3, 5$\times$5, pool) concatenated. \textbf{1$\times$1 convolutions} reduce channel depth cheaply (bottleneck) before expensive convs. Only 5M params (12$\times$ fewer than AlexNet). No FC layers at end.
+
+\textbf{ResNet} ('15): \textbf{Skip/residual connections}: $H(x) = F(x) + x$. Network learns the \textit{residual} (difference from identity). Solves degradation problem---very deep nets (152 layers!) can train because gradients flow through shortcuts.
+
+\textbf{DenseNet}: Every layer connects to every later layer (not just skip). Feature reuse.
+
+\textbf{ConvNeXt} ('22): Modernized CNN borrowing transformer design principles. Competitive with vision transformers.
+
+\textbf{InternImage} ('23): Uses \textbf{dynamic/deformable convolution} kernels that adapt their shape per input. Captures both global and local dependencies (like transformers but with convolutions).
+
+% ============ COLUMN 4 ============
+\section{RNN \& LSTM}
+
+\subsection{RNN --- Intuition}
+Processes sequences one step at a time, maintaining a \textbf{hidden state} $h_t$ that acts as ``memory'' of everything seen so far.
+
+$h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t + b)$ --- mixes previous memory with new input.
+
+$\hat{y}_t = \text{softmax}(W_y h_t)$ --- predict from current memory.
+
+\textbf{Same weights} ($W_{hh}, W_{xh}, W_y$) reused at every time step --- this is what makes it handle variable-length sequences.
+
+\textbf{Patterns}: One-to-many (image captioning), many-to-one (sentiment analysis), many-to-many (translation, POS tagging).
+
+\subsection{BPTT (Backprop Through Time)}
+Unroll the RNN across time steps, then backprop as usual. Gradient of loss w.r.t. $W_{hh}$ involves a product of Jacobians across all time steps.
+
+\textbf{Vanishing gradients}: If largest eigenvalue of $W_{hh} < 1$, gradients shrink exponentially over time ($0.5^{50} \approx 10^{-16}$). Network forgets long-range dependencies.
+
+\textbf{Exploding gradients}: If eigenvalue $> 1$, gradients blow up ($1.5^{50} \approx 10^{8}$). Fix: \textbf{gradient clipping} (if $\|g\| > \tau$, rescale: $g \leftarrow g \cdot \tau/\|g\|$).
+
+Vanishing is the harder problem --- can't just clip your way out. Need architectural change $\to$ LSTM.
+
+\subsection{LSTM --- Intuition}
+\textbf{Key idea}: Add a \textbf{cell state} $C_t$ (long-term memory highway) alongside hidden state $h_t$ (short-term). Cell state flows through with only \textit{element-wise} multiply and add --- no matrix multiply $\to$ gradients flow easily across many time steps.
+
+\textbf{4 Gates} (all use sigmoid $\to [0,1]$ to act as ``valves''):
+\begin{enumerate}[nosep,leftmargin=*]
+\item \textbf{Forget gate} ($f$): ``What should I erase from long-term memory?''
+\item \textbf{Input gate} ($i$): ``What new information is worth storing?''
+\item \textbf{Cell gate} ($g$): Candidate new values (uses tanh, can be negative)
+\item \textbf{Output gate} ($o$): ``What part of memory should I output right now?''
+\end{enumerate}
+
+Cell update: $C_t = f \odot C_{t-1} + i \odot g$ (forget some old, add some new).
+
+Why LSTM works: Forget gate can be $\approx 1$ $\to$ gradient flows unchanged for many steps.
+
+\subsection{Language Modeling}
+Goal: predict next word given context: $P(x_{t+1}|x_1,\ldots,x_t)$.
+
+\textbf{Perplexity} $= \exp(\text{avg CE loss})$. Intuition: ``how many words is the model effectively choosing between?'' Lower = better. Perplexity 1 = perfect prediction.
+
+\textbf{Teacher forcing}: During training, feed the \textit{ground truth} previous word (not model's own prediction) as input. Speeds up training.
+
+\section{Training \& Debugging}
+
+\subsection{Reading Loss Curves}
+\textbf{Learning rate too high}: Loss oscillates wildly or explodes to NaN.
+
+\textbf{Learning rate too low}: Loss barely decreases, very flat curve.
+
+\textbf{Good learning rate}: Smooth, steady decrease that levels off.
+
+\textbf{Full Batch GD curve}: Smooth, monotone decrease.
+
+\textbf{Adam curve}: Faster convergence, may show slight oscillation (from momentum).
+
+\subsection{Common Problems}
+\textbf{Dying ReLU}: Some neurons always get negative input $\to$ always output 0 $\to$ zero gradient $\to$ never update again. Fix: Leaky ReLU, He init, lower lr, batch norm.
+
+\textbf{Vanishing activations (sigmoid)}: Activations saturate at 0 or 1 in deep nets. Gradients $\to$ 0. Your friend says it's weight init? \textbf{Yes, they're right.} Fix: Xavier init, batch norm, or switch to ReLU.
+
+\textbf{Loss $\to$ NaN/inf}: \textbf{Both} learning rate AND weight init can cause this. Large weights $\to$ large activations $\to$ large gradients $\to$ even larger weights (feedback loop). Fix: reduce lr, use proper init (He for ReLU, Xavier for sigmoid).
+
+\textbf{Overfitting}: Train loss keeps dropping but val loss increases. Model memorized the data. Fix: dropout, L2 reg, data augmentation, early stopping, or simplify model.
+
+\textbf{Underfitting}: Both train and val loss stay high. Model too simple. Fix: more layers/neurons, \textbf{reduce} regularization, train longer.
+
+\section{PyTorch Essentials}
+
+\textbf{Training loop} (3 magic lines):
+\begin{lstlisting}
+optimizer.zero_grad()  # 1. clear old grads
+loss.backward()        # 2. compute new grads
+optimizer.step()       # 3. update weights
+\end{lstlisting}
+
+\textbf{model.train()}: Enables dropout + batch norm training behavior.
+
+\textbf{model.eval()}: Disables dropout, uses running stats for batch norm.
+
+\textbf{torch.no\_grad()}: No gradient tracking $\to$ faster inference, less memory.
+
+\textbf{torch.argmax(output, dim=1)}: Get predicted class index from logits.
+
+\textbf{nn.CrossEntropyLoss}: Combines softmax + CE loss. Input = raw logits (NOT softmax output!).
+
+\textbf{model.apply(init\_fn)}: Apply weight init function to all layers recursively.
+\begin{lstlisting}
+def init_weights(m):  # He init
+  if isinstance(m, nn.Conv2d):
+    fan_in=m.in_channels*m.kernel_size[0]**2
+    m.weight.data.normal_(0,sqrt(2/fan_in))
+model.apply(init_weights)
+\end{lstlisting}
+
+\section{Quick Vocab Reference}
+
+\subsection{Tensors = Arrays of Arrays}
+A tensor is just a multi-dimensional array. Each dimension has a meaning:
+
+\textbf{Scalar}: 0D --- single number (e.g., loss value: \texttt{3.14})
+
+\textbf{Vector}: 1D --- list of numbers (e.g., bias: \texttt{[0.1, 0.3, 0.5]})
+
+\textbf{Matrix}: 2D --- table (e.g., weight matrix: rows $\times$ cols)
+
+\textbf{3D Tensor}: One image = \texttt{(height, width, channels)}. A 224$\times$224 RGB image is a $224 \times 224 \times 3$ tensor --- 3 stacked grids of pixel values (red, green, blue).
+
+\textbf{4D Tensor} (the common one in training): \texttt{(batch, channels, height, width)}
+
+Example: a mini-batch of 32 RGB images of size 128$\times$128:
+
+\texttt{shape = (32, 3, 128, 128)} --- 32 images, each with 3 color channels, each channel is 128$\times$128 pixels.
+
+Think of it as: \textit{batch of images} $\to$ \textit{each image has color layers} $\to$ \textit{each layer is a grid of pixels}.
+
+PyTorch uses \textbf{NCHW} format: (batch \textbf{N}, \textbf{C}hannels, \textbf{H}eight, \textbf{W}idth).
+
+After conv layers, ``channels'' become ``feature maps'' --- same shape, but now each channel detects a learned pattern instead of a color.
+
+\subsection{Core Terms}
+\textbf{Epoch}: 1 full pass through all training data.
+
+\textbf{Batch/Mini-batch}: Subset of data used for one gradient step.
+
+\textbf{Iteration}: One weight update. Per epoch: $\lceil N/\text{batch size}\rceil$.
+
+\textbf{Hyperparameter}: You choose it (lr, layers, $\lambda$). \textbf{Parameter}: Model learns it ($W$, $b$).
+
+\textbf{Logits}: Raw scores before softmax. Not probabilities yet.
+
+\textbf{Feature map}: Output of a conv filter. Deeper = more abstract features.
+
+\textbf{Receptive field}: How much of the original input one neuron ``sees.''
+
+\textbf{Bias-variance tradeoff}: Simple model = high bias (underfit). Complex model = high variance (overfit).
+
+\textbf{Capacity}: How complex a function the model can represent.
+
+\textbf{Generalization}: Performance on \textit{unseen} data (the whole point).
+
+\textbf{Backprop}: Chain rule applied backward through computation graph.
+
+\textbf{Gradient clipping}: Cap gradient norm to prevent explosion.
+
+\textbf{Transfer learning}: Use pretrained weights, fine-tune on new task.
+
+\textbf{Feature transforms}: SIFT, HoG, Bag of Words --- hand-crafted features (pre-deep learning). DL learns features automatically.
+
+\end{multicols}
+\end{document}

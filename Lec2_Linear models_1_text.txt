@@ -1,0 +1,1078 @@
+1
+Dr. Mohamed Shehata
+Computer Science
+University of British Columbia
+COSC419/519:DEEP LEARNING
+Linear Models
+Part-1
+
+---PAGE---
+2
+Machine Learning
+Let’s say we have experience E (e.g., played 
+games of checkers) with respect to tasks T (e.g., 
+playing checkers), and performance measure P 
+(e.g., probability that the computer will win the next 
+game).
+If the performance P at tasks T improves with more 
+experience E, this is the definition of machine 
+learning.
+“Tom Mitchell“
+EXAMPLE:
+𝐸: the experience of playing thousands of games 
+𝑇: playing Checkers
+𝑃: the fraction of games the algorithm wins against 
+human opponents
+Tom Mitchell
+1997
+Learning from experience to enhance performance
+
+---PAGE---
+3
+Machine Learning
+▪Aspects of machine learning:  
+▪Types of Learning
+• Supervised learning
+• Unsupervised learning
+• More advanced learning techniques:
+• Semi-supervised learning
+• Self-supervised learning (SOTA)
+• Reinforcement learning
+• Few-shot learning
+• Continual learning
+• Federated learning
+▪Types of problems.
+• Regression problems
+• Classification problems
+
+---PAGE---
+4
+       Machine Learning Training
+▪Generally, machine learning is trained using data points :  
+▪Supervised learning
+• Machine trains on data and expected output (i.e. data is 
+labeled)
+• Examples of supervised learning models: 
+•
+SVM
+•
+Decision Trees
+•
+ANN
+▪Unsupervised learning.
+• Unlabeled data (no feedback based on the prediction results)
+• Examples of unsupervised learning models: 
+•
+K-mean
+▪Self-Supervised learning (SSL)
+• Trains models using unlabeled data to generate supervisory 
+signals
+• For training, there are mainly two stages:
+• Pretext task
+• Downstream tasks (application specific, finetune the 
+pretext mode)
+• Examples:
+•
+SimCLR (Contrastive learning)
+•
+DinoV2 (Non-Contrastive learning)
+Contrastive learning uses both 
+positive and negative examples
+Non-contrastive learning Uses 
+only positive examples
+
+---PAGE---
+5
+Motivating Problem
+▪We want to predict the share price of a company, in order to 
+decide when to sell/buy shares
+▪We have access to the revenue of the company, number of 
+employees, taxes, oil price, etc.
+▪How can we predict the share price?
+▪Mathematical modeling:
+▪Using mathematical analysis, find a relation between the input 
+variables (revenue, number of employees, taxes, oil price, etc.) 
+and the output variable (share price)
+▪Learning from data:
+▪Using a large dataset of input revenue, number of employees, 
+taxes, oil price, etc. and share prices of many companies, learn 
+a relation between inputs variables and the output variable
+▪This is the machine learning approach
+
+---PAGE---
+6
+Linear Models
+
+---PAGE---
+7
+Linear Models
+▪One of the fundamental building blocks in machine/deep learning are 
+the linear models, where the model’s output is calculated based on a 
+linear function. There are two main applications of linear models:
+▪Regression
+▪Classification 
+Example: Regression
+Example: Classification
+
+---PAGE---
+8
+Regression vs Classification
+1) Regression problems:
+▪we are trying to map input variables to some 
+continuous function.
+• Example: given data about the size of houses on 
+the real estate market, try to predict their price. 
+2) Classification problem:
+▪we are trying to predict results in a discrete output. 
+That is, we are trying to map input variables into discrete 
+categories.
+• Binary Classification: predict a binary label (e.g. cat vs. non-cat)
+• Multiway classification: predict a discrete label (e.g. object category 
+[for example, cat], from a list [for example, cat, dog, horse, bird])
+▪For example, an SVM (Support Vector Machine) learns the 
+boundary between data of two (or more) categories
+
+---PAGE---
+9
+Reading: 
+Regression
+Chapter 3, Machine Learning Refined
+
+---PAGE---
+10
+Linear Regression
+▪Linear regression solves a regression problem. 
+▪The goal is to build a system that can take a vector 𝑥∈ℝ𝑛 as 
+input and predict the value of a scalar y ∈ℝ as its output. 
+▪The output of linear regression is a linear function.
+
+---PAGE---
+11
+Problem setup
+▪Given a dataset of pairs 𝒙1
+𝑡𝑟𝑎𝑖𝑛, 𝑦1
+𝑡𝑟𝑎𝑖𝑛, 𝒙2
+𝑡𝑟𝑎𝑖𝑛, 𝑦2
+𝑡𝑟𝑎𝑖𝑛, … where:
+•
+𝒙𝑡𝑟𝑎𝑖𝑛, 𝑦𝑡𝑟𝑎𝑖𝑛:
+•
+𝒙 is the input vector (bolded means vector)
+•
+𝑦 is the output or target (scalar)
+▪Then, the experience E is the training of the model using { 𝒙𝑝𝑡𝑟𝑎𝑖𝑛, 𝑦𝑝𝑡𝑟𝑎𝑖𝑛}𝑝=1
+𝑃
+ where 𝑃 
+is all the input/output observation pairs
+▪We augment 𝒙𝑝𝑡𝑟𝑎𝑖𝑛 by adding 1 as as the first dimension to correspond for the bias  
+term in w 
+▪When dealing with N dimensional input we also include a bias term along with N slope 
+weights, and add a 1 as the first element of each 𝒙𝑝 vector. This gives: 
+▪
+Each value in the input is referred to in the jargon of machine learning as a feature or input feature. Each 
+weight in the weight vector 𝑊 is called a weight or parameter.
+▪In general, each input 𝒙𝑝𝑡𝑟𝑎𝑖𝑛 may be a scalar value or 
+a column vector of length N+1 ( (N+1) x 1 vector )
+▪The “model” can be represented by a set of weights 𝑊 
+which is a column vector of the same length
+▪N is the number of features in each input vector
+𝑥𝑝=
+1
+𝑥1,𝑝
+𝑥2,𝑝
+⋮
+𝑥𝑁,𝑝(𝑁+1)×1
+𝑤=
+𝑤0
+𝑤1
+𝑤2
+⋮
+𝑤𝑁(𝑁+1)×1
+𝒙𝑻𝒘= 𝑤0 + 𝑥1,𝑝𝑤1 + 𝑥2,𝑝𝑤2 + … + 𝑥𝑁,𝑝𝑤𝑁≈𝑦𝑝,
+𝑝= 1,2, … , 𝑃 
+
+---PAGE---
+12
+Low Dimensional Example
+▪In simple instances (N=1), the input is scalar-valued (the output 
+of a model is always scalar-valued), and hence the linear 
+regression problem is, geometrically speaking, one of fitting a 
+line to the associated scatter of data points in a 2-dimensional 
+space, modeled as:
+• When N=1, this means that the input 𝒙 
+will have one scalar value (top figure) 
+which forms a line.
+• If N=2, then input 𝒙 will have two values 
+𝑥1𝑎𝑛𝑑 𝑥2 (bottom figure), which will form 
+a hyper plane.
+•
+For example, a specific input 𝑝 of a data pair 
+ 𝒙𝑝= 𝑥1,𝑝, 𝑥2,𝑝 where 𝑥1,𝑝 is the nose size of an 
+animal and 𝑥2,𝑝 is the ear size
+∴𝑤0 +𝑥1,𝑝𝑤1 ≈𝑦𝑝,
+ 𝑝= 1,2, … , 𝑃 
+
+---PAGE---
+13
+The Bias
+▪Motivation: Models need a bias term w₀ to handle cases where 
+the output should be non-zero even when all features are zero.
+▪Step 1: Augment features with 1 
+▪Step 2: Include bias in weights
+▪Step 3: Unified model  ො𝑦= 𝒙𝑇 𝑤
+▪Target: we want ො𝑦 and 𝑦 to be the same value, but there will 
+always be an error.
+▪How can we measure this error and hence quantify the 
+performance of our model?
+
+---PAGE---
+14
+▪Hence, The task 𝑇: predict 𝑦 from 𝒙 by using the linear model 
+ 
+ 
+ො𝑦= 𝒙𝑇𝑤
+• This is also called the regression model with input 𝒙 and output ො𝑦
+• ො𝑦 is the value that our model predicts ( we want to be ≈𝑦). 
+• 𝒙 ∈ ℝN is the input data 
+• 𝑦 ∈ ℝ is the ground truth output value 
+• 𝒘 ∈ ℝN   is the weight/parameters vector of the model
+• 𝒘 controls the behavior of the system
+• Settings of the parameters are called hypotheses
+
+---PAGE---
+15
+Notation
+▪For a SINGLE data point (p-th point):
+▪For ALL data points (entire dataset):
+▪Capital letter means entire dataset while small letter means single datapoint
+𝑥𝑝=
+1
+𝑥1,𝑝
+𝑥2,𝑝
+⋮
+𝑥𝑁,𝑝(𝑁+1)×1
+𝑤=
+𝑤0
+𝑤1
+𝑤2
+⋮
+𝑤𝑁(𝑁+1)×1
+ො𝑦𝑝= 𝑥𝑝𝑇 𝑤 ( transpose x_p to make it a row vector)
+ 
+= 𝑤0 + 𝑥1,𝑝𝑤1 + 𝑥2,𝑝𝑤2 + … + 𝑥𝑁,𝑝𝑤𝑁
+𝑋=
+1
+𝑥1,1
+⋯
+𝑥𝑁,1
+⋮
+⋱
+⋮
+1
+𝑥1,𝑃
+⋯
+𝑥𝑁,𝑃𝑃×(𝑁+1)
+𝑤=
+𝑤0
+𝑤1
+𝑤2
+⋮
+𝑤𝑁(𝑁+1)×1
+෠𝑌= 𝑋 𝑤 ( No transpose on X)
+Where: ෠𝑌=
+෠𝑌1
+෠𝑌𝑃𝑃×1
+    AND            𝑌=
+𝑌1
+𝑌𝑃𝑃×1
+predictions
+Ground truth
+
+---PAGE---
+16
+Performance Example
+▪Consider a pair (𝒙𝑝, 𝑦𝑝) and the model outputs ො𝑦 
+▪Consider N=1 (only one input feature)
+▪In general, 𝑦p≠ ො𝑦 (there is always error)
+▪We define a performance measure:
+▪The square error for point 𝑝 as
+             (ො𝑦−𝑦𝑝)2 (this error is always positive)
+▪Example: Consider 𝒘=(𝑤0,𝑤1)=(100,10) and (𝑥𝑝,𝑦𝑝)=(100,1000) 
+(a company with a revenue of 100M and share price of 1000)
+▪ො𝑦 =𝑤0+𝑤1𝑥𝑝=100+(10)*(100)=1100
+▪(ො𝑦−𝑦𝑝)2 = (1100 −1000)2 =10000 
+
+---PAGE---
+17
+Performance using MSE
+▪In previous slide we measured the square error during training (because we have the ground 
+truth)
+▪In general. measure the performance of the model using mean squared error (MSE) on (𝒙, 𝒚)
+= (ො𝑦1 −𝑦1 )2 + (ො𝑦2 −𝑦2 )2 + ⋯+ (ො𝑦𝑃−𝑦𝑃)2
+𝑃
+▪The MSE is also called the cost function
+𝑔𝑤= 𝐽(𝑤) = 𝑀𝑆𝐸 (different notations depending on textbook) 
+▪The cost function is also used to measure the performance of the model using an input vector of 
+unseen data called 𝒙(𝑡𝑒𝑠𝑡) and the vector of regression targets as 𝑦(𝑡𝑒𝑠𝑡)
+▪NOW: 𝑃, 𝑥𝑝 , and 𝑦𝑝 are all given. Thus the cost function is a function of 𝒘 only
+▪We need to find 𝒘 by minimizing the 𝑀𝑆𝐸 during the training and then testing this during testing
+▪Two solutions:
+▪Direct solution: minimizing the 𝑀𝑆𝐸𝑡𝑟𝑎𝑖𝑛 where its gradient is zero by solving its normal equations (see 
+next slide). This is not suitable for many cases.
+▪Iterative solution: use an iterative method to update the model performance in each iteration (More on 
+this later)
+𝑀𝑆𝐸= 1
+𝑃෍
+𝑖
+ො𝑦 −𝑦𝑖
+2
+
+---PAGE---
+18
+Direct Solution
+▪The least square cost function is a convex quadratic function
+▪A single Newton step can perfectly minimize it (take the 
+derivative and set it to zero):
+Given ො𝑦= 𝒙𝑇 𝑤 and 𝑀𝑆𝐸=
+1
+𝑃σ𝑝=1
+𝑃
+ො𝑦𝑝 −𝑦𝑝𝑖
+2
+▪This is known as the normal equation.
+▪This is sometimes referred to as minimizing via solving the normal equations
+∇𝑤 (𝑀𝑆𝐸𝑡𝑟𝑎𝑖𝑛) = 0
+𝑤(𝑁+1)×1 = 𝑋𝑡𝑟𝑎𝑖𝑛 𝑇𝑋𝑡𝑟𝑎𝑖𝑛
+−1𝑋𝑡𝑟𝑎𝑖𝑛 𝑇𝑌𝑡𝑟𝑎𝑖𝑛
+Where:  𝑋=
+1
+𝑥1
+𝑇
+1
+𝑥2
+𝑇
+1
+𝑥3
+𝑇
+⋮
+⋮
+1
+𝑥𝑃
+𝑇
+𝑃×(𝑁+1)
+෠𝑌=
+෠𝑌1
+෠𝑌𝑃𝑃×1
+ 
+𝑌=
+𝑌1
+𝑌𝑃𝑃×1
+
+---PAGE---
+19
+Example
+▪We have N=1 (only one input feature)
+▪𝑑𝑎𝑡𝑎 𝑝𝑜𝑖𝑛𝑡𝑠= [ 1,2 , 2,3 , 3,4 , 4,5 ]
+𝒙= 𝟏, 𝟐, 𝟑, 𝟒⇒𝑿=
+𝟏
+𝟏
+𝟏
+𝟏
+𝟏
+𝟐
+𝟑
+𝟒
+ (size PxN+1=4x2)
+The prediction vector is hence
+෡𝒀= 𝑿 𝒘=
+𝟏
+𝟏
+𝟏
+𝟏
+𝟏
+𝟐
+𝟑
+𝟒
+𝒘𝟎
+𝒘𝟏=
+𝒘𝟎+ 𝟏𝒘𝟏
+𝒘𝟎+ 𝟐𝒘𝟏
+𝒘𝟎+ 𝟑𝒘𝟏
+𝒘𝟎+ 𝟒𝒘𝟏
+
+---PAGE---
+20
+Sample Code for Direct Solution
+import numpy as np
+from numpy.linalg import inv
+# Input features
+X= np.array([[1, 1], [1, 2], [1, 3], [1, 4]])
+# Target values
+Y = np.array([[2], [3], [4], [5]])
+# Transpose of X
+X_transpose = X.T
+# Compute XT * X
+X_transpose_X = np.dot(X_transpose, X)
+# Compute XT * y
+X_transpose_Y = np.dot(X_transpose, Y)
+# Calculate the inverse of X_transpose_X
+X_transpose_X_inv=inv(X_transpose_X);
+# Solve the normal equation
+w=np.dot(X_transpose_X_inv, X_transpose_Y)
+# print the weights
+print("w[0] = bias w₀:", w[0, 0])
+print("w[1] = weight w₁:", w[1, 0])
+# Input features for testing (1,1) and (1,4)
+X_test = np.array([[1,1], [1,4]])
+predictions = np.dot(X_test, w)
+print(predictions)
+X: The first column represents the bias term 
+(intercept).The second column is the only feature 
+(one independent variable).
+This means X is a 2D feature space, and the 
+regression equation is: y= w0​+w1​x1
+𝑤(𝑁+1)×1 = 𝑋𝑡𝑟𝑎𝑖𝑛 𝑇𝑋𝑡𝑟𝑎𝑖𝑛
+−1𝑋𝑡𝑟𝑎𝑖𝑛 𝑇𝑌𝑡𝑟𝑎𝑖𝑛
+
+---PAGE---
+21
+Visual View on Large Dataset
+•
+N=2
+•
+g(w) is the cost function MSE
+•
+Green is the initial weights and then the red is the 
+final weights after solving the normal equation
+
+---PAGE---
+22
+Exercise at Home
+Given 𝑀𝑆𝐸=
+1
+𝑃σ𝑖ො𝑦 −𝑦𝑖
+2
+Prove that the solution to
+is
+where 
+∇𝑤 (𝑀𝑆𝐸𝑡𝑟𝑎𝑖𝑛) = 0
+𝑤= 𝑋𝑡𝑟𝑎𝑖𝑛 𝑇𝑋𝑡𝑟𝑎𝑖𝑛
+−1𝑋𝑡𝑟𝑎𝑖𝑛 𝑇𝑌𝑡𝑟𝑎𝑖𝑛
+Where:  𝑋=
+1
+𝑥1
+𝑇
+1
+𝑥2
+𝑇
+1
+𝑥3
+𝑇
+⋮
+⋮
+1
+𝑥𝑃
+𝑇
+𝑃×(𝑁+1)
+෠𝑌=
+෠𝑌1
+෠𝑌𝑃𝑃×1
+ 
+𝑌=
+𝑌1
+𝑌𝑃𝑃×1
+
+---PAGE---
+23
+Reading: 
+Binary Classification (Logistic Regression)
+Chapter 6, Machine Learning Refined
+
+---PAGE---
+24
+Two-Class Classification
+▪Key difference between regression and classification:
+▪Regression: output takes on a continuous value (i.e. real values)
+▪Classification: output takes on discrete values (e.g. {0,1})
+Examples:
+•
+Object detection – face or not 
+a face
+•
+Medical diagnosis – ill or not
+•
+Fault detection – correct or 
+faulty
+
+---PAGE---
+25
+Machine Learning: Data-Driven Approach
+1. Collect a dataset (e.g., images and their labels)
+2. Use Machine Learning algorithms to train a classifier
+3. Evaluate the classifier on new images
+Example Dataset: 
+CIFAR10
+•
+10 classes
+•
+50,000 training images
+•
+10,000 testing images
+
+---PAGE---
+26
+General Setup
+Data set
+Learning 
+(or training)
+New data at testing:
+nose-ear (𝑥1, 𝑥2)
+Classification model
+𝑓(w,𝑥𝑝)
+Input {(𝒙𝑝, 𝑦𝑝)}𝑝=1
+𝑃
+N=2: nose, ear
+e.g., (𝑥1, 𝑝, 𝑥2,𝑝) of the pth  
+data point 
+Output:
+class ෞ
+𝑦𝑝 ∈{0,1},
+𝑝= 1,2, … , 𝑃
+Classes: C =2 (cat, dog)
+Predicted class
+ෞ
+𝑦𝑝
+=
+0
+→
+cat
+ෞ
+𝑦𝑝
+=
+1
+→
+dog
+( ෞ
+𝑦𝑝Scalar, 1 probability )
+Then during testing
+Tuning the parameters (𝒘)
+of the model
+Remember: C=2 Classes
+
+---PAGE---
+27
+Data input/output pairs
+• Data: 𝑃input/output pairs (𝒙1, 𝑦1), (𝒙2, 𝑦2), … , (𝒙𝑃, 𝑦𝑃)
+▪𝒙𝑝= (𝑥1, 𝑝, 𝑥2,𝑝 , …, 𝑥N,𝑝)  is an 𝑁-dimensional feature vector for the pth data point
+▪𝑦𝑝takes on two discrete values, often denoted 0 and 1
+• 𝑦𝑝are often called labels or ground truth, and data points
+sharing the same label are called a class
+• Example: (N=2)
+▪𝒙𝑝= (𝑥1,𝑝, 𝑥2,𝑝 ) where
+𝑥1, 𝑝is the nose size and
+𝑥2,𝑝is the ear shape
+         𝑝 is the 𝑝th data point
+▪ො𝑦 𝑝= 0 if sample 𝑝is a cat
+and ො𝑦 𝑝= 1 if it is a dog
+Dog
+Cat
+
+---PAGE---
+28
+Linear Regression to Logistic Regression
+•
+Let us simplify the problem by assuming we have only one feature 
+N=1 (e.g., nose size) and still C=2
+•
+Dataset: 𝑃 data points (𝑥1, 𝑦1), (𝑥2, 𝑦2
+ 
+),… , (𝑥𝑃, 𝑦𝑃)
+•
+𝑥𝑝: Input feature (nose size), N=1
+•
+𝑦𝑝: ground truth (cat=0, dog=1)
+•
+Task: Find an Activation Function 𝒇𝒘,𝒙𝒑
+Such that 𝑦𝑝 ≈ ෝ𝑦𝑝= 𝑓𝑤, 𝑥𝑝
+•
+How do we modify the model activation
+𝑓𝑤, 𝑥𝑝 = 𝑤0 + 𝑤1𝑥  to achieve this task?
+•
+It is obvious that simply fitting a line of the form 
+y=w0+w1x to such a dataset will result in an extremely 
+subpar results.
+•
+The line by itself is simply too inflexible to account for 
+the nonlinearity present in such data.
+•
+Such data needs to be fit with a step function, meaning, 
+fit a discontinuous step function with a linear boundary
+1
+𝑥
+𝑤0
+𝑤1
+⊕
+ ො𝑦
+Linear regression model
+
+---PAGE---
+29
+Activation Function: Step Regression
+Use ෞ
+𝑦𝑝= step 𝑤, 𝑥𝑝
+When N=1, a linear model defining this boundary is 
+just a line w0+xw1 composed with the step function 
+step(⋅), i.e. the model looks like:
+where the step function is:
+The linear boundary (vertical portion of the step function) 
+between the two steps is defined by all points x where:
+linear fit (in green) as well as its composition 
+with the step function (in dashed red) are 
+shown along with the data in the bottom panel
+1
+𝑤0
+⊕
+𝑦
+ො𝑦
+𝑥
+𝑤1
+𝑠𝑡𝑒𝑝𝑎= ቊ1 𝑖𝑓 𝑎≥0.5
+0 𝑖𝑓 𝑎< 0.5
+𝑤0 + 𝑥1𝑤1 = 0.5
+ෞ
+𝑦𝑝= 𝑠𝑡𝑒𝑝(𝑤0 + 𝑥𝑤1)
+Note: The top dashed “1” segment does not extend left just to cover the two points where they 
+have y=1 — those two points are simply misclassified by that choice of 𝑤1 and 𝑤0.
+
+---PAGE---
+30
+Step Regression
+Use ෞ
+𝑦𝑝= step 𝑤,𝑥𝑝
+More generally, with general N-dimensional input:
+A corresponding step function is then simply the step(⋅)
+ of the linear combination of x and w:
+and the linear boundary between the steps is defined by 
+all points Ԧ𝑥 where: 𝑥𝑝
+𝑇𝑤= 0.5
+linear fit (in green) as well as its composition 
+with the step function (in dashed red) are 
+shown along with the data in the bottom panel
+1
+𝑤0
+⊕
+𝑦
+ො𝑦
+𝑥
+𝑤1
+𝑥𝑝=
+1
+𝑥1,𝑝
+𝑥2,𝑝
+⋮
+𝑥𝑁,𝑝
+𝑤=
+𝑤0
+𝑤1
+𝑤2
+⋮
+𝑤𝑁
+ෞ
+𝑦𝑝= 𝑠𝑡𝑒𝑝𝑥𝑝
+𝑇𝑤
+
+---PAGE---
+31
+Finding the Parameters 𝑤
+•  How do we tune the w parameters properly?
+•  Use the MSE loss function (average of the square difference 
+between prediction and ground truth):
+• We could then try to minimize this cost in order to recover 
+weights that satisfy our desired equalities.
+• If we can find a set of weights such that MSE=0 then all P 
+equalities above hold true, otherwise some of them do not.
+𝑀𝑆𝐸= 1
+𝑃෍
+1
+𝑃
+(ෞ
+𝑦𝑝−𝑦𝑝)2
+= 1
+𝑃෍
+1
+𝑃
+(𝑠𝑡𝑒𝑝( 𝑓(𝑤,𝑥𝑝)) −𝑦𝑝)2
+= 1
+𝑃෍
+1
+𝑃
+(𝑠𝑡𝑒𝑝(𝒙𝑝𝑇 𝒘) −𝑦𝑝)2
+
+---PAGE---
+32
+• However: Step function is not ‘nice’ for optimization
+– Not continuous ( this Least Squares cost takes on only integer values)
+– Not differentiable. In other words, it is impossible to minimize with local 
+optimization (e.g., gradient-based techniques), as at every point the 
+function is completely flat.
+– Because of this, local optimization cannot easily take even a single step 
+'downhill' regardless of where they are initialized.
+– This problem is inherited from our use of the step function, itself a 
+discontinuous step.
+Finding the Parameters 𝑤
+
+---PAGE---
+33
+Activation Function: Sigmoid Regression
+• Solution: Replace the step 
+function with a sigmoid logistic 
+function
+𝜎𝑡=
+1
+1+𝑒−𝑡
+𝑓(𝑤, 𝑥)= 𝜎(𝑤0 + 𝑤1𝑥)
+ 
+𝑔(𝑤) = 1
+𝑃෍
+1
+𝑃
+(𝜎(𝒙𝑝𝑇 𝒘) −𝑦𝑝)2
+•
+This function is plotted to right of the 
+lowest figure
+•
+Generally non-convex, but can use 
+normalized Gradient Descent (NGD)
+•
+Too complex: We can simply employ 
+a different and convex cost function
+•
+More on this later
+•
+Note: We need to threshold ො𝑦 at 0.5
+ො𝑦> 0.5 ➔ class 1
+ො𝑦≤0.5 ➔ class 0
+1
+𝑥
+𝑤0
+𝑤1
+⊕
+𝑦
+ො𝑦
+𝜎
+Step regressor
+Data samples
+Logistic regressor
+
+---PAGE---
+34
+•
+𝑓(𝑤, 𝑥)= 𝜎(𝑤0 + 𝑤1𝑥)
+•
+How do we choose
+𝒘= (𝑤0, 𝑤1)?
+•
+Which of the two logistic 
+regression models is better?
+•
+We need to find the value 
+of 𝑥where the model 
+evaluates to 0.5
+▪Model 1: 𝑤= −10,20
+⇒𝑓𝒘(𝑥) = 0.5 @ 𝑥= 0.5
+▪Model 2: 𝑤= −29,100
+⇒𝑓𝒘𝑥= 0.5 @ 𝑥= 0.29
+•
+By counting errors: Model 2 (1 error) is better than model 1 (2 errors)
+•
+⇒We need to define a cost function that quantifies errors, which we
+can then minimize to train the model
+𝒘= −10,20
+𝒘= −29,100
+Example of sigmoid logistic function 
+This is an N=1 Example ( one feature in the input)
+
+---PAGE---
+35
+Loss: Cross-Entropy Error
+•
+Consider a pair (𝑥𝑝, 𝑦𝑝) and the model output as: 
+ 
+            𝑦𝑝 ≈ ො𝑦= 𝑓𝑤, 𝑥𝑝= 𝜎(𝑥𝑝𝑇𝑤) = 𝜎(𝑤0 + 𝑤1𝑥)
+•
+In general, 𝑦𝑝 ≠ 𝑓(w, 𝑥𝑝)
+•
+In previous Sigmoid regression, we calculated the error using
+ 𝑔(𝑤) = 1
+𝑃෍
+1
+𝑃
+(𝜎(𝒙𝑝𝑇 𝒘) −𝑦𝑝)2
+•
+However, to overcome issues discussed before, we can measure the error for one 
+data point 𝑝 using the Log Error (here we use the natural log) as follows:
+•
+We can write the Log Error equivalently - combining the two cases - in a single line:
+𝑔𝑝𝑤= −𝑦𝑝log(𝑓(w,𝑥𝑝)) − (1 − 𝑦𝑝) log (1 − 𝑓(w,𝑥𝑝))
+ 
+= −𝑦𝑝log(ො𝑦) − (1 − 𝑦𝑝) log (1 − ො𝑦)
+𝑔𝑝𝑤= ൞
+−log 𝜎𝒙𝑝𝑇 𝒘
+ 𝑖𝑓 𝑦𝑝= 1
+−log 1 −𝜎𝒙𝑝𝑇 𝒘
+ 𝑖𝑓 𝑦𝑝= 0
+
+---PAGE---
+36
+Loss Calculation: Log Error Vs MSE
+•
+This is the point-wise cross
+entropy error
+•
+Why is this error function
+better than the
+MSE (𝑓(𝑤, 𝑥𝑝) −𝑦𝑝)2 ?
+•
+The log error penalizes the violations of 
+the desired output much more harshly 
+than a squared error
+𝑔𝑝𝑤= −𝑦𝑝log(𝑓(w,𝑥𝑝)) − (1 − 𝑦𝑝) log (1 − 𝑓(w,𝑥𝑝))
+EXAMPLE:
+•
+Suppose we have optimally tuned our weights and that 𝑦𝑝= 1
+•
+Then with our ideal weights we should satisfy our desired equality and have σ 𝑥𝑝𝑇𝑤≅𝑦𝑝= 1, and if this indeed the case 
+then have −log σ 𝑥𝑝𝑇𝑤
+= −log 1 = 0
+•
+However if σ 𝑥𝑝𝑇𝑤 < 1 the value −log σ 𝑥𝑝𝑇𝑤
+ becomes large and positive very quickly harshly penalizing violations of 
+our desired equality
+•
+As σ 𝑥𝑝𝑇𝑤 approaches 0 - the worst possible value it could take on if indeed 𝑦𝑝= 1, then cost value goes to positive 
+infinity
+•
+So indeed, this point-wise cost function penalizes violations when 𝑦𝑝= 1 very strictly and is minimal (equals 0) in value 
+when the desired equality holds
+
+---PAGE---
+37
+▪In short, we always use 𝑙𝑜𝑠𝑠𝑝= −𝑦𝑝log(𝑓(w,𝑥𝑝)) − (1 − 𝑦𝑝) log
+ (1 − 𝑓(w,𝑥𝑝))
+▪This is simplified to 𝑙𝑜𝑠𝑠𝑝= −log(𝑝𝑟𝑜𝑏𝑎𝑏𝑖𝑙𝑖𝑡𝑦 𝑜𝑓 𝑡ℎ𝑒 𝑡𝑟𝑢𝑒 𝑐𝑙𝑎𝑠𝑠)
+▪Why we use −log in the loss?
+▪Probabilities are between 0 and 1, and As probability → 0, 
+log(probability) → -∞
+▪What We Want:
+• Good prediction (high probability for correct class) → LOW loss
+• Bad prediction (low probability for correct class) → HIGH loss
+• Without the Negative Sign we will be trying to minimize a negative 
+number, which means making it MORE negative (worse predictions = 
+lower "loss").
+
+---PAGE---
+38
+•
+In Logistic Regression we use the so-called Binary Cross Entropy cost 
+function by taking the average of the Log Error costs over all P points as:
+•
+𝑔(𝒘) is the binary cross entropy error function (or cost function) over all 
+datapoints
+•
+Note: 𝑃, 𝑥𝑝, and 𝑦𝑝are all given. Thus the error is a function of 𝒘 only
+•
+The cross entropy error function 𝑔(𝒘) is always convex
+•
+To train the model, we tune 𝒘by minimizing 𝑔(𝒘)
+•
+We can use different techniques such as Gradient Descent (more on this 
+next class)
+𝑔𝑤= −1
+𝑃෍
+𝑝=1
+𝑃
+[𝑦𝑝log 𝑓𝑤, 𝑥𝑝+ 1 −𝑦𝑝log(1 −𝑓𝑤, 𝑥𝑝] 
+
+---PAGE---
+39
+Surface Plot of g(w)
+
+---PAGE---
+40
+Training using Gradient Descent
+Same as before
+• Minimizing 𝑔(𝒘) can be done by gradient 
+descent
+• Gradient descent pseudocode:
+1. Initialize 𝑘= 0, and pick 𝒘0 as a starting point
+2. For step k, find 𝛻𝑔(𝒘𝑘)
+(𝑔(𝒘) here is the cross-entropy cost function)
+(for some step
+3. Update 𝒘𝑘+1 = 𝒘𝑘−𝛼𝛻𝑔𝒘𝑘
+size 𝛼)
+4. Increment 𝑘
+5.
+Repeat 2-4 until stopping criterion (convergence or 
+# iterations)
+(More on this next class)
+
+---PAGE---
+41
+Logistic Regression with Multiple Features
+• Dataset: 𝑃 data points 𝒙1, 𝑦1 , 𝒙2, 𝑦2
+,
+𝒙𝑃, 𝑦𝑃
+• 𝒙𝑝 is p input data point (aka feature vector) 
+with N features
+ 
+  𝒙𝑝= (𝒙1,𝑝, 𝒙2,𝑝, … , 𝒙𝑁,𝑝)
+• Output: 𝑦𝑝∈{0,1}
+• Task: Find a function
+𝑓𝑤, 𝒙𝑝= 𝜎(𝑤0 + 𝑤1 𝑥1,𝑝+ 𝑤2 𝑥2,𝑝+ ⋯+ 𝑤𝑁 𝑥𝑁,𝑝)
+such that 𝑦𝑝 ≈ 𝑓(w, 𝒙 𝑝)
+•
+To tune 𝒘, we minimize
+𝑔𝑤= −1
+𝑃෍
+𝑝=1
+𝑃
+𝑦𝑝log(𝑓(w,𝑥𝑝))+(1 −y𝑝) log(1 − 𝑓(w,𝑥𝑝)) 
+• We still have C=2 classes
+• Before N=1, Now let’s see the case of N features in the input
+
+---PAGE---
+42
+Class 1 (dogs)
+Class 0 (cats)
+cats = 0
+dogs = 1
+Example
+1
+𝑥1
+𝑥2
+𝑤0
+𝑤1
+𝑤2
+⊕
+𝜎
+𝑦
+▪Let’s work on an N=2 example
+▪𝑃 data points (𝒙1, 𝑦1), (𝒙2, 𝑦2), … , (𝒙𝑃, 𝑦𝑃)
+▪𝒙𝑝= (𝒙1,𝑝, 𝒙2,𝑝) where 𝒙1,𝑝 is the nose size and 𝒙2,𝑝 is the ear 
+shape
+▪Output: 𝑦𝑝 ∈{0,1} (cat=0, dog=1)
+
+---PAGE---
+43
+cats = 0
+dogs = 1
+Class 1 (dogs)
+Class 0 (cats)
+• By tuning 𝒘, we tune the boundary
+• Example:
+𝒘= 𝑤0, 𝑤1, 𝑤2 = (0.1, −1.5, 1)
+⇒boundary is characterized by 
+the line 𝑤0 + 𝑤1𝑥1 + 𝑤2𝑥2 = 0, 
+hence:
+2
+𝑥= −𝑤0+𝑤1𝑥1
+𝑤2
+= −0.1 + 1.5𝑥1
+• Logistic regression with >2 
+features: Boundary is a 
+hyperplane characterized by
+𝑤0 + 𝑤1𝑥1 + ⋯+ 𝑤𝑁𝑥𝑁= 0
+
+---PAGE---
+44
+Logistic Regression Example
+############################# CELL 1
+import numpy as np
+import matplotlib.pyplot as plt
+############################# CELL 2
+#X = "income“, just 1 feature, y = "candidate" (0 or 1)
+X = np.array([0.2, 0.5, 0.9, 1.1, 1.4, 1.6, 1.9, 2.1, 2.3, 2.6, 2.9, 3.2, 3.7, 4.1, 4.6, 4.9]).reshape(-1, 1)
+Y = np.array([0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1]).reshape(-1, 1)
+plt.scatter(X, Y)
+plt.xlabel("income")
+plt.ylabel("candidate")
+plt.ylim(-0.1, 1.1)
+plt.grid(True)
+plt.show()
+############################# CELL 3
+def model(X, w):
+ return w[0] + X * w[1] #w is shape (2,1): w[0]=bias, w[1]=weight
+#caluclate the activation (probability)
+def sigmoid(t):
+  return 1.0 / (1.0 + np.exp(-t))
+#caluclate the loss
+def cross_entropy(w, X, Y, eps=1e-12):
+  #predicted probabilities (Y_hat)
+  a = sigmoid(model(X, w))
+  #cross entropy: -( Y log(a) + (1-Y) log(1-a) )
+  loss = -np.mean(Y * np.log(a) + (1 - Y) * np.log(1 - a))
+  return loss
+This is an N=1 Example ( one feature in the input) and C=2 classes
+
+---PAGE---
+45
+############################# CELL 4
+#Find the gradient based on current weights – single step at k iteration
+def grad_cross_entropy(w, X, Y):
+  P = X.shape[0]
+  a = sigmoid(model(X, w))       #P×1
+  error = a - Y            #P×1
+  dw0 = np.sum(error) / P       #scalar
+  dw1 = np.sum(error * X) / P     #scalar
+  grad = np.array([[dw0], [dw1]])   #2×1
+  return grad
+#The gradient descent algorithm – full iterative
+def gradient_descent(X, Y, alpha=0.5, iters=2000):
+  w = np.zeros((2,1))         #random initialization , start at [0,0]
+  loss_history = []
+  for k in range(iters):
+    loss = cross_entropy(w, X, Y)
+    loss_history.append(loss)
+        #find the gradient
+    g = grad_cross_entropy(w, X, Y)
+    w = w - alpha * g
+    if k % 200 == 0:
+      print(f"iter {k:4d} | loss = {loss:.6f} | w0={w[0,0]:.4f}, w1={w[1,0]:.4f}")
+  return w, np.array(loss_history)
+############################# CELL 5
+#Start Training
+w_final, loss_hist = gradient_descent(X, Y, alpha=1.0, iters=2000) 
+#plot loss
+plt.plot(loss_hist)
+plt.xlabel("iteration")
+plt.ylabel("cross-entropy loss")
+plt.grid(True)
+plt.show()
+#plot data + learned logistic curve
+Xp = np.linspace(0, 5, 200).reshape(-1, 1)
+Yp = sigmoid(model(Xp, w_final))
+plt.scatter(X, Y, label="data points")
+plt.plot(Xp, Yp, label="logistic regression curve")
+plt.xlabel("income")
+plt.ylabel("candidate (probability)")
+plt.ylim(-0.1, 1.1)
+plt.grid(True)
+plt.legend()
+plt.show()
+print("\nFinal weights:")
+print("w0 (bias) =", w_final[0,0])
+print("w1    =", w_final[1,0])
+
+---PAGE---
+46
+# to predict
+w_ = w_final
+x_test=1.2
+print(sigmoid(model(x_test,w_)))
+x_test=3.6
+print(sigmoid(model(x_test,w_)))
+< 0.5: choose candidate 0
+> 0.5: choose candidate 1
+OUTPUT
+
+---PAGE---

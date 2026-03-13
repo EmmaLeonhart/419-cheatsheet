@@ -1,0 +1,3778 @@
+COSC419/519:DEEP LEARNING
+Dr. Mohamed Shehata
+Computer Science
+University of British Columbia
+CNN Architectures: From Early 
+Modules to Comeback
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+•
+The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) started in 2010 and ended in 2017  which was the final competition year.
+•
+The percentage is the Top-5 percentage error reported on ImageNet dataset
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+
+---PAGE---
+Deep Learning Era
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2012
+8 LAYERS
+AlexNet
+15.3%
+
+---PAGE---
+Case Study: AlexNet Cited by 169770
+Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton, 2012. Reproduced with permission.
+Architecture:
+CONV1 
+MAX POOL1 
+NORM1 
+CONV2 
+MAX POOL2 
+NORM2 
+CONV3 
+CONV4 
+CONV5
+Max POOL3  
+FC6
+FC7  
+FC8
+Input: 227x227x3 images
+5 Convolutional layers
+3 Max pooling
+Relu as activation function
+Trained on two GTX 580 GPUs
+only 3GB of memory each!
+half  the neurons (feature maps) on each  GPU.
+Model split over two GPUs (this is why it shows in the figure 
+as two branches)
+Alex Krizhevsky, Ilya Sutskever, Geoffrey E Hinton, “Imagenet classification with deep convolutional neural 
+networks”, Advances in neural information processing systems Journal, 2012
+https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html
+First CNN ILSVRC Winner
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Input 227x227x3
+First layer (CONV1): 96 11x11 filters applied at stride 4
+=>
+Q: what is the output volume size?
+W’ = (W - F + 2P) / S + 1
+First layer (CONV1): 
+(227-11)/4+1 = 55
+So output is 55x55x96 (split over two branches)
+96
+55 x 55
+227
+227
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Input: 227x227x3 images
+First layer (CONV1): 96 11x11 filters applied at stride 4
+=>
+Output volume [55x55x96]
+W’ = (W - F + 2P) / S + 1
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Input: 227x227x3 images
+First layer (CONV1): 96 11x11 filters applied at stride 4
+=>
+Output volume [55x55x96]
+96
+55 x 55
+227
+3
+227
+W’ = (W - F + 2P) / S + 1
+Size in memory:
+Number of elements 55*55*96=290,400
+Bytes per element=4 (using 32 fpp)
+Memory size=290400*4/1024=1.134 MB
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Input: 227x227x3 images
+First layer (CONV1): 96 11x11 filters applied at stride 4
+=>
+Output volume [55x55x96]
+Q: What is the total number of parameters in this layer?
+3
+11 x 11
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Input: 227x227x3 images
+First layer (CONV1): 96 11x11 filters applied at stride 4
+=>
+Output volume [55x55x96]
+Parameters: (11*11*3 + 1)*96 = 35K
+11 x 11
+3
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Input: 227x227x3 images 
+After CONV1: 55x55x96
+Second layer (POOL1): Max 3x3 filters applied at stride 2
+Q: what is the output volume size?
+W’ = (W - F + 2P) / S + 1
+Second layer (POOL1): 
+(55-3)/2+1 = 27
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Input: 227x227x3 images 
+After CONV1: 55x55x96
+Second layer (POOL1): 3x3 filters applied at stride 2 
+Output volume: 27x27x96
+Q: what is the number of parameters in this layer?
+W’ = (W - F + 2P) / S + 1
+Parameters= 0
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Input: 227x227x3 images 
+After CONV1: 55x55x96 
+After POOL1: 27x27x96
+...
+AND SO ON…..
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Full (simplified)AlexNet architecture:  
+[227x227x3] INPUT
+[55x55x96] CONV1: 96 11x11 filters at stride 4, pad 0 
+[27x27x96] MAX POOL1: 3x3 filters at stride 2 
+[27x27x96] NORM1: Normalization layer
+[27x27x256] CONV2: 256 5x5 filters at stride 1, pad 2 
+[13x13x256] MAX POOL2: 3x3 filters at stride 2 
+[13x13x256] NORM2: Normalization layer 
+[13x13x384] CONV3: 384 3x3 filters at stride 1, pad 1 
+[13x13x384] CONV4: 384 3x3 filters at stride 1, pad 1 
+[13x13x256] CONV5: 256 3x3 filters at stride 1, pad 1 
+[6x6x256] MAX POOL3: 3x3 filters at stride 2
+Flatten output from last maxpool (6x6x256) = 9216
+[9216] FC6: 4096 neurons
+[4096] FC7: 4096 neurons
+[4096] FC8: 1000 neurons (class scores)
+Fully Connected Layers: 
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Full (simplified)AlexNet architecture:  
+[227x227x3] INPUT
+[55x55x96] CONV1: 96 11x11 filters at stride 4, pad 0 
+[27x27x96] MAX POOL1: 3x3 filters at stride 2 
+[27x27x96] NORM1: Normalization layer
+[27x27x256] CONV2: 256 5x5 filters at stride 1, pad 2 
+[13x13x256] MAX POOL2: 3x3 filters at stride 2 
+[13x13x256] NORM2: Normalization layer 
+[13x13x384] CONV3: 384 3x3 filters at stride 1, pad 1 
+[13x13x384] CONV4: 384 3x3 filters at stride 1, pad 1 
+[13x13x256] CONV5: 256 3x3 filters at stride 1, pad 1 
+[6x6x256] MAX POOL3: 3x3 filters at stride 2
+[9216] FC6: 4096 neurons
+[4096] FC7: 4096 neurons
+[4096] FC8: 1000 neurons (class scores)
+Details/Retrospectives:
+- first use of ReLU
+- used local response normalization layers
+(not used anymore)
+- heavy data augmentation
+- - dropout 0.5  (Next class)
+- batch size 128
+- SGD Momentum 0.9
+-Learning rate 1e-2, reduced by 10 
+manually when accuracy plateaus
+- L2 weight decay 5e-4
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Full (simplified)AlexNet architecture:  
+[227x227x3] INPUT
+[55x55x96] CONV1: 96 11x11 filters at stride 4, pad 0
+[27x27x96] MAX POOL1: 3x3 filters at stride 2 
+[27x27x96] NORM1: Normalization layer
+[27x27x256] CONV2: 256 5x5 filters at stride 1, pad 2 
+[13x13x256] MAX POOL2: 3x3 filters at stride 2 
+[13x13x256] NORM2: Normalization layer 
+[13x13x384] CONV3: 384 3x3 filters at stride 1, pad 1 
+[13x13x384] CONV4: 384 3x3 filters at stride 1, pad 1 
+[13x13x256] CONV5: 256 3x3 filters at stride 1, pad 1 
+[6x6x256] MAX POOL3: 3x3 filters at stride 2
+[9216] FC6: 4096 neurons
+[4096] FC7: 4096 neurons
+[4096] FC8: 1000 neurons (class scores)
+[55x55x48] x 2
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Full (simplified)AlexNet architecture:  
+[227x227x3] INPUT
+[55x55x96] CONV1: 96 11x11 filters at stride 4, pad 0 
+[27x27x96] MAX POOL1: 3x3 filters at stride 2 
+[27x27x96] NORM1: Normalization layer
+[27x27x256] CONV2: 256 5x5 filters at stride 1, pad 2 
+[13x13x256] MAX POOL2: 3x3 filters at stride 2 
+[13x13x256] NORM2: Normalization layer 
+[13x13x384] CONV3: 384 3x3 filters at stride 1, pad 1 
+[13x13x384] CONV4: 384 3x3 filters at stride 1, pad 1 
+[13x13x256] CONV5: 256 3x3 filters at stride 1, pad 1 
+[6x6x256] MAX POOL3: 3x3 filters at stride 2
+[9216] FC6: 4096 neurons
+[4096] FC7: 4096 neurons
+[4096] FC8: 1000 neurons (class scores)
+CONV1, CONV2, CONV4, CONV5:
+Connections only with feature maps 
+on same GPU
+
+---PAGE---
+Case Study: AlexNet
+[Krizhevsky et al. 2012]
+Full (simplified)AlexNet architecture:  
+[227x227x3] INPUT
+[55x55x96] CONV1: 96 11x11 filters at stride 4, pad 0 
+[27x27x96] MAX POOL1: 3x3 filters at stride 2 
+[27x27x96] NORM1: Normalization layer
+[27x27x256] CONV2: 256 5x5 filters at stride 1, pad 2 
+[13x13x256] MAX POOL2: 3x3 filters at stride 2 
+[13x13x256] NORM2: Normalization layer 
+[13x13x384] CONV3: 384 3x3 filters at stride 1, pad 1 
+[13x13x384] CONV4: 384 3x3 filters at stride 1, pad 1 
+[13x13x256] CONV5: 256 3x3 filters at stride 1, pad 1 
+[6x6x256] MAX POOL3: 3x3 filters at stride 2
+[9216] FC6: 4096 neurons
+[4096] FC7: 4096 neurons
+[4096] FC8: 1000 neurons (class scores)
+CONV3, FC6, FC7, FC8:
+Connections with all feature maps in 
+preceding layer, communication 
+across GPUs
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2013
+ZFNet
+11.2%
+8 LAYERS
+
+---PAGE---
+ImageNet top 5 error: 16.4% -> 11.7%
+Similar to AlexNet, but tweaked the design choices
+CONV1: change from (11x11 stride 4) to (7x7 stride 2)
+Another variation that they introduced in the paper (not shown here) is to use 512, 1024, 512 
+filters in CONV3,4,5 (instead of 384, 384, 256 filters)
+W’ = (W - F + 2P) / S + 1
+Matthew D Zeiler, Rob Fergus, “Visualizing and Understanding Convolutional Networks”, 
+ECCV, 2014
+https://arxiv.org/abs/1311.2901
+ZFNET Cited by 23886
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2014
+VGG
+7-7.3%
+16 or 19
+ LAYERS
+
+---PAGE---
+Case Study: VGGNet
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 256
+3x3 conv, 384
+Pool
+3x3 conv, 384
+Pool
+5x5 conv, 256
+11x11 conv, 96
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+The 16 or 19 refers to the number of CONV and FC that 
+have learnable parameters
+8 layers (AlexNet) -> 16 or 19 layers (VGG16 / VGG19)
+Structured and principled design:
+•
+All CONV are 3x3, stride 1, pad 1 
+•
+MAX POOL are 2x2, stride 2
+•
+After each POOL double the number of 
+channels (i.e., number of filters)
+11.7% top 5 error in ILSVRC’13 (ZFNet)
+-> 7.3% top 5 error in ILSVRC’14
+AlexNet
+VGG16
+VGG19
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+Karen Simonyan, Andrew Zisserman, Very Deep Convolutional Networks for Large-Scale Image 
+Recognition, ICLR 2015
+VGG16 Citations 137289
+https://arxiv.org/abs/1409.1556
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+Small filters (fixed size 3x3), Deeper networks
+There are 5 stages of convolution:
+VGG19
+Stage 1
+Stage 2
+Stage 3
+Stage 4
+Stage 5
+Stage-1: conv-conv-pool
+Stage-2: conv-conv-pool
+Stage-3: conv-conv-conv-conv-pool
+Stage-4: conv-conv-conv-conv-pool
+Stage-5: conv-conv-conv-conv-pool
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: Why use smaller filters? (3x3 conv)
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 256
+3x3 conv, 384
+Pool
+3x3 conv, 384
+Pool
+5x5 conv, 256
+11x11 conv, 96
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+AlexNet
+VGG16
+VGG19
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: Why use smaller filters? (3x3 conv)
+Stack of three 3x3 conv (stride 1) layers 
+has same effective receptive field as 
+one 7x7 conv layer
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 256
+3x3 conv, 384
+Pool
+3x3 conv, 384
+Pool
+5x5 conv, 256
+11x11 conv, 96
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+AlexNet
+VGG16
+VGG19
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: What is the effective receptive field 
+of three 3x3 conv (stride 1) layers?
+Conv1 (3x3)
+Conv2 (3x3)
+Conv3 (3x3)
+A1
+A2
+A3
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+VGG16
+VGG19
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: What is the effective receptive field 
+of three 3x3 conv (stride 1) layers?
+Conv1 (3x3)
+Conv2 (3x3)
+Conv3 (3x3)
+A1
+A2
+A3
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+VGG16
+VGG19
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: What is the effective receptive field 
+of three 3x3 conv (stride 1) layers?
+Conv1 (3x3)
+Conv2 (3x3)
+Conv3 (3x3)
+A1
+A2
+A3
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+VGG16
+VGG19
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: What is the effective receptive field 
+of three 3x3 conv (stride 1) layers?
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+VGG16
+VGG19
+Conv1 (3x3)
+Conv2 (3x3)
+Conv3 (3x3)
+A1
+A2
+A3
+Input
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: What is the effective receptive field 
+of three 3x3 conv (stride 1) layers?
+Conv1 (3x3)
+Conv2 (3x3)
+Conv3 (3x3)
+A1
+A2
+A3
+Input
+7x7 receptive field
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: Why use smaller filters? (3x3 conv)
+Stack of three 3x3 conv (stride 1) layers 
+has same effective receptive field as 
+one 7x7 conv layer
+
+---PAGE---
+Case Study: VGGNet
+[Simonyan and Zisserman, 2014]
+Q: Why use smaller filters? (3x3 conv)
+Stack of three 3x3 conv (stride 1) layers 
+has same effective receptive field as 
+one 7x7 conv layer, But:
+1) deeper, and more non-linearities
+2) And fewer parameters. for C channels per layer:
+Option1: 3 * (3x3xCxC) = 27 C2 
+ 
+ 
+ 
+ 
+vs.
+Option2: 7x7xCxC = 49 C2 
+(number of stacks)
+Number of filters
+Dim. of each filter
+
+---PAGE---
+INPUT: [224x224x3]
+memory:  224*224*3=150K
+params: 0
+(not counting biases)
+CONV3-64: [224x224x64] memory:  224*224*64=3.2M
+params: (3*3*3)*64 = 1,728 
+CONV3-64: [224x224x64] memory:  224*224*64=3.2M
+params: (3*3*64)*64 = 36,864
+POOL2: [112x112x64] memory: 112*112*64=800K
+params: 0
+CONV3-128: [112x112x128] memory: 112*112*128=1.6M
+params: (3*3*64)*128 = 73,728 
+CONV3-128: [112x112x128] memory: 112*112*128=1.6M
+params: (3*3*128)*128 = 147,456
+POOL2: [56x56x128] memory:  56*56*128=400K
+params: 0
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+params: (3*3*128)*256 = 294,912
+params: (3*3*256)*256 = 589,824
+params: (3*3*256)*256 = 589,824
+POOL2: [28x28x256] memory:  28*28*256=200K
+params: 0
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+params: (3*3*256)*512 = 1,179,648
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+POOL2: [14x14x512] memory:  14*14*512=100K
+params: 0
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+POOL2: [7x7x512] memory: 7*7*512=25K params: 0
+FC: [1x1x4096] memory: 4096 params: 7*7*512*4096 = 102,760,448 
+FC: [1x1x4096] memory: 4096 params: 4096*4096 = 16,777,216
+FC: [1x1x1000] memory: 1000 params: 4096*1000 = 4,096,000
+VGG16
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+
+---PAGE---
+INPUT: [224x224x3]
+memory:  224*224*3=150K
+params: 0
+(not counting biases)
+CONV3-64: [224x224x64] memory:  224*224*64=3.2M
+params: (3*3*3)*64 = 1,728 
+CONV3-64: [224x224x64] memory:  224*224*64=3.2M
+params: (3*3*64)*64 = 36,864
+POOL2: [112x112x64] memory: 112*112*64=800K
+params: 0
+CONV3-128: [112x112x128] memory: 112*112*128=1.6M
+params: (3*3*64)*128 = 73,728 
+CONV3-128: [112x112x128] memory: 112*112*128=1.6M
+params: (3*3*128)*128 = 147,456
+POOL2: [56x56x128] memory:  56*56*128=400K
+params: 0
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+params: (3*3*128)*256 = 294,912
+params: (3*3*256)*256 = 589,824
+params: (3*3*256)*256 = 589,824
+POOL2: [28x28x256] memory:  28*28*256=200K
+params: 0
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+params: (3*3*256)*512 = 1,179,648
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+POOL2: [14x14x512] memory:  14*14*512=100K
+params: 0
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+POOL2: [7x7x512] memory: 7*7*512=25K params: 0
+FC: [1x1x4096] memory: 4096 params: 7*7*512*4096 = 102,760,448 
+FC: [1x1x4096] memory: 4096 params: 4096*4096 = 16,777,216
+FC: [1x1x1000] memory: 1000 params: 4096*1000 = 4,096,000
+TOTAL params: 138M parameters
+VGG16
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+Notice the doubling of the number of channels after each pooling
+
+---PAGE---
+INPUT: [224x224x3]
+memory:  224*224*3=150K
+params: 0
+CONV3-64: [224x224x64] memory: 224*224*64=3.2M
+params: (3*3*3)*64 = 1,728 
+CONV3-64: [224x224x64] memory: 224*224*64=3.2M
+params: (3*3*64)*64 = 36,864
+POOL2: [112x112x64] memory: 112*112*64=800K
+params: 0
+CONV3-128: [112x112x128] memory: 112*112*128=1.6M
+params: (3*3*64)*128 = 73,728 
+CONV3-128: [112x112x128] memory: 112*112*128=1.6M
+params: (3*3*128)*128 = 147,456
+POOL2: [56x56x128] memory:  56*56*128=400K
+params: 0
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+params: (3*3*128)*256 = 294,912
+params: (3*3*256)*256 = 589,824
+params: (3*3*256)*256 = 589,824
+POOL2: [28x28x256] memory:  28*28*256=200K
+params: 0
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+params: (3*3*256)*512 = 1,179,648
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+POOL2: [14x14x512] memory:  14*14*512=100K
+params: 0
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+POOL2: [7x7x512] memory: 7*7*512=25K params: 0
+FC: [1x1x4096] memory: 4096 params: 7*7*512*4096 = 102,760,448
+FC: [1x1x4096] memory: 4096 params: 4096*4096 = 16,777,216 
+FC: [1x1x1000] memory: 1000 params: 4096*1000 = 4,096,000
+TOTAL params: 138M parameters
+(not counting biases)
+Note:
+Most memory is in 
+early CONV
+Most params are 
+in late FC
+
+---PAGE---
+INPUT: [224x224x3]
+memory:  224*224*3=150K
+params: 0
+CONV3-64: [224x224x64] memory:  224*224*64=3.2M
+params: (3*3*3)*64 = 1,728 
+CONV3-64: [224x224x64] memory:  224*224*64=3.2M
+params: (3*3*64)*64 = 36,864
+POOL2: [112x112x64] memory: 112*112*64=800K
+params: 0
+CONV3-128: [112x112x128] memory: 112*112*128=1.6M
+params: (3*3*64)*128 = 73,728 
+CONV3-128: [112x112x128] memory: 112*112*128=1.6M
+params: (3*3*128)*128 = 147,456
+POOL2: [56x56x128] memory:  56*56*128=400K
+params: 0
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+CONV3-256: [56x56x256] memory: 56*56*256=800K
+params: (3*3*128)*256 = 294,912
+params: (3*3*256)*256 = 589,824
+params: (3*3*256)*256 = 589,824
+POOL2: [28x28x256] memory:  28*28*256=200K
+params: 0
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+CONV3-512: [28x28x512] memory: 28*28*512=400K
+params: (3*3*256)*512 = 1,179,648
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+POOL2: [14x14x512] memory:  14*14*512=100K
+params: 0
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+params: (3*3*512)*512 = 2,359,296
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+CONV3-512: [14x14x512] memory: 14*14*512=100K
+POOL2: [7x7x512] memory: 7*7*512=25K params: 0
+FC: [1x1x4096] memory: 4096 params: 7*7*512*4096 = 102,760,448 
+FC: [1x1x4096] memory: 4096 params: 4096*4096 = 16,777,216
+FC: [1x1x1000] memory: 1000 params: 4096*1000 = 4,096,000
+TOTAL params: 138M parameters
+Memory usage:
+weights: ~552 MB
+Activations: ~200 MB (for batch size 1; scales with batch size)
+Gradients: ~200 MB (similar to activations)
+Total Memory Usage: ~1 GB (for batch size 1).
+(not counting biases)
+conv1-2  
+conv1-1
+conv2-2  
+conv2-1
+conv3-3
+conv3-2  
+conv3-1
+conv4-3
+conv4-2
+conv4-1
+conv5-3
+conv5-2
+conv5-1
+Common names
+fc8
+fc7
+fc6
+VGG16
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+Stage-1
+Stage-2
+Stage-3
+Stage-4
+Stage-5
+
+---PAGE---
+Details:
+-
+ILSVRC’14 2nd in classification, 1st in 
+localization
+-
+Similar training procedure as Krizhevsky 
+2012
+-
+No Local Response Normalisation (LRN)
+-
+Use VGG16 or VGG19 (VGG19 only 
+slightly better, more memory)
+-
+FC7 features generalizes well to 
+other tasks
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 256
+3x3 conv, 384
+Pool
+3x3 conv, 384
+Pool
+5x5 conv, 256
+11x11 conv, 96
+Input
+Softmax
+FC 1000
+FC 4096
+FC 4096
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+3x3 conv, 256
+3x3 conv, 256
+Pool
+3x3 conv, 128
+3x3 conv, 128
+Pool
+3x3 conv, 64
+3x3 conv, 64
+Input
+AlexNet
+VGG16
+VGG19
+conv1-2  
+conv1-1
+conv2-2  
+conv2-1
+conv3-2  
+conv3-1
+conv4-3
+conv4-2
+conv4-1
+conv5-3
+conv5-2
+conv5-1
+fc8
+fc7
+fc6
+conv2  
+conv1
+conv3
+conv5  
+conv4
+fc7  
+fc6
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2014
+GoogLeNet
+6.67%
+22 LAYERS
+
+---PAGE---
+Inception module
+Deeper networks, but with 
+computational efficiency
+-
+ILSVRC’14 classification winner 
+(6.7% top 5 error)
+-
+22 layers
+-
+Only 5 million parameters!
+12x less than AlexNet  
+27x less than VGG-16
+-
+Efficient “Inception” module
+-
+No FC layers
+Want to run on smaller computers and mobile devices
+Many innovations for efficiency:
+-
+Reduce parameter count, 
+-
+Reduce memory usage,
+-
+Reduce computations
+Szegedy et al, “Going deeper with convolutions”, CVPR 2015
+Christian Szegedy et al., Going Deeper with Convolutions, CVPR 2015
+GoogLeNet 
+Also Known as Inception V1
+https://ieeexplore.ieee.org/document/7298594
+Citations 64825
+
+---PAGE---
+
+---PAGE---
+
+---PAGE---
+WHY?
+• the total volume of data (tensor size) remains roughly constant 
+because the drop in spatial resolution is compensated by the 
+increase in channels.
+• However, the "Aggressive Stem" is crucial for computational 
+efficiency (FLOPS) and Memory
+• The cost of a convolution is proportional to the spatial size 
+(HxW) it operates on.
+• Convolutions on a 224x224 grid are incredibly expensive 
+computationally.
+• By aggressively downsampling to 28x28 very early (in the first few 
+layers), the network ensures that the heavy, complex blocks (the 
+Inception modules that come later) run on a small grid.
+
+---PAGE---
+The Inception Module
+•
+Similar to AlexNet where we 
+have Conv-Relu-Pool, we 
+have repetitive inception 
+modules
+•
+“Inception module”: design a 
+good local network topology 
+(network within a network)
+and then stack these 
+modules on top of each
+other
+Inception module
+
+---PAGE---
+Let’s start with a simple design
+Naive Inception module
+Previous Layer
+3x3 max 
+pooling
+5x5 
+convolution
+3x3 
+convolution
+1x1 
+convolution
+Filter 
+concatenation
+Apply parallel filter operations on 
+the input from previous layer:
+-
+Multiple receptive field sizes 
+for convolution (1x1, 3x3, 
+5x5)
+-
+Pooling (3x3)
+Concatenate all filter outputs 
+together channel-wise
+
+---PAGE---
+Naive Inception module
+Previous Layer
+3x3 max 
+pooling
+5x5 
+convolution
+3x3 
+convolution
+1x1 
+convolution
+Filter 
+concatenation
+Apply parallel filter operations on 
+the input from previous layer:
+-
+Multiple receptive field sizes 
+for convolution (1x1, 3x3, 
+5x5)
+-
+Pooling operation (3x3)
+Concatenate all filter outputs 
+together channel-wise
+Q: What is the problem with this? 
+Computational complexity!
+
+---PAGE---
+Naive Inception module
+Input
+3x3 pool
+5x5 conv,
+96
+3x3 conv,
+192
+1x1 conv,
+128
+Filter 
+concatenation
+Example:
+Module input: 
+28x28x256
+
+---PAGE---
+Naive Inception module
+Input
+3x3 pool
+5x5 conv,
+96
+3x3 conv,
+192
+1x1 conv,
+128
+Filter 
+concatenation
+Example:
+Module input: 
+28x28x256
+Q1: What are the output sizes of 
+all different filter operations?
+
+---PAGE---
+Naive Inception module
+Input
+3x3 pool
+5x5 conv,
+96
+3x3 conv,
+192
+1x1 conv,
+128
+Filter 
+concatenation
+Example:
+Module input: 
+28x28x256
+Q1: What are the output sizes of 
+all different filter operations?
+28x28x128
+28x28x192
+28x28x96
+28x28x256
+
+---PAGE---
+Naive Inception module
+Input
+3x3 pool
+5x5 conv,
+96
+3x3 conv,
+192
+1x1 conv,
+128
+Filter 
+concatenation
+Example:
+Module input: 
+28x28x256
+Q2:What is output size after 
+filter concatenation?
+28x28x128
+28x28x192
+28x28x96
+28x28x256
+
+---PAGE---
+Naive Inception module
+Input
+3x3 pool
+5x5 conv,
+96
+3x3 conv,
+192
+1x1 conv,
+128
+Filter 
+concatenation
+Example:
+Module input: 
+28x28x256
+Q2:What is output size after 
+filter concatenation?
+28x28x128
+28x28x192
+28x28x96
+28x28x256
+28x28x(128+192+96+256) = 28x28x672
+
+---PAGE---
+Naive Inception module
+Input
+3x3 pool
+5x5 conv,
+96
+3x3 conv,
+192
+1x1 conv,
+128
+Filter 
+concatenation
+Example:
+Module input: 
+28x28x256
+Q2:What is output size after 
+filter concatenation?
+28x28x128
+28x28x192
+28x28x96
+28x28x256
+28x28x(128+192+96+256) = 28x28x672
+Conv Ops:
+[1x1 conv, 128] 28x28x128x1x1x256 
+[3x3 conv, 192] 28x28x192x3x3x256 
+[5x5 conv, 96] 28x28x96x5x5x256 
+Total: 854M ops
+Very expensive compute
+
+---PAGE---
+Case Study: GoogLeNet
+[Szegedy et al., 2014]
+Input
+3x3 pool
+5x5 conv,
+96
+3x3 conv,
+192
+1x1 conv,
+128
+Filter 
+concatenation
+Example:
+Module input: 
+28x28x256
+Q2:What is output size after 
+filter concatenation?
+28x28x128
+28x28x192
+28x28x96
+28x28x256
+28x28x(128+192+96+256) = 529k
+Solution: “bottleneck” layers that use 
+1x1 convolutions to reduce feature
+channel size
+
+---PAGE---
+Review: 1x1 convolutions
+64
+56
+56
+1x1x64 CONV
+with 32 filters
+32
+56
+56
+(each filter has size 
+1x1x64, and performs a 
+64-dimensional dot 
+product)
+C
+1x1x64
+1x1x32
+
+---PAGE---
+Review: 1x1 convolutions
+64
+56
+56
+1x1x64 CONV
+with 32 filters
+32
+56
+56
+preserves spatial 
+dimensions, reduces depth!
+Projects depth to lower 
+dimension (combination of 
+feature maps)
+FC
+64
+32
+
+---PAGE---
+Inception module with dimension reduction
+Previous Layer
+3x3 max 
+pooling
+5x5 
+convolution
+3x3 
+convolution
+1x1 
+convolution
+Filter 
+concatenation
+Previous Layer
+1x1 
+convolution
+Filter 
+concatenation
+3x3 
+convolution
+5x5 
+convolution
+1x1 
+convolution
+1x1 
+convolution
+1x1 
+convolution
+3x3 max 
+pooling
+Naive Inception module
+
+---PAGE---
+Inception module with dimension reduction
+Previous Layer
+3x3 max 
+pooling
+5x5 
+convolution
+3x3 
+convolution
+1x1 
+convolution
+Filter 
+concatenation
+Previous Layer
+1x1 
+convolution
+Filter 
+concatenation
+3x3 
+convolution
+5x5 
+convolution
+1x1 
+convolution
+1x1 
+convolution
+1x1 
+convolution
+3x3 max 
+pooling
+Naive Inception module
+1x1 conv “bottleneck” 
+layers
+
+---PAGE---
+Inception module with dimension reduction
+Using same parallel layers as 
+naive example, and adding “1x1 
+conv, 64 filter” bottlenecks:
+Module input: 
+28x28x256
+1x1 conv,
+64
+Previous Layer
+3x3 pool
+5x5 conv,
+96
+3x3 conv,
+192
+Filter 
+concatenation
+1x1 conv,
+64
+1x1 conv,
+64
+1x1 conv,
+128
+28x28x64
+28x28x64
+28x28x256
+28x28x128
+28x28x192
+28x28x96
+28x28x64
+Conv Ops:
+[1x1 conv, 128] 28x28x128x1x1x256
+[1x1 conv, 64] 28x28x64x1x1x256
+[3x3 conv, 192] 28x28x192x3x3x64
+[1x1 conv, 64] 28x28x64x1x1x256 
+[5x5 conv, 96] 28x28x96x5x5x64 
+[1x1 conv, 64] 28x28x64x1x1x256 
+Total: 358M ops
+Compared to 854M ops for naive version 
+Bottleneck also reduce depth after 
+pooling layer
+28x28x480
+
+---PAGE---
+Inception module
+Stack Inception modules 
+with dimension reduction 
+on top of each other
+
+---PAGE---
+Stem Network: 
+Conv-Pool-
+Conv-Conv-Pool
+Full GoogLeNet architecture
+
+---PAGE---
+Full GoogLeNet 
+architecture
+Stacked Inception 
+Modules
+
+---PAGE---
+Full GoogLeNet 
+architecture
+Classifier output
+
+---PAGE---
+Full GoogLeNet 
+architecture
+Classifier output
+(AvgPool-FC-Softmax)
+•
+No large FC layers at the end! 
+•
+Instead uses global average pooling to collapse spatial dimensions, and one linear 
+layer to produce class scores (Recall: VGG-16: Most parameters were in the FC 
+layers!)
+•
+A global  average pooling layer is used that spatially averages  across each feature 
+map, before final FC laye
+
+---PAGE---
+Full GoogLeNet 
+architecture
+Auxiliary classification outputs to inject additional gradient at lower layers 
+(AvgPool-1x1Conv-FC-FC-Softmax)
+
+---PAGE---
+Full GoogLeNet 
+architecture
+•
+22 total layers with weights
+•
+(count only blue blocks: parallel layers count as 1 layer => 2 layers per Inception module. Don’t
+count auxiliary output layers)
+https://medium.com/the-modern-scientist/exploring-googlenet-a-revolutionary-
+deep-learning-architecture-8bb176a0facc
+
+---PAGE---
+Inception module
+Deeper networks, with computational 
+efficiency
+-
+22 layers
+-
+Efficient “Inception” module
+-
+Avoids expensive FC layers
+-
+12x less params thanAlexNet
+-
+27x less params than VGG-16
+-
+ILSVRC’14 classification winner 
+(6.67% top 5 error)
+
+---PAGE---
+Huge Jump in Depth and Layers
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2015
+ResNet
+3.6-4.6%
+152 LAYERS
+
+---PAGE---
+Case Study: ResNet
+Very deep networks using residual connections
+-
+152-layer model for ImageNet
+-
+ILSVRC’15 classification winner 
+(3.6% top 5 error)
+-
+Swept all classification and 
+detection competitions in 
+ILSVRC’15 and COCO’15!
+relu
+X
+Residual block
+conv
+conv
+X
+identity
+F(x) + x
+F(x)
+relu
+Kaiming He et al., Deep Residual Learning for Image Recognition, CVPR 2016
+Citations 255149
+https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf
+
+---PAGE---
+Case Study: ResNet
+[He et al., 2015]
+What happens when we continue stacking deeper layers on a “plain” convolutional 
+neural network?
+
+---PAGE---
+Test error
+Iterations
+56-layer
+20-layer
+Case Study: ResNet
+[He et al., 2015]
+What happens when we continue stacking deeper layers on a “plain” convolutional 
+neural network?
+56-layer model performs worse on both test and training error
+What is this called?
+Training error
+Iterations
+56-layer
+20-layer
+➔The deeper model performs worse, but it’s not caused by overfitting!
+➔The deeper model is underfitting! It simply cannot learn
+
+---PAGE---
+Case Study: ResNet
+[He et al., 2015]
+Fact: Deep models have more representation power 
+(more parameters) than shallower models.
+Hypothesis: the problem is an optimization problem,
+deeper models are harder to optimize
+
+---PAGE---
+Case Study: ResNet
+[He et al., 2015]
+Fact: Deep models have more representation power 
+(more parameters) than shallower models.
+Hypothesis: the problem is an optimization problem, 
+deeper models are harder to optimize
+What should the deeper model learn to be at least 
+as good as the shallower model?
+A solution by construction is copying the learned 
+layers from the shallower model (early stages) 
+and setting additional layers to identity 
+mapping.
+relu
+conv
+X
+H(x)
+relu
+conv
+Identity
+X
+H(x)
+Shallow network
+deeper network
+
+---PAGE---
+Solution: change the network so learning identing functions with extra layers is easy
+𝑟𝑒𝑙𝑢
+conv
+conv
+𝑥
+“Plain” layers
+𝐻(𝑥)
+relu
+𝑥
+Residual 
+block
+conv
+conv
+𝑥
+identity
+𝐹(𝑥) +  𝑥
+𝐹(𝑥)
+𝑟𝑒𝑙𝑢
+Identity mapping: 
+𝐻(𝑥) =  𝑥 𝑖𝑓 𝐹(𝑥) =  0
+This also helps by:
+1. Coping the identify if F(x)=0
+2. Helps during backprop, the gradient is copied through the add gate which 
+overcomes vanishing gradient
+
+---PAGE---
+Input
+Softmax
+3x3 conv, 64
+7x7 conv, 64, / 2
+FC 1000
+Pool
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 128
+3x3 conv, 128, / 2
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+..
+.
+3x3 conv, 512
+3x3 conv, 512, /2
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+Case Study: ResNet
+[He et al., 2015]
+Full ResNet architecture:
+-
+Stack residual blocks 
+like VGG net
+-
+Every residual block has 
+two 3x3 conv layers
+-
+Network is divided into 
+stages like VGG
+-
+Periodically, double # of 
+filters and downsample 
+spatially using stride 2
+3x3 conv, 64 
+filters
+3x3 conv, 128 
+filters, 
+downsample 
+/2 spatially 
+with stride 2
+relu
+𝑥
+Residual 
+block
+conv
+conv
+𝑥
+identity
+𝐹(𝑥) +  𝑥
+𝐹(𝑥)
+𝑟𝑒𝑙𝑢
+
+---PAGE---
+Uses the same aggressive stem as GoogleNet to down sample the input 4x before 
+applying residual blocks:
+
+---PAGE---
+(AvgPool-FC-Softmax)
+
+---PAGE---
+Input
+Softmax
+7x7 conv, 64, / 2
+FC 1000
+Pool
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128
+3x3 conv, 128, / 2
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+3x3 conv, 64
+..
+.
+3x3 conv, 512, /2
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+3x3 conv, 512
+Pool
+Case Study: ResNet
+[He et al., 2015]
+Total depths of 18, 34, 50,
+101, or 152 layers for ImageNet
+
+---PAGE---
+Choose initial C and no. of blocks
+Compared to:
+Which ResNet am I? Why?
+ResNet-34
+
+---PAGE---
+Case Study: ResNet
+[He et al., 2015]
+1x1 conv, 256
+3x3 conv, 64
+1x1 conv, 64
+28x28x256
+input
+For deeper networks (ResNet-50+):
+use “bottleneck” to improve efficiency 
+(similar to GoogLeNet)
+1x1 conv, 64 filters to 
+project to 28x28x64
+3x3 conv operates over 
+only 64 feature maps
+back to 256 feature maps 
+(28x28x256)
+28x28x256
+output
+1x1 conv, 256 filters projects
+BN, relu
+BN, relu
+“Bottleneck” Residual block
+ResNet-50:
+Stem: 1 conv layer
+Stage 1 (C=256): 3 res. blocks (Bottleneck) = 9 conv
+Stage 2 (C=512): 4 res. blocks (Bottleneck) = 12 conv
+Stage 3 (C=1024): 6 res. blocks (Bottleneck) = 18 conv
+Stage 4 (C=2048): 3 res. blocks (Bottleneck) = 9 conv
+Linear
+ImageNet top-5 error: 5.25
+GFLOP: 3.8
+
+---PAGE---
+
+---PAGE---
+Training ResNet in practice:
+-
+Batch Normalization after every CONV layer
+-
+Xavier initialization from He et al.
+-
+SGD + Momentum (𝜇= 0.9)
+-
+Learning rate: 0.1, divided by 10 when validation error plateaus
+-
+Mini-batch size 256
+-
+Weight decay of 1e-5
+-
+No dropout used
+Case Study: ResNet
+[He et al., 2015]
+
+---PAGE---
+Case Study: ResNet
+[He et al., 2015]
+Experimental Results
+-
+Able to train very deep 
+networks without degrading 
+(152 layers on ImageNet, 1202 
+on Cifar)
+-
+Deeper networks now achieve 
+lower training error as expected
+-
+Swept 1st place in all ILSVRC 
+and COCO 2015 competitions
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2016
+DenseNet
+5.3-6.7%
+121-265 
+LAYERS
+
+---PAGE---
+[Huang et al. 2017]
+Densely Connected Convolutional Networks (DenseNet)
+Dense Block
+ResNet (Summation): 𝑥𝑙= 𝐹𝑙𝑥𝑙−1 + 𝑥𝑙−1
+DenseNet (Concatenation): 𝑥𝑙= 𝐹𝑙( 𝑥0, 𝑥1 … 𝑥𝑙−1 )
+The L-th layer receives the collective knowledge of 
+all preceding layers as input
+Concept: Unlike ResNet, which uses additive identity 
+mappings𝐹𝑥+ 𝑥, DenseNet connects each layer to 
+every other layer in a feed-forward fashion. This is 
+achieved via concatenation rather than summation.
+GA Pool
+Full architecture
+
+---PAGE---
+Feature
+Basic Transition Layer
+Input Channels
+500
+1x1 Conv Action
+Keep (Maintains 500)
+Pooling Action
+Halve Size (14x14)
+Output Channels
+500
+Goal
+Spatial Downsampling 
+Only
+In a "Basic" DenseNet (one 
+without the C / Compression 
+extension), the Transition Layer 
+still exists, but its job is strictly 
+limited to resizing the image.
+Transition Layer
+
+---PAGE---
+Bottleneck structure (1×1 conv): 
+•
+BN-ReLU-Conv(1×1) → 4k feature maps
+•
+BN-ReLU-Conv(3×3) → k feature maps
+Reduces computational cost by 4× while maintaining performance
+DenseNet-B (Bottleneck):
+Adds the 1 × 1 convolution before the 3 × 3 convolution in the layers to reduce the 
+number of input feature maps (making it more efficient).
+DenseNet-C (Compression): 
+Adds the compression factor θ < 1 in the Transition Layers to reduce the number of 
+feature maps between blocks.
+Feature
+Basic Transition Layer
+Transition Layer-C
+Input Channels
+500
+500
+1x1 Conv Action
+Keep (Maintains 500)
+Cut (Reduces to 250)
+Pooling Action
+Halve Size (14x14)
+Halve Size ($14 \times 
+14$)
+Output Channels
+500
+250
+Goal
+Spatial Downsampling 
+Only
+Spatial Downsampling + 
+Channel Compression
+
+---PAGE---
+Summary of Different Version
+• DenseNet: The basic version with only 3 × 3 convolutions in each layer.
+• DenseNet-B (Bottleneck): Adds the 1 × 1 convolution before the 3 × 3 
+convolution in the layers to reduce the number of input feature maps (making 
+it more efficient).
+• DenseNet-C (Compression): Adds the compression factor θ < 1 in the 
+Transition Layers to reduce the number of feature maps between blocks.
+• DenseNet-BC: Combines both the Bottleneck (inside the layers) and 
+Compression (between the blocks). This is the version most people refer to 
+when they say "DenseNet" (e.g., DenseNet-121, DenseNet-201) because it is 
+the most efficient.
+Benefits
+-
+Alleviates vanishing gradient, strengthens feature propagation, encourages 
+feature reuse
+-
+Showed that shallow 50-layer  network can outperform deeper  152 layer ResNet
+-
+50% parameter reduction vs ResNet for same accuracy on ImageNet
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2016
+Trimps-
+Soushen
+2.99%
+Ensamble
+
+---PAGE---
+Good Practices for Deep Feature Fusion
+-
+Multi-scale ensembling of Inception, Inception-Resnet, Resnet, 
+Wide Resnet models
+-
+ILSVRC’16 classification winner
+Trimps-Soushen is the team name, and "Good Practices for Deep Feature Fusion" is the title 
+of their presentation/method.
+[Shao et al. 2016]
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2016
+NAS
+3.8%
+Architecture
+Search
+
+---PAGE---
+Learning to search for network architectures...
+-
+“Controller” network that learns to design a good 
+network architecture (output a string 
+corresponding to network design)
+-
+Iterate:
+1)
+Sample an architecture from search space
+2)
+Train the architecture to get a “reward” R 
+corresponding to accuracy
+3)
+Compute gradient of sample probability, and 
+scale by R to perform controller parameter 
+update (i.e. increase likelihood of good 
+architecture being sampled, decrease 
+likelihood of bad architecture)
+[Zoph et al. 2016]
+Neural Architecture Search with Reinforcement 
+Learning (NAS)
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2017
+MobileNet
+10.5%
+28 LAYERS
+
+---PAGE---
+9CHW
+MobileNets: Efficient Convolutional Neural Networks for 
+Mobile Vision Applications
+[Howard et al. 2017]
+Pool
+Conv (3x3xC, C->C)
+BatchNorm
+Standard network 
+Total compute: 9C2HW
+Pool
+Conv (3x3x1, C->C,
+groups=C)
+BatchNorm
+MobileNets
+Total compute:9CHW + C2HW
+Pool
+Conv (1x1xC, C->C)
+BatchNorm
+Depthwise 
+convolutions
+Pointwise 
+convolutions
+9C2HW
+C2HW
+MobileNet splits this into two cheaper steps, 
+"factorizing" the operation:
+1)
+Depthwise Convolution: It applies a 
+single filter to each input channel 
+separately. This handles the "filtering" 
+part but doesn't mix channels.
+2)
+2) Pointwise Convolution (1x1): It uses a 
+1x1 convolution to combine the outputs 
+of the depthwise layer. This handles the 
+"mixing" part.
+Why is this better?
+Standard Network Cost: 9C2HW
+(expensive because of the C2 term).
+MobileNet Cost: 9CHW + C2HW
+The standard convolution is computationally expensive because it tries to do two things at once:
+1)
+Filter features (look for patterns like, for example, edges or shapes).
+2)
+Combine features (mix channels together).
+
+---PAGE---
+Theoretical Efficiency (The "1/9" Rule)
+• Based on the cost formulas from the previous slide, we can calculate the theoretical speedup: 
+𝑅𝑎𝑡𝑖𝑜= 𝑀𝑜𝑏𝑖𝑙𝑒𝑁𝑒𝑡
+𝑆𝑡𝑎𝑛𝑑𝑎𝑟𝑑≅1
+𝐶+ 1
+9
+• Since C (channels) is usually large, the first term becomes negligible. MobileNet effectively 
+reduces computation by ~9x compared to standard convolution alone
+Comparison with Popular Models (ImageNet) 
+• MobileNet achieves similar accuracy to huge models like VGG16 but with a fraction of the 
+resources.
+• Accuracy: MobileNet (70.6%) ≅ VGG16 (71.5%)
+• Model Size: 4.2 Million parameters vs. 138 Million (VGG16). ~32x smaller.
+• Compute (FLOPS): 569 Million vs. 15,300 Million (VGG16). ~27x less compute.
+Tuning Hyperparameters
+• MobileNet introduced two global hyperparameters that allow developers to trade off latency for 
+accuracy effectively:
+• Width Multiplier (𝛼): Thins the network uniformly at each layer. Controls the number of channels. 
+Reduces computation and parameters by roughly 𝛼2.
+• Resolution Multiplier (𝜌): Scales the input image size. Reduces computation by 𝜌2.
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+2017
+ResNext
+5.0%
+50 or 101
+ LAYERS
+
+---PAGE---
+Aggregated Residual Transformations for Deep
+[Xie et al. 2016]
+-
+Also from creators of 
+ResNet
+-
+Increases width of 
+residual block through 
+multiple parallel 
+pathways 
+(“cardinality”)
+-
+Parallel pathways 
+similar in spirit to 
+Inception module
+Neural Networks (ResNeXt)
+1x1 conv, 256
+3x3 conv, 64
+1x1 conv, 64
+256-d out
+256-d in
+1x1 conv, 256
+3x3 conv, 4
+1x1 conv, 4
+256-d out
+256-d in
+1x1 conv, 256
+3x3 conv, 4
+1x1 conv, 4
+1x1 conv, 256
+3x3 conv, 4
+1x1 conv, 4
+...
+32
+paths
+
+---PAGE---
+Transformers Introduced
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+EffecientNet
+237 LAYERS
+2019
+
+---PAGE---
+-
+Increase network capacity by scaling width, depth, and resolution, while balancing 
+accuracy and efficiency.
+-
+Search for optimal set of compound scaling factors given a compute budget (target 
+memory & flops).
+-
+Scale up using smart heuristic rules
+EfficientNet: Smart Compound Scaling
+[Tan and Le. 2019]
+
+---PAGE---
+Expansion (1x1 Conv)
+The block takes a "narrow" input (few channels) and expands it to a "wide" state 
+(many channels) using a 1x1 convolution.
+Expansion Ratio: This is typically 6x. If the input has 32 channels, this layer expands it 
+to 192 channels.
+Why: Neural networks process information better in higher dimensions. By expanding 
+the data first, we create a rich feature space for the next layer to learn from.
+Depthwise Convolution
+It performs spatial filtering (3x3 or 5x5) on the high-dimensional data.
+Efficiency: Crucially, this is a Depthwise convolution (as discussed in MobileNet). It is 
+extremely cheap computationally because it doesn't mix channels.
+•
+The authors (Google) already ran NAS and 
+found the perfect architecture which is the 
+MBConv Block with SE. This is now B0.
+•
+MBConv stands for Mobile Inverted 
+Bottleneck Convolution. It is the 
+fundamental building block of EfficientNet 
+The Building Blocks
+
+---PAGE---
+Squeeze-and-Excitation (SE)
+This is a special "attention" mechanism added in EfficientNet.
+The "Squeeze": It averages the entire image into a single vector of channel statistics 
+(Global Average Pooling).
+The "Excitation": A small neural network predicts which channels are important for 
+this specific image and scales them up (e.g., "boost the 'dog ear' detector, suppress 
+the 'sky' detector").
+Result: It adaptively recalibrates the features.
+Projection (1x1 Conv)
+The "wide" feature maps are squeezed back down to a "narrow" size (few channels) 
+using a 1x1 convolution.
+Result: This prepares the data to be added to the residual connection.
+Why is it called "Inverted“ Residual Connection?
+Standard ResNet blocks use a "Wide -> Narrow -> Wide" structure
+MBConv flips this upside down: "Narrow -> Wide -> Narrow".
+
+---PAGE---
+EffecientNet Variants
+•
+The variants B1 to B7 represent progressively larger, more accurate, and more 
+computationally expensive versions of the baseline network (B0)
+•
+the variants B1 through B7 are generated by increasing a single compound coefficient, ∅, 
+which uniformly scales depth, width, and resolution according to a fixed set of formulas
+•
+Depth (𝑑): 𝛼≈1.2: Controls how many layers are added.
+•
+Why: Deeper networks can capture richer and more complex features.
+•
+Width (𝑤): 𝑤≈1.1 : Controls how many channels (filters) are in each layer.
+•
+Why: Wider networks tend to be easier to train and capture more fine-grained details.
+•
+Resolution (𝛾): 𝛾≈1.15 : Controls the input image resolution (e.g., 224x224 -> 600x600).
+•
+Why: Higher resolution images contain more distinct patterns.
+The Balance:
+•
+The paper argues that these three dimensions are dependent on each other. You cannot 
+efficiently scale just one without the others. 
+•
+If you increase Resolution: You must also increase Depth (because receptive field needs to 
+be larger to see the bigger image) and Width (to capture the extra fine-grained pixels).
+•
+Result: This balanced scaling is why EfficientNet-B7 achieves better accuracy than other 
+models while being much smaller and faster.
+∅= 0 →𝐵0
+ ∅= 1 →𝐵1
+…
+ ∅= 7 →𝐵7
+
+---PAGE---
+Performance Comparison
+Variant
+Input 
+Resolution
+Parameters
+ImageNet 
+Top-1 Acc
+Use Case
+B0
+224x224
+~5.3M
+~77.1%
+Mobile / 
+Real-time
+B1
+240x240
+7.8M
+79.1%
+Mobile / 
+Edge
+B2
+260x260
+~9.2M
+~80.1%
+General 
+Purpose
+B3
+300x300
+12M
+81.6%
+General 
+Purpose
+B4
+380x380
+19M
+82.9%
+High 
+Accuracy
+B5
+456x456
+~30M
+~83.6%
+High 
+Accuracy
+B6
+528x528
+~43M
+~84.0%
+Research / 
+Competition
+B7
+600x600
+66M
+84.3%
+State-of-the-
+Art (SOTA)
+As a user, your job is simply to pick the variant 
+(B0–B7) that fits your specific constraints.
+
+---PAGE---
+CNN Comeback
+
+---PAGE---
+Before 
+Deep 
+Learning
+ILSVRC Competition
+1989
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2021
+2022
+2023
+2024
+2025
+Transformers
+introduced
+CNN Comeback
+LeNet5
+AlexNet
+15.3%
+ZFNet
+11.2%
+GoogLeNet
+6.67%
+VGG
+7-7.3%
+NAS
+3.8%
+Trimps-
+Soushen
+2.99%
+DenseNet
+5.3-6.7%
+ResNet
+3.6-4.6%
+ResNext
+5.0%
+MobileNet
+10.5%
+EffecientNet
+MobileNet
+V2
+EffecientNet
+V2
+ConvNext
+ConvNext
+V2
+MobileNet
+V4
+InternImage
+YOLLO 11
+backbone
+8 LAYERS
+8 LAYERS
+16 or 19
+ LAYERS
+22 LAYERS
+152 LAYERS
+huge jump in depth 
+(22152)
+Ensamble
+Architecture
+Search
+121-265 
+LAYERS
+28 LAYERS
+53 LAYERS
+50 or 101
+ LAYERS
+237 LAYERS
+50-197 LAYERS
+Uses NAS
+181-357
+LAYERS
+Uses Trans. 
+design
+50-197 LAYERS
+2010
+Lin et al.
+28%
+Perronnin
+et al
+25.8
+2011
+
+---PAGE---
+CNN comeback
+• Despite the big shift for using transformers (2020) 
+as backbone in many tasks, But research into CNN 
+architectures is still ongoing
+• ConvNext (2022) and InternImage (2023)
+• More on this after the Transformers lecture
+
+---PAGE---
+COMPARING CNNs
+
+---PAGE---
+Figures copyright Alfredo Canziani, Adam Paszke, Eugenio Culurciello, 2017.
+Comparing complexity...
+AnAnalysis of Deep Neural Network Models for PracticalApplications, 2017.
+
+---PAGE---
+Figures copyright Alfredo Canziani, Adam Paszke, Eugenio Culurciello, 2017.
+Comparing complexity...
+Fei-Fei Li, Ranjay Krishna, Danfei
+Xu
+AnAnalysis of Deep Neural Network Models for PracticalApplications, 2017.
+Remember inception was GoogLeNet
+Inception-v4: Resnet + Inception
+
+---PAGE---
+Comparing complexity...
+Figures copyright Alfredo Canziani, Adam Paszke, Eugenio Culurciello, 2017. Reproduced with permission.
+AnAnalysis of Deep Neural Network Models for PracticalApplications, 2017.
+VGG: most 
+parameters, most 
+operations
+Fei-Fei Li, Ranjay
+Krishna, Danfei Xu
+
+---PAGE---
+Comparing complexity...
+GoogLeNet: 
+most efficient
+Figures copyright Alfredo Canziani, Adam Paszke, Eugenio Culurciello, 2017. Reproduced with permission.
+AnAnalysis of Deep Neural Network Models for PracticalApplications, 2017.
+
+---PAGE---
+Comparing complexity...
+Figures copyright Alfredo Canziani, Adam Paszke, Eugenio Culurciello, 2017. Reproduced with permission.
+AnAnalysis of Deep Neural Network Models for PracticalApplications, 2017.
+AlexNet:
+Smaller compute, still memory 
+heavy, lower accuracy
+
+---PAGE---
+Comparing complexity...
+Figures copyright Alfredo Canziani, Adam Paszke, Eugenio Culurciello, 2017. Reproduced with permission.
+AnAnalysis of Deep Neural Network Models for PracticalApplications, 2017.
+ResNet:
+Moderate efficiency depending on 
+model, highest accuracy
+
+---PAGE---
+Which Architecture should I use?
+• For most problems you should use an off-the-shelf 
+architecture; don’t try to design your own!
+• If you just care about accuracy, ResNet-50 is a great 
+choice
+• If you want an efficient network (real-time, run on 
+mobile, etc), try EfficientNet/MobileNets
+
+---PAGE---
+• Use Cases
+• ResNet: Still widely used for transfer learning, feature extraction, and 
+general image classification tasks.
+• EfficientNet, MobileNets: Preferred in resource-constrained environments 
+(e.g., mobile and embedded devices) due to its efficiency.
+• Conclusion
+• If computational resources are not a concern and depth is a priority → 
+ResNet
+• If efficiency and performance per parameter are priorities → EfficientNet, 
+MobileNets :
+• EfficientNet, MobileNets: generally outperforms ResNet when 
+considering both accuracy and efficiency together. However, 
+ResNet remains a strong choice for certain applications, especially 
+Transfer Learning and Pre-trained Models.
+• More careful fine tuning needed
+• While pre-trained EfficientNet, MobileNets models are available, they 
+often require more careful tuning due to their depth-wise convolutions 
+and compound scaling, which can be sensitive to different datasets.
+
+---PAGE---
+Code Example
+
+---PAGE---
+# 1. IMPORT LIBRARIES
+# -------------------
+import torch                  # The main library for Deep 
+Learning (PyTorch)
+from torchvision.models import resnet50     # Import the specific AI 
+architecture (ResNet-50)
+from torchvision.models import ResNet50_Weights # Import the pre-learned 
+"brain" (Weights)
+from PIL import Image      # "Pillow" library to load and manage images
+from urllib.request import urlopen # tool to download data from the web
+import matplotlib.pyplot as plt    # Library to draw graphs and show images
+
+---PAGE---
+# 2. LOAD THE AI MODEL
+# --------------------
+# We choose the "DEFAULT" weights, which are the best current version 
+available.
+# This means the model already knows what 1000 different objects look like.
+weights = ResNet50_Weights.DEFAULT
+# We create the model and plug in the weights we just chose.
+model = resnet50(weights=weights)
+# IMPORTANT: Switch the model to "Evaluation Mode".
+# This tells the model: "We are just testing, not learning."
+# If you skip this, the model might behave strangely (like using Dropout 
+layers).
+model.eval()
+# 3. GET AN IMAGE
+# ---------------
+# This is the address of the image we want to test.
+url = "https://raw.githubusercontent.com/pytorch/hub/master/images/dog.jpg"
+# We open the image from the website URL.
+img = Image.open(urlopen(url))
+
+---PAGE---
+# 4. PREPARE THE IMAGE (PRE-PROCESSING)
+# -------------------------------------
+# The model can't look at raw pixels. It needs them resized to 224x224
+# and normalized (math colors adjusted). This step creates those rules.
+preprocess = weights.transforms()
+# We apply those rules to our image.
+# Then we use .unsqueeze(0) to add a "batch" dimension.
+# The model expects a list of images (Batch, Color, Height, Width).
+# This turns our 1 image into a list of 1 image.
+batch = preprocess(img).unsqueeze(0)
+# 5. RUN THE PREDICTION
+# ---------------------
+print("Thinking...")
+# 'no_grad()' tells PyTorch: "Don't calculate gradients."
+# We don't need to learn (update weights), so this saves memory and speed.
+with torch.no_grad():
+  # Pass the image batch into the model to get raw scores.
+  # .squeeze(0) removes the fake batch dimension we added earlier.
+  # .softmax(0) converts raw scores into (probabilities) that add up to 100%.
+  prediction = model(batch).squeeze(0).softmax(0)
+
+---PAGE---
+# 6. READ THE RESULTS
+# -------------------
+# .argmax() finds the ID number of the highest score (e.g., ID 207).
+class_id = prediction.argmax().item()
+# We look up the probability score for that specific ID.
+score = prediction[class_id].item()
+# We look up the human-readable name (e.g., "Golden Retriever") for that ID.
+# The 'weights' object stores this list of 1000 names for us.
+category_name = weights.meta["categories"][class_id]
+# Print the text result to the console.
+print(f"Result: {category_name} ({score*100:.1f}%)")
+# 7. SHOW THE IMAGE
+# -----------------
+# Draw the image in a window.
+plt.imshow(img)
+# Turn off the X and Y axis numbers (pixel counts) to make it look clean.
+plt.axis('off')
+# Add a title to the image with our prediction.
+plt.title(f"Predicted: {category_name}\nConfidence: {score*100:.1f}%")
+# Finally, display the window on the screen.
+plt.show()
+
+---PAGE---
+This is a successful prediction!
+
+---PAGE---

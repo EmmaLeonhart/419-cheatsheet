@@ -1,0 +1,735 @@
+1
+Dr. Mohamed Shehata
+Computer Science
+University of British Columbia
+COSC419/519:DEEP LEARNING
+Linear Models
+Part-2
+
+---PAGE---
+2
+Multi-class Regression
+
+---PAGE---
+3
+Two-Class vs Multi-Class
+• In many applications, we need to classify 
+multiple classes (C>2) and not only two
+– Number digits 0 to 9
+– Letters
+– Hand gestures…
+• We can generalize the two-class classifiers we 
+learned into multi-class classifiers
+
+---PAGE---
+4
+Multi-class Classification Example
+
+---PAGE---
+5
+Example
+parameters or weights
+𝑓(𝒘, 𝒙𝒑)
+10 numbers giving 
+class scores
+Array of 32x32x3
+numbers (3072
+numbers total)
+Hello, I’m 
+Petito-the-cat
+Image x
+
+---PAGE---
+6
+Example Problem
+• We want to classify Iris flowers (Setosa, 
+versicolor, virginica) using only sepal length 
+and width
+• We have access to labelled measurements of 
+sepal length and width
+• What is N and C in this case?
+
+---PAGE---
+7
+General Setup
+Data set
+Learning 
+(or training)
+New data:
+length,width (𝑥1, 𝑥2)
+Classification model
+𝑓(𝑤, 𝑥𝑝)
+Input {(𝒙𝑝, 𝑦𝑝)}𝑝=1
+𝑃
+N=2: length, width 
+e.g., (𝑥𝑝,1, 𝑥𝑝,2)of the p data 
+Output:
+class ො𝑦𝑝∈{0,1,2},
+𝑝= 1,2, … , 𝑃
+C=3 (setosa, versicolor
+, and verginica)
+Predicted class
+ෞ
+𝑦𝑝
+=
+0
+→
+setosa
+ෞ
+𝑦𝑝
+=
+1
+→
+versicolor
+ෞ
+𝑦𝑝
+=
+2
+→
+verginica
+Then during testing
+Tuning the parameters (𝒘)
+of the model
+
+---PAGE---
+8
+Multi-Class Dataset
+•
+Consists of data points 𝒙1, 𝑦1 , 𝒙2, 𝑦2 ,…, 𝒙𝑃, 𝑦𝑃where
+▪𝒙𝑝= (𝑥𝑝,1, 𝑥𝑝,2, … , 𝑥𝑝,𝑁) is an 𝑁-dimensional input vector (feature 
+vector)
+0,1, … , 𝐶−1 where 𝐶is the
+▪𝑦𝑝is the class label, 𝑦𝑝∈
+number of classes
+•
+In our case
+▪𝒙𝑝= 𝑥𝑝,1, 𝑥𝑝,2
+for sepal
+length and width
+▪𝑦𝑝is the class label,
+𝑦𝑝∈ {0,1,2}
+for C=3 {setosa,
+versicolor, and
+verginica}
+•
+Our task is to build a 
+classifier that can 
+distinguish between 
+the 3 classes
+Class 0
+Class 2
+Class 1
+
+---PAGE---
+9
+One-versus-All classifiers
+▪Learn C two-class classifiers on the entire dataset (with the cth 
+classifier trained to distinguish the cth class from the remainder 
+of the data).
+▪The three places a point in the space can end up (w.r.t our 
+classifiers):
+A) On the positive side of a single classifier
+B) On the positive side of more than one classifier
+C) On the negative side of all classifiers
+
+---PAGE---
+10
+Points on the positive side of a single classifier
+▪Denoting the weights from the 𝑐𝑡ℎ classifier as:
+▪We can write the corresponding decision boundary: 𝑥𝑇𝑤𝑐= 0
+▪For N=2, C=3, we have 𝑥𝑇 is size 1x3 and wc is size 3x1 and hence 𝑥𝑇𝑤𝑐 is 
+size 1x1 which is a scalar which is ො𝑦 using this particular classifier
+▪Note that
+▪A point on the positive side of classifier 𝑗 has: 𝑥𝑇𝑤𝑗 > 0 (positive value)
+▪A point on the negative side of classifier 𝑗 has: 𝑥𝑇𝑤𝑗 < 0 (negative value)
+▪The points that lie solely on the positive side of the 𝑗𝑡ℎ classifier (𝑤𝑗 ) should 
+clearly belong to the 𝑗𝑡ℎ class, so they satisfy 𝑥𝑇𝑤𝑗=
+max
+𝑐=0,1,…𝐶−1 𝑥𝑇𝑤𝑐
+▪Therefore, to get the label ො𝑦 associated with that point, we use:
+𝑤𝑐=
+𝑤0,𝑐
+𝑤1,𝑐
+𝑤2,𝑐
+⋮
+𝑤𝑁,𝑐
+ො𝑦= argmax
+𝑐=0,1,…𝐶−1
+ 𝑥𝑇𝑤𝑐
+
+---PAGE---
+11
+Points on the positive side of more than one classifier
+▪Classification rule: in such regions we assign each 
+point to the class whose boundary is at the largest 
+nonnegative distance from that point.
+Should be blue
+Should be 
+red
+Proof:
+•
+When multiple classifiers say this (point is positive for multiple classifiers), we have 
+a conflict
+•
+Why pick the largest nonnegative distance?
+•
+The value 𝑥𝑇𝑤𝑐 represents how "confident" classifier 𝑗 is about the point belonging 
+to class 𝑗 
+•
+Larger positive values = point is further into the positive side = more confident
+•
+Smaller positive values = point is closer to the boundary = less confident
+•
+Then this distance is simply written as the raw evaluation of the point via the 
+decision boundary:
+ 
+ 
+Signed distance of 𝑥 𝑡𝑜 𝑗𝑡ℎ boundary = 𝑥𝑇𝑤𝑗
+•
+This satisfy 𝑥𝑇𝑤𝑗=
+max
+𝑐=0,1,…𝐶−1 𝑥𝑇𝑤𝑐
+•
+So again, after weight-normalization, we have the same prediction rule that we found 
+originally for regions of the space where only a single classifier is positive
+ො𝑦= argmax
+𝑐=0,1,…𝐶−1
+ 𝑥𝑇𝑤𝑐
+
+---PAGE---
+12
+Points on the negative side of all classifiers
+•
+In this case we cannot argue that one classifier is more 
+'confident' in the class identity of such points. However, we can 
+ask which classifier is the least 'unsure' about the class identity 
+of such points
+•
+Since all classifiers are saying "this point is NOT in my class," 
+we apply a different logic:
+•
+Pick the classifier with the LEAST NEGATIVE value 
+(i.e., the largest among negative values)
+•
+Why this makes sense:
+•
+𝑥𝑇𝑤𝑗 = - 0.1: "I'm barely on the negative side, just slightly outside my region"
+•
+𝑥𝑇𝑤𝑗 = - 5.0: "I'm very far into the negative side, definitely NOT my class"
+•
+The classifier closest to zero (least negative) is:
+•
+Least unsure about rejecting the point
+•
+Closest to its boundary on the negative side
+•
+The "best bad option“,  it is the class that rejects this point least strongly
+•
+We still can apply the same rule
+ො𝑦= argmax
+𝑐=0,1,…𝐶−1
+ 𝑥𝑇𝑤𝑐
+
+---PAGE---
+13
+Putting It All Together
+▪We now have deduced the single rule for assigning a prediction label 
+ො𝑦 to a point 𝑥:   
+▪We call this the fusion rule since it tells us precisely how to fuse our 
+C classifiers together to make a unified and consistent classification 
+across the entire space of any dataset.
+ො𝑦= argmax
+𝑐=0,1,…𝐶−1
+ 𝑥𝑇𝑤𝑐
+
+---PAGE---
+14
+OvA Multi-Class Classifier
+• In the previous slides, we train 3 two-class
+classifiers first, and then use a fusion rule to fuse
+the results
+• Can we train all 3 classifiers simultaneously to 
+directly satisfy the fusion rule?
+FUSION RULE
+ ො𝑦= argmax
+𝑐=0,1,…𝐶−1
+ 𝑥𝑇𝑤𝑐
+
+---PAGE---
+15
+Multi-class classification and the Perceptron
+▪Recall the fusion rule:
+▪Our aim is now as follows: instead of tuning each of our 
+classifier’s weights one-by-one and then combining them, let’s 
+try to learn all sets of weights simultaneously so as to satisfy 
+this ideal condition as much as possible. To be specific, let us 
+rewrite the fusion rule slightly as follows:
+Where 𝑤𝑦𝑝 is the weight vector corresponding to that true class (we already have this from GT)
+▪Subtracting 𝑥𝑝𝑇𝑤𝑦𝑝 from both sides gives us a point-wise cost 
+function that is always non-negative and minimal at zero.
+𝑔𝑝𝑤0, … , 𝑤𝑐−1 = [(
+max
+𝑐=0,1,…,𝐶−1 𝑥𝑝𝑇𝑤𝑐) −𝑥𝑝𝑇𝑤𝑦𝑝]
+𝑥𝑝𝑇𝑤𝑦𝑝 =
+max
+𝑐=0,1,…,𝐶−1 𝑥𝑝𝑇𝑤𝑐
+ො𝑦𝑝= argmax
+𝑐=0,1,…,𝐶−1
+𝑥𝑝𝑇𝑤𝑐
+Distance to true 
+class boundary
+Distance to all 
+boundaries
+This is the best model prediction it 
+currently has using the current 
+weights over each classifier c
+This is model prediction to the true 
+class classifier using the current 
+weights of the true classifier
+
+---PAGE---
+16
+𝑙𝑜𝑠𝑠/𝑐𝑜𝑠𝑡=  𝑔𝑤0, … , 𝑤𝑐−1 = −1
+𝑃෍
+𝑝=1
+𝑃
+max
+𝑐=0,…,𝐶−1 𝑓𝑤𝑐𝑥𝑝−𝑓𝑤𝑦𝑝𝑥𝑝
+ 
+Loss: Multi-Class Perceptron Function
+▪Taking the average of this point-wise cost over the entire dataset:
+which gives us the multi-class perceptron cost function. It has 
+these properties:
+▪it is convex
+▪it has a trivial solution at zero, which is often avoided by 
+initializing local optimization away from the origin. 
+𝑔𝑤0, … , 𝑤𝑐−1 = −1
+𝑃෍
+𝑝=1
+𝑃
+[(
+max
+𝑐=0,1,…,𝐶−1 𝑥𝑝𝑇𝑤𝑐) −𝑥𝑝𝑇𝑤𝑦𝑝] 
+Note: in some textbooks, loss refers to the 
+difference between actual and predicted value 
+for a single example, whereas in some other 
+textbooks cost refers to the aggregate difference 
+over a group of examples (batch). However, for 
+our purposes, these can be used interchangeably.
+
+---PAGE---
+17
+Example
+Using the loss function:
+Cracker
+Mug
+Sugar
+Point-wise loss
+3.2
+5.1
+-1.7
+1.9
+1.3
+4.9
+2.0
+0
+2.2
+2.5
+-3.1
+5.6
+= -1/3 [  (max(3.2, 5.1, - 1.7) – 3.2)
++ (max(1.3, 4.9, 2) – 4.9)
++ (max(2.2, 2.5, -3.1) – (-3.1)) ]
+= -1/3 [ (5.1 – 3,2) + (4.9 – 4.9) + (2.5 – (-3.1)) ]
+= -1/3 [ 1.9 + 0 + 5.6 ]
+= -1/3 [ 7.5 ] = -2.5
+Therefore, taking the average of all 3 examples, the overall loss: 
+𝑙𝑜𝑠𝑠= 𝑔𝑤0, … , 𝑤𝑐−1 = −1
+𝑃෍
+𝑝=1
+𝑃
+max
+𝑐=0,…,𝐶−1 𝑓𝑤𝑐𝑥𝑝−𝑓𝑤𝑦𝑝𝑥𝑝
+ 
+Each of these 
+numbers is 
+the 𝑓𝑤𝑐𝑥𝑝
+
+---PAGE---
+18
+Example
+▪Multi-class on a toy dataset with C=3 classes
+▪On the left, we did not train each individual two-class classifier in a 1va, hence each 
+classifier performs poorly on its data. This is fine because the fused 3 will perform very 
+well as seen on the right
+
+---PAGE---
+19
+Loss: Softmax Regression
+• We are still dealing with the case of more than two classes, i.e. y(i) ∈ {0,…,C-1}  where C is 
+the number of classes. Therefore, Softmax regression (multi-class classification; C > 2) is 
+a generalization of logistic regression (binary classification; C = 2).
+• Now our training set of P labeled examples looks like { 𝒙𝟏, 𝒚𝟏, 𝒙𝟐, 𝒚𝟐, … , 𝒙𝑷, 𝒚𝑷} 
+• Each input 𝒙𝒊 ∈ RN i.e. each 𝒙𝒊 is an N-dimensional vector representing N features;
+• Each output 𝒚𝒊 ∈ {0,…,C-1} i.e. each 𝒚𝒊 is a discrete scalar value between 0 to C-1. 
+For example, in MNIST digit recognition, we have C = 10 different classes.
+•
+We can use the LogSumExp approximation, which is a smooth approximation of the max 
+function:
+max { 𝑠0, 𝑠1, … , 𝑠𝐶−1 } ≈ LogSumExp(𝑠0, 𝑠1, … , 𝑠𝐶−1 ) ≈ log( 𝑒𝑠0 + 𝑒𝑠1 + ⋯ + 𝑒𝑠𝐶−1)
+•
+The multi-class perceptron cost uses the max function, which is not differentiable at the 
+point where two values are equal. This makes optimization difficult.
+•
+Also, the multi-class perceptron cost function is not smooth
+•
+We need to replace it with a smoother function.
+
+---PAGE---
+20
+The Multi-Class Softmax Loss
+•
+From Before: we know that:
+ 
+ 
+ 𝐿𝑜𝑠𝑠= −
+1
+𝑃σ𝑝=1
+𝑃
+max
+𝑐=0,…,𝐶−1 𝑓𝑤𝑐𝑥𝑝−𝑓𝑤𝑦𝑝𝑥𝑝
+•
+Replace max function with LogSumExp
+•
+This leads to the cost function
+•
+This is called the multi-class softmax loss (aka multi-class cross 
+entropy cost, multi-class logistic cost)
+•
+This loss function is convex and smooth, and hence can be easily 
+minimized using local minimization methods
+Loss= −
+1
+𝑃σ𝑝=1
+𝑃
+log σ𝑐=0
+𝐶−1 𝑒𝑓𝑤𝑐𝑥𝑝
+ −𝑓𝑤𝑦𝑝𝑥𝑝
+        = −
+1
+𝑃 σ 𝑙𝑜𝑔 (𝑒𝑓𝑤𝑐𝑥𝑝/ σ𝑃=1
+𝑃
+𝑒
+𝑓𝑤𝑦𝑝𝑥𝑝)
+= −
+1
+𝑃 σ 𝑙𝑜𝑔 (softmax(𝑓𝑤𝑐𝑥𝑝)    // see next slide
+
+---PAGE---
+21
+Why It is Called Softmax
+•
+We want to estimate the probability of the class label taking on each of the 
+C different possible values. Thus, the final output of the classifier should be a 
+C-dimensional vector, whose elements sum to 1. This will give us the 
+estimated probabilities for each class. 
+•
+To output a probability distribution, we can use the Softmax function, which 
+takes as input some C-dimensional vector, say z:
+•
+where each 𝑧𝑖 represents one element in the input vector z. 
+•
+In our case, each 𝑧𝑖= 𝑥𝑇𝑤𝑖. 
+•
+In the denominator, we sum over all elements of the input vector z. Dividing by 
+this sum normalizes values in the output vector to be between 0 and 1, which 
+makes it a probability distribution!
+𝑠𝑜𝑓𝑡𝑚𝑎𝑥𝑧𝑖=
+𝑒𝑧𝑖
+σ𝑗=0
+𝐶−1 𝑒𝑧𝑗
+
+---PAGE---
+22
+The Workflow
+▪Compute scores: 𝑓𝑤𝑐𝑥𝑝 for all classes C
+▪Softmax is implicitly applied through the ratio
+                                  𝑒𝑓𝑤𝑐𝑥𝑝/ σ𝑐=0
+𝐶−1 𝑒𝑓𝑤𝑐𝑥𝑝
+• (in this case, the 𝑧 from previous slide is z = 𝑓𝑤𝑐𝑥𝑝 )
+▪Take negative log of that probability
+▪Average over all P datapoints
+
+---PAGE---
+23
+Example of Output of Softmax Regression Activation Function
+• Using the earlier Cracker-Mug-Sugar classification example, let 
+us consider the first training example, with this vector: z = [3.2, 
+5.1, -1.7]T and C = 3.
+• As a reminder, this vector is just an example, but in a real 3-
+class classifier it would be obtained by taking dot products with 
+3 sets of weights and the inputs. For example: 𝑧1 = 𝑥𝑇𝑤1 = 3.2, 
+𝑧2 = 𝑥𝑇𝑤2 = 5.1, and so on.
+• Applying 𝑠𝑜𝑓𝑡𝑚𝑎𝑥(𝑧), we get:
+inputs 𝑥
+(represented as some 
+column vector with N 
+features)
+unnormalized outputs 𝑧
+(K-dimensional vector, 
+sometimes referred to as 
+logits)
+𝑧𝑖= 𝑥𝑇𝑤𝑖
+exp(𝑧𝑖)
+all values are now 
+positive
+divide each term by
+24.5 + 164.0 + 5.5
+normalized outputs f(W, x), 
+(probabilities between 0-1 
+for each class)
+Note: in some textbooks, the dot product is taken as 𝑤𝑖𝑇𝑥 instead of 𝑥𝑇𝑤𝑖. This is 
+just a difference in notation, and in both cases, the result is a scalar.
+
+---PAGE---
+24
+Loss: Binary Cross Entropy
+𝑙𝑜𝑠𝑠= −1
+𝑃 ෍
+𝑝
+𝑙𝑜𝑔(softmax(𝑓𝑤𝑐𝑥𝑝) = −1
+𝑃 ෍log(
+𝑒𝑓𝑤𝑐𝑥𝑝
+σ𝑐=0
+𝐶−1 𝑒𝑓𝑤𝑐𝑥𝑝)
+For C=2 classes 
+𝑙𝑜𝑠𝑠= −1
+𝑃 ෍𝑦𝑝log(𝑓(w,𝑥𝑝)) − (1 − 𝑦𝑝) log (1 − 𝑓(w,𝑥𝑝))
+In the binary case, the output is a scalar value which is the predicted probability that the 
+p-th training example is a positive example (i.e. its label is 1). Simply put: 
+• 𝑓(w,𝑥𝑝)= P (𝑦𝑝=1|𝑥𝑝,w) //probability that this class is 1
+• 1 − 𝑓(w,𝑥𝑝)= P (𝑦𝑝=0|𝑥𝑝,w) //probability that this class is 0
+Therefore, the Binary Cross Entropy loss function from earlier can be rewritten as:
+𝑙𝑜𝑠𝑠−1
+𝑃 ෍𝑦𝑝 P (𝑦𝑝=1|𝑥𝑝,w) +(1 −𝑦𝑝) P (𝑦𝑝=0|𝑥𝑝,w)
+The reason we multiply each term by 𝑦𝑝 and 1 −𝑦𝑝 is because 𝑦𝑝 can either be 0 or 1, 
+which means only one of the two additive terms will be non-zero
+
+---PAGE---
+25
+Generalized Cross Entropy Loss
+▪We can use similar logic to handle the multi-class case where 𝑦𝑝 is in 
+{0,1 , 2,…C-1} as follows:
+𝑔𝑤= −1
+𝑃෍
+𝑝=1
+𝑃
+෍
+𝑐=0
+𝐶−1
+1 𝑦𝑝= 𝑐log 𝑃(𝑦𝑝= 𝑐|𝑥𝑝, 𝑤𝑐) 
+▪Note: 1{⋅} is called an “indicator function” which evaluates to 1 when the condition 
+in the curly brackets is true, and 0 otherwise.
+▪Recall that the output of multi-class classification is a C-dimensional vector, where 
+the c-th element is the predicted probability of the input 𝑥𝑝 belonging to the c-th 
+class. Simply put: 
+𝑃𝑦𝑝= 𝑐 𝑥𝑝, 𝑤= the c-th element of 𝑓(𝑤, 𝑥𝑝)
+
+---PAGE---
+26
+Example
+▪Suppose we're classifying handwritten digits (0-9), so C=10. After feeding an input xₚ 
+through the model:
+▪Interpretation:
+▪The model is 70% confident this is digit "3“ compared to low probabilities on other 
+digits
+▪Making the Final Prediction:
+▪We pick the class with the highest probability
+▪Predicted class = 3 (because 0.70 is the largest probability)
+▪Connection to the Loss Function:
+▪We are computing ( − log( probability assigned to the true class) )
+•
+If true class is 3 and model predicts 0.70 → loss = −log(0.70) ≈ 0.36 (small loss, good)
+•
+If true class is 3 and model predicts 0.01 → loss = −log(0.01) ≈ 4.6- (large loss, bad)
+
+---PAGE---
+27
+One-Hot Encoding
+▪Connection to one-Hot Encoding:
+▪For a true class 𝑦𝑝= 3 in a 𝐶= 5 problem
+▪Why useful?
+• In multi-class classification, we are comparing TWO C-dimensional vectors:
+• Only the term where c=y contributes to the loss. Others are zero’d out
+▪The Cross-Entropy Loss compares these two vectors:
+ 
+ 
+𝒍𝒐𝒔𝒔= −
+𝟏
+𝑷σ 𝒕𝒓𝒖𝒆𝑳𝒂𝒃𝒆𝒍𝒄 ×  𝒍𝒐𝒈(𝒑𝒓𝒆𝒅𝒊𝒄𝒕𝒊𝒐𝒏𝒄)
+▪In this example
+
+---PAGE---
+28
+This is exactly what the indicator function does
+
+---PAGE---
+29
+Feature
+Logistic Regression
+Softmax Regression
+Number of Classes
+Binary (C = 2)
+Multi-class (C ≥ 2)
+Output Type
+Scalar (single probability)
+C-dimensional vector
+Activation Function  f(w,x) 
+Sigmoid:
+σ(xT w) where σ(z) = 1 / (1 + e⁻ᶻ) where z = xᵀ w
+Softmax:
+softmax(z) = eᶻ / Σ eᶻʲ where z = xᵀ w
+Prediction
+P(y = 1 | x, w) = σ(xᵀ w)
+P(y = 0 | x, w) = 1 − σ(xᵀ w)
+P(y = c | x, w) = exᵀ w  / Σ exᵀ w
+Parameters
+One weight vector w ∈ ℝᴺ+1
+C weight vectors (matrix W ∈ ℝCˣᴺ+1)
+Loss Function
+Binary Cross-Entropy:
+Loss = −(1/P) Σ [yₚ log(σ(xᵀ w)) + (1−yₚ) log(1−σ(xᵀ w))]
+Multi-class Cross-Entropy:
+Loss = −(1/P) Σ Σ 𝟙{yₚ=c} log P(yₚ=c|xₚ,wₖ)
+Decision Rule
+Predict class 1 if P(y=1|x,w) > 0.5
+Predict class k where k = argmaxₖ P(y=c|x,w)
+Decision Boundary
+One hyperplane
+C hyperplanes
+Key Relationship
+Softmax is a generalization of logistic regression. When c = 2, softmax reduces to the sigmoid 
+function.
+Logistic Regression vs Softmax Regression
+
+---PAGE---
+30
+Softmax Regression Formulae
+• Combining the linear step (dot product of weights and inputs) with the 
+softmax function, we get the following classifier function:
+• Generalized Cross Entropy loss function:
+where c is the c’th class label, and 𝑤𝑐 is the weight vector corresponding to the 
+weights from the c’th class classifier. 
+𝑓𝑊, 𝑥=
+1
+σ𝑗=0
+𝐶−1 𝑒𝑤𝑗
+𝑇𝑥
+𝑒𝑤0𝑇𝑥
+𝑒𝑤1𝑇𝑥
+⋮
+𝑒𝑤𝐶−1
+𝑇
+𝑥
+𝑔𝑤= −1
+𝑃෍
+𝑝=1
+𝑃
+෍
+𝑐=0
+𝐶−1
+1 𝑦𝑝= 𝑐log(
+𝑒𝑤𝑐𝑇𝑥𝑝
+σ𝑖=0
+𝐶−1 𝑒𝑤𝑖
+𝑇𝑥𝑝) 
+
+---PAGE---
+31
+Property of Softmax Regression
+▪Softmax regression has the property of redundant set of 
+parameters. This means that if we take our parameters 𝑤𝑖 (𝑖=
+0,1, … 𝐶−1) and we subtract a fixed vector ψ from each of them 
+such that each 𝑤𝑖 becomes 𝑤𝑖 - ψ, then this does not change 
+our predictions 𝑓(𝑤, 𝑥)
+▪In other words, if the cost function g(𝑤) is minimized over the 
+weights 𝑤 = {𝑤0, … 𝑤𝐶−1}, it is equivalent to minimizing over the 
+weights 𝑤′ = {𝑤0 −ψ, … 𝑤𝐶−1  −ψ}.
+▪This is because the softmax function is invariant to constants 
+being added or subtracted to the weights.
+▪Proof: 𝑃′ 𝑦= 𝑐
+𝑥
+=
+𝑒𝑤𝑐+ψ 𝑇𝑥
+σ𝑗𝑒𝑤𝑗+ψ
+𝑇
+𝑥=
+𝑒𝑤𝑐𝑇𝑥⋅𝑒ψ𝑇𝑥
+σ𝑗𝑒
+𝑤𝑗
+𝑇𝑥⋅𝑒ψ𝑇𝑥=
+𝑒𝑤𝑐𝑇𝑥
+σ𝑗𝑒
+𝑤𝑗
+𝑇𝑥= 𝑃𝑦= 𝑐
+𝑥
+
+---PAGE---
+32
+Softmax Regression is a Generalization of Logistic Regression
+▪Plugging in C = 2 in the Softmax formula:
+▪Now we subtract 𝑤1 from both sets of weights, and using the redundant 
+parameter property of softmax regression, we get:
+▪Finally, setting 𝑤′ = 𝑤2 −𝑤1 and recalling the formula for the sigmoid function 
+σ 𝑧=
+1
+1+𝑒−𝑧 , we get 𝑓𝑤, 𝑥=
+𝜎(𝑥𝑇𝑤′)
+1 −𝜎(𝑥𝑇 𝑤𝑇)
+▪This is the same output as logistic regression, except in logistic regression, 
+instead of the full vector, we output only the first scalar σ 𝑥𝑇 𝑤𝑇, and the 
+other term is implicit!
+𝑓𝑊, 𝑥=
+1
+𝑒0 + 𝑒𝑥𝑇𝑤2−𝑤1
+𝑒0
+𝑒𝑥𝑇𝑤2−𝑤1
+=
+1
+1 + 𝑒𝑥𝑇𝑤2−𝑤1
+𝑥𝑇𝑒𝑤2−𝑤1
+1 + 𝑒𝑥𝑇𝑤2−𝑤1  
+𝑓𝑤, 𝑥=
+1
+𝑒𝑥𝑇𝑤1 + 𝑒𝑥𝑇𝑤2
+𝑒𝑥𝑇𝑤1
+𝑒𝑥𝑇𝑤2
+•
+𝑓𝑤, 𝑥=softmax(𝑧𝑖) = 
+𝑒𝑧𝑖
+σ𝑗=0
+𝐶−1 𝑒𝑧𝑗 where 𝑧𝑖= 𝑥𝑇𝑤𝑖
+Probability of class 1
+Probability of class 0
+
+---PAGE---
+33
+▪From previous slide, Softmax regression output (with C=2)
+𝑧=
+1
+1+𝑒−𝑧 , we get 𝑓𝑤, 𝑥=
+𝜎(𝑥𝑇𝑤′)
+1 −𝜎(𝑥𝑇 𝑤𝑇)
+▪Recall that the logistic regression output:
+𝑓𝑤, 𝑥= 𝜎(𝑥𝑇 𝑤′) //single scalar showing the probability of one class
+• 𝑖𝑓 𝜎𝑥𝑇 𝑤′ ≥0.5 predict class 1
+• 𝑖𝑓 𝜎𝑥𝑇 𝑤′ < 0.5 predict class 0
+• P class 1 = 𝜎𝑥𝑇 𝑤′  // 𝑒𝑥𝑝𝑙𝑖𝑐𝑖𝑡
+• P class 1 = 𝜎𝑥𝑇 𝑤′  // 𝑖𝑚𝑝𝑙𝑖𝑐𝑖𝑡
+▪Hence the output of Softmax is the same as logistic regression, except in 
+logistic regression, instead of the full vector, we output only the first scalar 
+σ 𝑥𝑇 𝑤𝑇, and the other term is implicit.
+Probability of class 1
+Probability of class 0
+
+---PAGE---

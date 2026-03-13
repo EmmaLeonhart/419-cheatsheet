@@ -1,0 +1,1405 @@
+1
+COSC419/519:DEEP LEARNING
+Dr. Mohamed Shehata
+Computer Science
+University of British Columbia
+Intro to CNN
+
+---PAGE---
+2
+Last Time: MLP
+▪Fashion-MNIST Classification
+The number of parameters:
+In a fully connected NN, every 
+neuron is connected to every 
+other neuron.
+𝑛𝑢𝑚 𝑤𝑒𝑖𝑔ℎ𝑡𝑠
+= 784 × 16 + 16 × 16 + 16 × 10 
+= 𝟏𝟐𝟗𝟔𝟎
+n𝑢𝑚 𝑏𝑖𝑎𝑠 𝑡𝑒𝑟𝑚𝑠= 16 + 16 + 10 = 𝟒𝟐 
+Every neuron after the input layer also has 
+a bias
+So, the total number of parameters for 
+our small sample network is 13002
+28 px
+28 px
+
+---PAGE---
+3
+Convolutional Neural Networks (CNN)
+▪One of the most popular tools for deep learning.
+▪Example application: processing 2D data such as images and 
+videos (computer vision).
+▪Features are learned by the CNN directly from a huge dataset.
+▪i.e. we don’t manually extract the features.
+
+---PAGE---
+4
+History
+https://www.informit.com/articles/article.aspx?p=1431818
+•
+Hubel and Wiesel received the Nobel Prize
+•
+By monitoring the responses of the neuron to stimuli shown on a screen, Hubel and Wiesel 
+could get a good idea of what particular visual neurons normally do.
+•
+The neuron being recorded in V1 cells responds selectively to bars of light presented on the 
+screen in different orientations; the cell fires action potentials (indicated by the vertical lines) 
+only when the bar is at a certain location on the screen and in a certain orientation. 
+•
+These selective responses to stimuli define each neuron's receptive field properties
+•
+Furthermore, the understanding of sensory processing in animals served as inspiration for the 
+SIFT descriptor
+
+---PAGE---
+6
+•
+The earliest convolutional networks were used by Fukushima in 1979.
+•
+This model was based upon the findings of Hubel and Wiesel.
+•
+Fukushima network had multiple convolutional and pooling layers similar 
+to modern networks
+•
+The network was trained by using a reinforcement scheme where a trail of 
+strong activation in multiple layers was increased over time. 
+•
+Additionally, one would assign important features of each image by hand 
+by increasing the weight on certain connections.
+•
+No Backpropagation applied at that time
+https://csgrad.science.uoit.ca/courses/ist/notebooks/nn-history.html
+
+---PAGE---
+7
+Yann LeCun - VP & Chief AI Scientist at Meta - Facebook | LinkedIn
+• Then came LeNet:
+• LeNet is a series of convolutional neural network structure 
+proposed by LeCun et al
+• The earliest version, LeNet-1, was trained in 1989.
+• LeNet-5 [LeCun, Bottou, Haffner] 1999: Gradient-based learning 
+applied to document recognition
+• The first true, practical application of backpropagation at Bell Labs. 
+LeCun used convolutional networks in combination with 
+backpropagation to classify handwritten digits (MNIST)
+https://en.wikipedia.org/wiki/LeNet
+
+---PAGE---
+8
+First Strong Results
+▪ImageNet classification with deep convolutional neural networks
+   Alex Krizhevsky, Ilya Sutskever, Geoffrey, 2012 (37,500 citations)
+Olga Russakovsky*, Jia Deng*, Hao Su, Jonathan Krause, Sanjeev Satheesh, Sean Ma, Zhiheng Huang, Andrej Karpathy, Aditya Khosla, 
+Michael Bernstein, Alexander C. Berg and Li Fei-Fei. ImageNet Large Scale Visual Recognition Challenge.
+•
+The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) ended in 2017  which 
+was the final competition year.
+•
+This is why the graph ends in 2017.
+
+---PAGE---
+9
+Fast-forward: ConvNets are everywhere
+
+---PAGE---
+10
+
+---PAGE---
+11
+
+---PAGE---
+12
+W. Guo and M Shehata, 2024
+
+---PAGE---
+13
+Even More Fast Forward
+▪Part-Whole Architecture (A. Radwan and M S Shehata ICCV 
+2021)
+Objects will maintain their compositional 
+hierarchical structure despite any change in 
+appearance, which aids domain generalization.
+a) the input image. b) the input tokenizer. c) the initialization 
+pipeline. d) the tokenized input e) the hidden representation 
+at t = 0. f) The network architecture. g) the hidden 
+representation at t = 1. h) the softmax classification output. i) 
+the structure of the classification head.
+
+---PAGE---
+14
+CNN Structure
+▪CNN structure is inspired from the biological structure of our 
+visual cortex. 
+▪A study showed that cells in the visual cortex are found to 
+activate based on sub-regions of the visual field. Same idea is 
+used in CNN where neurons are connected to sub-regions, and 
+they are not responsive to areas outside these sub-regions.
+Source: mathworks
+
+---PAGE---
+15
+CNN Structure, cont’d
+▪CNN has two parts:
+▪Feature Learning
+• includes convolutional layers (with ReLU activation function) and pooling 
+layers (max or average pooling).
+• (CONV+ReLU+POOL) repeated several times
+▪Classification 
+• Includes fully connected layers (MLP) and a Softmax function to 
+compute the probability of different categories.
+Source: mathworks
+
+---PAGE---
+16
+CNN Structure, cont’d
+▪The neurons are arranged in a 3D manner 
+▪each layer is 3D with several channels
+▪input image is 3D (remember that we have 3 color channels).
+▪The features are learned through several hidden layers, and 
+they become the inputs to a classifier at the end of the function.
+Source: mathworks
+
+---PAGE---
+17
+Typical CNN
+▪Input layer: holds raw pixel values of the image
+▪Convolution layers: compute the output to neurons (connected to local 
+regions in the input).
+▪Activation Function (ReLU layers): apply an elementwise activation 
+function.
+▪Pooling layers: perform downsampling along the spatial dimensions (width, 
+height) of previous layer.
+▪Fully-connected layers: compute category scores
+Source: mathworks
+
+---PAGE---
+18
+Local Receptive Fields & Convolution
+▪A typical MLP is fully connected (neurons in one layer are 
+connected to neurons in following layer). 
+▪In CNN, each sub-region in the input layer is connected to a 
+neuron in the hidden layer. These sub-regions are called local 
+receptive fields.
+▪Normally convolution is done by sliding filters to input data.
+▪In CNN convolution operation is done in parallel such that all 
+neurons of the same filter are applied simultaneously on the 
+corresponding sub-region of the image 
+MLP
+Input 
+layer
+Output 
+layer
+CNN
+Output 
+layer
+Hidden 
+Layer
+Hidden Layer
+Input 
+layer
+
+---PAGE---
+19
+Convolution Layer
+▪We convolve the filter with the image and compute the dot 
+product
+32x32x3 
+input image
+5x5x3 
+filter 
+*
+28x28x1 
+activation map
+ONE value at each 
+neuron; computed by 
+applying the filter
+Note that the neuron 
+looks only at sub-regions 
+(i.e. not fully connected)
+Convolution
+
+---PAGE---
+20
+Convolution Layers
+▪Convolving the filter results in getting values for different nodes 
+on the next layer (activation map). 
+32x32x3 
+input image
+5x5x3 
+filter *
+28x28x1 
+activation map
+Convolution
+•
+Filters always extend the full depth of the input. If the input has 3 channels, then 
+the filter will have 3 channels
+One number
+
+---PAGE---
+21
+Convolution Layers, cont’d
+▪All neurons (in one activation map) of the same filter share the 
+same weights
+32x32x3 
+input image
+5x5x3 
+filter *
+28x28x1 
+activation map
+Convolution
+
+---PAGE---
+22
+Convolution Layers, cont’d
+▪Convolving another filter to the same input image produces 
+another channel in the activation map (in the same layer)
+32x32x3 
+input image
+another 
+5x5x3 
+filter *
+Now we are creating the 
+second channel in the 
+activation map 
+(each channel is 28x28)
+Convolution
+
+---PAGE---
+23
+Convolution Layers, cont’d
+▪Convolving another filter to the same input image produces 
+another channel in the activation map (in the same layer)
+32x32x3 input 
+image
+6x5x5x3 
+filters 
+Convolution 
+Layer
+6 bias vector
+6 activation maps
+Each 1x28x28
+Stack activations to get 
+6x28x28 output image
+
+---PAGE---
+24
+Convolution Layers, cont’d
+▪The same process is repeated for every hidden layer.
+▪Using a 5x5x3 filters, we get:
+32x32x3 
+input image
+28x28xN 
+activation map 
+Convolution
+Convolution
+24x24xM 
+activation map 
+ 
+…
+N (5x5x3) filters
+M (5x5x3) filters
+
+---PAGE---
+25
+Convolution Layer Interactive Demo
+http://cs231n.github.io/assets/conv-demo/index.html
+
+---PAGE---
+26
+Features Learning
+▪Every hidden layer detects more complex features
+▪First layer for example may detect edges
+▪Last one detects more complex shapes.
+▪ConvNets can be interpreted as gradually transforming the images into a 
+representation in which the classes are separable by a linear classifier
+…
+Visualization of 
+filter weights at 
+Conv. layers
+
+---PAGE---
+27
+Visual Example
+▪The most straight-forward visualization technique is to show the activations of 
+the network during the forward pass.
+▪One issue with this visualization is that some activation maps may be all zero 
+for many different inputs, which can indicate dead filters, and can be a 
+symptom of high learning rates.
+▪Example of applying 32 5x5 filters (top-row) to an input image (top-left)
+Notice that the activations are 
+sparse (most values are zero)
+activation maps (raw-ish 
+values → normalized to 
+grayscale)
+
+---PAGE---
+28
+Visual Example
+activation-driven reconstructions/feature visualizations (mapped back into image space)
+
+---PAGE---
+29
+Visual Example 2
+
+---PAGE---
+30
+Weight Sharing
+What is Weight Sharing?
+▪In CNNs, the same filter (kernel) weights are reused across all spatial positions of the input.
+ Key Differences:
+▪Fully Connected: Every input-output connection has a unique weight → many parameters
+▪CNN (Convolutional): Same filter slides across input, reusing weights → much fewer parameters
+ A larger Example: 28×28 input → 100 neurons
+▪Fully connected: 78,400 parameters
+▪CNN with 32 3×3 filters: 288 parameters (270× reduction!)
+Fully connected layer 
+(no weight sharing)
+convolution layer 
+(with weight sharing)
+w1
+w9
+Same 9 weights are used at 
+every position in the input
+Parameters=3x3=9
+Filter slides across input and reusing the same weights
+Output:
+feature map 2x2
+
+---PAGE---
+31
+Benefits
+▪ Same Filter, Multiple Positions:
+▪A 3×3 filter with 9 weights is applied to every position in the input
+▪For a 28×28 input: filter is applied 26×26 = 676 times, but only 9 weights 
+stored
+▪Translation Invariance:
+▪Same filter detects the same pattern (edge, texture, shape) anywhere in 
+the image
+▪A circle detector at top-left will also detect circles at bottom-right
+▪Training with Weight Sharing:
+▪During backpropagation, gradients from ALL positions accumulate
+▪Single filter update: w = - 𝛼 Σ(∇w from all 676 positions) 
+▪More on this later
+▪Filter learns from every location it was applied → better generalization
+▪ Massive parameter reduction + translation invariance + robust feature 
+learning
+
+---PAGE---
+32
+Questions for Discussion
+▪How are the filters related to the weights in a typical MLP 
+network?
+▪A convolution filter is a set of learnable weights. The difference is weight sharing: the 
+same small kernel is applied across all spatial locations instead of having separate weights 
+per pixel.
+▪How are the filters related to features?
+▪A filter becomes a feature detector after training. Convolving it over the image produces a 
+feature map (activation map) showing where that feature appears and how strongly
+▪Why are the filters in the previous image colored?
+▪Because for an RGB input, each filter has depth 3 (one kernel per input channel)
+▪What happens if we stack two convolution layers back-to-back?
+▪Stacking conv layers increases the effective receptive field and enables hierarchical 
+composition (simple features → more complex ones). Two small kernels (e.g., 3 × 3+ 3
+× 3) can behave like a larger one (≈5 × 5)
+.
+
+---PAGE---
+33
+The Stride
+▪We need to determine the “stride” when sliding the filter. 
+▪e.g. stride = 2
+▪Note that with a stride = 2 and 7x7 image, the output is 3x3 only 
+(smaller)
+▪Output size = ( (W-F) / stride) + 1
+• W: image width, F: filter width
+• Stride is how many pixels you slide your filter (horizontally and vertically)
+…
+W
+F
+
+---PAGE---
+34
+Question
+What is the output volume: 
+Input layer: 64x64x3
+10 5x5x3 filters
+Stride: 1
+A. 60x60x3
+B. 60x60x10
+C. 64x64x3
+D. 64x64x10
+E. 60x60x30
+Convolution
+10 5x5x3 filters
+
+---PAGE---
+35
+Padding
+▪Input 7x7. Apply a 3x3 filter with stride 4.
+▪What will happen?
+▪Output size = 2x2 (not good)
+▪In practice: it is common to zero pad the border
+▪e.g. input 7x7, 3x3 filter, applied with stride 1
+▪pad with 1 pixel border => what is the output?
+• Output size= 7x7
+
+---PAGE---
+36
+Size Formula with Padding
+▪ stride = 2
+▪Note that with a stride = 2 and 7x7 image, the output is 3x3 only (smaller)
+▪Output size = ( (W-F) / stride) + 1
+• W: image width, F: filter width
+• Stride is how many pixels you slide your filter (horizontally or vertically)
+▪If we use padding: the formula becomes:
+ 
+Output size = ( (W+2P-F) / stride) + 1
+• Where P is the padding applied to each side of the input
+…
+W
+F
+
+---PAGE---
+37
+Question
+What is the output volume: 
+Input layer: 64x64x3
+10 5x5x3 filters
+Stride: 1
+padding: P=2
+A. 60x60x3
+B. 60x60x10
+C. 64x64x3
+D. 64x64x10
+E. 60x60x30
+Convolution
+10 5x5x3 filters
+( (W+2P-F) / stride) + 1
+
+---PAGE---
+38
+Question
+What is the number of multiply-add operations to produce the 
+output stack of activation maps:
+Assume stride=1 and padding=2
+A) 10,240
+B) 768,000
+C)76,800
+D) 750
+E) None of these
+Convolution
+10 5x5x3 filters
+
+---PAGE---
+39
+The Activation Function 
+▪Both ANN and CNN use activation functions for each neuron
+▪ReLU is common activation function for CNN
+Convolution + ReLU
+
+---PAGE---
+40
+Example: ReLU  activation function 
+Assume we have 4x4 neurons in the activation map as a direct output 
+of the convolution with the filters (left activation map)
+We apply Relu to get the final output in the activation map (right 
+activation map)
+2
+7
+6
+-4
+5
+1
+-1
+1
+4
+-1
+1
+2
+1
+-2
+3
+-4
+2
+7
+6
+0
+5
+1
+0
+1
+4
+0
+1
+2
+1
+0
+3
+0
+ReLU
+Convolution
+Activation map 
+before Relu
+
+---PAGE---
+41
+Pooling Layer
+▪Pooling reduces the size of the feature map and hence reduces 
+the number of parameters the model needs to learn.
+▪Pooling operates at each activation map independently
+2
+7
+6
+-4
+5
+1
+-1
+1
+4
+-1
+1
+2
+1
+-2
+3
+-4
+2
+7
+6
+0
+5
+1
+0
+1
+4
+0
+1
+2
+1
+0
+3
+0
+7
+6
+4
+3
+ReLU
+Max-
+Pooling
+Convolution
+
+---PAGE---
+42
+Common Types of Pooling
+▪Max pooling: Takes the maximum value within a local region, 
+which is the most commonly used pooling method.
+▪Average pooling: Calculates the average value within a local 
+region.
+
+---PAGE---
+43
+Why We Need Pooling
+▪Dimensionality reduction: By aggregating information within a 
+local area, pooling layers downsample the input, significantly 
+reducing the number of parameters in the network.
+▪Computational efficiency: Reducing the size of feature maps 
+decreases the computational cost of subsequent layers.
+▪Translation invariance: Pooling makes the model less sensitive 
+to small shifts in the input image, as the most important feature 
+within a local region will still be captured.
+▪Feature extraction: By selecting the maximum or average value 
+within a region, pooling helps extract the most salient features 
+from the convolutional layers.
+
+---PAGE---
+44
+Backpropagation in CNNs
+𝑂11 = 𝑋11𝐹11 + 𝑋12𝐹12 + 𝑋21𝐹21 + 𝑋22𝐹22
+𝑂12 = 𝑋12𝐹11 + 𝑋13𝐹12 + 𝑋22𝐹21 + 𝑋23𝐹22
+𝑂21 = 𝑋21𝐹11 + 𝑋22𝐹12 + 𝑋31𝐹21 + 𝑋32𝐹22
+𝑂22 = 𝑋22𝐹11 + 𝑋23𝐹12 + 𝑋32𝐹21 + 𝑋33𝐹22
+X11
+X12
+X13
+X21
+X22
+X23
+X31
+X32
+X33
+F11
+F12
+F21
+F22
+Input X
+3x3
+Filter F
+2x2
+
+F
+X
+O
+Forward pass
+O11
+O12
+O21
+O22
+Output size = ( (W+2P-F) / stride) + 1
+                     =((3+0-2)/1)+1
+                     =2
+stride = 1, no padding
+
+---PAGE---
+45
+X11
+X12
+X13
+X21
+X22
+X23
+X31
+X32
+X33
+F11
+F12
+F21
+F22
+Input X
+3x3
+Filter F
+2x2
+
+F
+X
+O
+Backward pass
+𝝏𝑳/𝝏O
+𝝏𝑳/𝝏F
+M = total number of positions in the output
+We need to calculate 𝜕𝐿/𝜕F because this will be used to update the weights of the filter
+Given
+Need to calculate
+Loss gradient from 
+previous layer on the 
+right (upstream)
+
+---PAGE---
+46
+Since: 𝑂11 = 𝑋11𝐹11 + 𝑋12𝐹12 + 𝑋21𝐹21 + 𝑋22𝐹22
+𝜕𝑂11
+𝜕𝐹11 = 𝑋11 ,  
+𝜕𝑂11
+𝜕𝐹12 = 𝑋12 , 
+𝜕𝑂11
+𝜕𝐹21 = 𝑋21 , 
+𝜕𝑂11
+𝜕𝐹22 = 𝑋22
+Similarly, for 𝜕𝑂12/𝜕𝐹𝑖 , 𝜕𝑂21/𝜕𝐹𝑖 , 𝜕𝑂22/𝜕𝐹𝑖
+This means we can represent 
+𝜕𝐿
+𝜕𝐹 as a convolution operation (no kernel flip) between input X and the loss 
+gradient
+𝜕𝐿
+𝜕𝑂 :
+Now we have 
+𝜕𝐿
+𝜕𝐹 as a matrix (same size as F), we can update the weights using SGD
+𝐹𝑛𝑒𝑤= 𝐹𝑜𝑙𝑑−𝛼
+𝜕𝐿
+𝜕𝐹 where 𝛼 is the learning rate.
+
+---PAGE---
+47
+X11
+X12
+X13
+X21
+X22
+X23
+X31
+X32
+X33
+F11
+F12
+F21
+F22
+Input X
+3x3
+Filter F
+2x2
+
+F
+X
+O
+Backward pass
+𝝏𝑳/𝝏O
+𝝏𝑳/𝝏F
+We need to calculate 𝜕𝐿/𝜕X because this will be the downstream gradient that we pass to the next left layer (we are moving right to left)
+𝑂11 = 𝑋11𝐹11 + 𝑋12𝐹12 + 𝑋21𝐹21 + 𝑋22𝐹22
+𝑂12 = 𝑋12𝐹11 + 𝑋13𝐹12 + 𝑋22𝐹21 + 𝑋23𝐹22
+𝑂21 = 𝑋21𝐹11 + 𝑋22𝐹12 + 𝑋31𝐹21 + 𝑋32𝐹22
+𝑂22 = 𝑋22𝐹11 + 𝑋23𝐹12 + 𝑋32𝐹21 + 𝑋33𝐹22
+, M = total number of positions in the output
+
+---PAGE---
+48
+This means we can compute  
+𝜕𝐿
+𝜕𝑋 by convolving the zero padded upstream gradient
+𝝏𝑳
+𝝏𝑶 (pad 𝒑= 𝟏) with 
+𝟏𝟖𝟎° kernel flip filter F  ( 𝑟𝑜𝑡180(𝐹) ). Therefore  
+𝜕𝐿
+𝜕𝑋 will have the same dimension as input X
+This 
+𝜕𝐿
+𝜕𝑋 is what we propagate to the 
+next layer on the left during backprop.
+(downstream)
+
+---PAGE---
+49
+How stride and padding affect Δ𝑊 during backprop
+▪Key idea: each filter’s weight update ΔW is built by summing contributions from many 
+input “patches” (the parts of 𝑋 the filter slides over).
+▪Stride changes which patches are used
+▪Bigger stride = filter “jumps” more.
+▪That means fewer output positions, so you sum over fewer patches.
+▪Result: Δ𝑊 changes because the filter sees a different set of patches.
+▪Padding changes the patches near the border
+▪More padding adds zeros around the input.
+▪Border output positions now use patches that include some zeros (different patch 
+content).
+▪It can also change output size (more positions to sum over).
+▪Result: Δ𝑊 changes because the patches (and/or number of patches) change.
+▪Conclusion
+▪Changing stride or padding changes the forward sliding pattern, 
+▪So, it changes the sum used to compute 𝑑𝐿/𝑑𝑊,
+▪Therefore, it changes Δ𝑊 for all filters (except rare “everything is zero” cases).
+
+---PAGE---
+50
+Homework Example
+Given the input and filter below and assuming that your upstream gradient      
+𝜕𝐿/𝜕𝑂 is 1. 
+A) What are the new wights of the filter? Assume SGD with learning rate 0.01
+B) Redo the example if you add a ReLU after the output O
+Ans A:
+Ans B: unchanged. You need to show the work. Intuitively, why it is not 
+changed.
+1
+2
+1
+0
+3
+5
+7
+1
+0
+1
+3
+2
+1
+𝑋
+𝐹
+𝜕𝐿/𝜕𝑂
+1
+1
+1
+1
+0.94
+2.89
+1.89
+0.91
+𝐹_𝑛𝑒𝑤
+
+---PAGE---
+51
+Deep CNNs Have Gradient Issues
+▪CNNs still train with backprop + chain rule
+▪As we stack more conv blocks:
+▪gradients can vanish (slow learning in early layers)
+▪gradients can explode (instability / divergence)
+▪If we have vanishing or exploding gradients the network cannot 
+learn and become instable
+▪This motivates common CNN “training stabilizers”:
+▪normalization using BatchNorm (see next slides)
+▪residual connections as in ResNet architecture (next lecture)
+▪careful initialization (next next lecture)
+
+---PAGE---
+52
+Batch Normalization
+▪A method used to make training of artificial neural networks 
+faster and more stable through normalization of the layers inputs 
+by re-centering and re-scaling.
+▪The idea behind batch normalization is to try to tackle a problem 
+called the internal covariate shift problem
+▪In short, batch normalization aims to normalize the input by 
+subtracting and dividing by the mini-batch statistics.
+
+---PAGE---
+53
+Batch Normalization
+▪Example: classification on NBA player using two features 
+▪Those features are on different scales (Age: 19–49, Height: 177–201)
+▪t it can be helpful to re-center and re-scale features (e.g., subtract the mean and 
+divide by the standard deviation) so they are comparable
+▪Normalization = “put features on a common scale for a batch of data”
+
+---PAGE---
+54
+▪In batch training, the input is a set of images
+𝑎3
+𝑎2
+𝑎1
+𝑥1
+𝑥2
+𝑥3
+𝑊1
+𝑊1
+𝑊1
+𝑧1
+𝑧2
+𝑧3
+𝑊2
+𝑊2
+𝑊2
+ReLU
+…
+…
+…
+…
+…
+…
+𝑊1
+𝑥1 𝑥2 𝑥3
+𝑧1 𝑧2 𝑧3
+=
+ReLU
+ReLU
+Batch
+
+---PAGE---
+55
+Batch Normalization
+•
+As training updates earlier layers, the distribution of 𝑧 drifts across iterations 
+(mean/variance change), which can push activations into bad regimes (saturation/unstable 
+scale) and make optimization harder
+•
+Remember an iteration is to take one mini-batch of data, do a forward pass (compute 
+predictions + loss), do a backward pass (compute gradients), and then do an optimizer 
+step (update weights)
+•
+Consider one neuron and a 
+mini-batch of inputs. Even 
+though the weights are the 
+same for every input 
+example, the neuron pre-
+activation values (𝑧= 𝑤⊤𝑥
++ 𝑏) can have different 
+mean and variance across 
+the batch.
+
+---PAGE---
+56
+• Batch Normalization stabilizes training by normalizing 𝑧 using 
+mini-batch statistics Ƹ𝑧= (𝑧−𝜇𝐵)/ 𝜎𝐵
+2 + 𝜖, 𝑦= 𝛾Ƹ𝑧+ 𝛽 , 
+which keeps activations on a controlled scale while 𝛾, 𝛽 let the 
+layer learn the best scale/shift.
+• Without normalization, the optimization landscape can be poorly 
+conditioned (elongated contours): the gradient is very steep in 
+one direction and shallow in another, so gradient descent tends to 
+zig-zag and requires many steps.
+• With normalized activations, the landscape is often better 
+conditioned (more “bowl-shaped”), so gradient descent can take 
+more direct, stable steps toward the minimum.
+
+---PAGE---
+57
+How to BN?
+▪Naive method: Train on a batch. Update model parameters. Then normalize. 
+▪If we do it this way gradient always ignores the effect that the 
+normalization for the next batch would have
+• “The issue with the above approach is that the gradient descent optimization 
+does not take into account the fact that the normalization takes place”
+▪given a mini-batch of activations {𝑥𝑖
+𝑘}𝑖=1
+𝑚  (note that I’m using the paper notation and 
+here ො𝑥𝑖 means: 1) If BN is before ReLU (most common): x≈z, 2) If BN is after ReLU (less 
+common): x≈a – more on insertion later)
+Ioffe, Sergey; Szegedy, Christian (2015). "Batch Normalization: Accelerating 
+Deep Network Training by Reducing Internal Covariate Shift"., ICML, 2015 
+(https://arxiv.org/abs/1502.03167v3)           (60100 citations as of Feb 2025)
+2) Then normalize each activation using:
+ො𝑥𝑖
+=
+𝑥𝑖−𝜇𝐵
+൫𝜎𝐵)2 + 𝜖
+1)
+compute the mini-batch mean and variance
+𝜇𝐵=
+1
+𝑚෍
+𝑖=1
+𝑚
+𝑥𝑖, 
+(𝜎𝐵)2 = 1
+𝑚෍
+𝑖=1
+𝑚
+𝑥𝑖−𝜇𝐵
+2
+
+---PAGE---
+58
+How does BN work?
+▪Consider a batch 𝑥 of 𝑚 input examples. Each example will have 
+𝐷 features.
+m
+Number of 
+examples 
+in the batch
+each row = one example in the batch
+each column = one feature (one neuron/channel)
+D 
+Number of  features 
+(number of neurons)
+𝑥𝑖 is the 𝐷-dimensional feature vector for example 𝑖, so 𝜇𝐵 is a vector in ℝ𝐷, 
+which is the same for 𝜎𝐵
+2
+
+---PAGE---
+59
+BN During test time
+▪During testing, BN uses stored running mean/variance instead of 
+batch statistics.
+▪Solution: compute a running average of the mean and variance 
+during training. Then at the end of the training we have two 
+vectors for 𝜇𝑟𝑢𝑛𝑛𝑖𝑛𝑔 𝑎𝑛𝑑 𝜎2𝑟𝑢𝑛𝑛𝑖𝑛𝑔 ( both ∈ℝ𝐷)
+▪The running mean and variance are stored and used for 
+normalization during testing (inference). 
+𝜇𝑟𝑢𝑛𝑛𝑖𝑛𝑔= 𝛼 𝜇𝑟𝑢𝑛𝑛𝑖𝑛𝑔+ (1 −𝛼) 𝜇𝐵
+𝜎2𝑟𝑢𝑛𝑛𝑖𝑛𝑔= 𝛼 𝜎2𝑟𝑢𝑛𝑛𝑖𝑛𝑔+ 1 −𝛼 𝜎2𝐵
+▪The scaling and shifting parameters (𝛾 𝑎𝑛𝑑 𝛽) learned during 
+training are also used during inference.
+▪During testing, BN becomes like a linear operator and can be 
+fused with the previous FC or Conv layer
+
+---PAGE---
+60
+Where?
+▪Since BN is differentiable, we can use it as a layer in the network
+▪Usually inserted after Convolutional layers, and before 
+nonlinearity.
+▪ However, if you insert it after Activation function should be still 
+the same results
+
+---PAGE---
+61
+Why BatchNorm often makes deep CNN training easier
+▪BatchNorm doesn’t “magically remove” vanishing gradients in every case, but 
+it strongly reduces the main causes of vanishing/exploding in deep nets by 
+controlling activation scale
+▪BatchNorm normalizes pre-activations within a mini-batch:
+▪BN makes each layer’s inputs roughly zero mean, unit variance, then lets 
+the network learn the best scale/shift via 𝛾, 𝛽.
+
+---PAGE---
+62
+This helps with vanishing gradients by:
+▪Keeps activations in a “high-derivative”. For example, the Sigmoid saturates for 
+large ∣𝑧∣, making 𝜎′ 𝑧≈0 ;keeping pre-activations near 0 keeps 𝜎′ 𝑧 near its 
+maximum (~0.25), improving gradient flow through depth.
+• Even with ReLU, controlling scale matters because too-small variance yields tiny 
+signals/gradients, and too-large variance can destabilize training.
+▪Stabilizes gradient magnitudes through scale control: BN introduces a 
+normalization factor 1/ 𝜎𝐵
+2 + 𝜖 .Very roughly (intuition, not exact equality), 
+gradients backpropagated through BN get rescaled in a way that prevents them 
+from blowing up or shrinking purely due to drifting activation variance
+▪Improves conditioning of the optimization problem: BN often makes the loss 
+landscape “easier” for SGD-like optimizers. This is part of why you can often use 
+higher learning rates with BN. 
+
+---PAGE---
+63
+▪How BN reduces dependence on weight initialization
+▪Good initialization (Xavier/He) tries to keep activation/gradient variance 
+roughly stable at the start. But without BN, during training the 
+distributions can drift, and the network can become very sensitive to 
+initial scale.
+▪BN reduces this sensitivity because:
+▪Even if your weights start with a “bad” scale, BN renormalizes the 
+resulting pre-activations to a standard scale each forward pass.
+▪BN reduces sensitivity to weight initialization because weight scaling 
+largely cancels in normalization (then 𝛾, 𝛽 learn the right scale/shift).
+▪That means the network is less sensitive to the exact initial weight 
+scale.
+▪Authors have run extensive testing as seen on next slides to prove these 
+claims
+
+---PAGE---
+64
+Figure 1: (a) The test accuracy of the MNIST network trained with and without 
+Batch Normalization, vs. the number of training steps. Batch Normalization helps 
+the network train faster and achieve higher accuracy. (b, c) The evolution of input 
+distributions to a typical sigmoid, over the course of training, shown as 
+{15,50,85}th percentiles. Batch Normalization makes the distribution more stable 
+and reduces the internal covariate shift.
+https://arxiv.org/pdf/1502.03167v3
+•
+BN accelerates training and improves final accuracy, Fig a
+•
+BN stabilizes internal layer distributions: input distributions (shown as percentiles in fig-c) 
+remain tightly clustered and stable throughout training with BN
+•
+Without BN, severe internal covariate shift occurs (Fig b): distributions fluctuate wildly 
+with large variance, making optimization more difficult  
+
+---PAGE---
+65
+Inception: original base network, trained 
+with the initial learning rate of 0.0015.
+BN-Baseline: Same as Inception with 
+Batch Normalization before each 
+nonlinearity. 
+BN-x5: Inception with Batch 
+Normalization, the initial learning rate 
+was increased by a factor of 5, to 0.0075. 
+BN-x30: Like BN-x5, but with the initial 
+learning rate 0.045 (30 times that of 
+Inception). 
+BN-x5-Sigmoid: Like BN-x5, but with 
+sigmoid nonlinearity g(t) = 1 1+exp(−x) 
+instead of ReLU. 
+*We also attempted to train the original 
+Inception with sigmoid, but the model 
+remained at the accuracy equivalent to 
+chance.
+•
+Batch Normalization achieves equivalent accuracy to baseline Inception in ~2 
+times fewer training steps (15M vs 30M steps to reach ~72% accuracy)
+•
+BN enables much higher learning rates (5× and 30× larger rates) without 
+performance degradation, significantly accelerating convergence
+
+---PAGE---
+66
+Overall
+▪Pros:
+▪BN reduces Covariate Shift. That is the change in distribution of 
+activation of a component. By using BN, each neuron's 
+activation becomes (more or less) a Gaussian distribution, i.e. 
+its usually not active, sometimes a bit active, rare very active.
+▪Makes deep networks much easier to train (see next slides)
+▪Allows higher learning rates, faster convergence 
+▪Networks become more robust to initialization
+▪Acts as regularization during training
+▪Zero overhead at test-time: can be fused with conv layers
+▪Cons:
+▪Not well-understood theoretically
+▪Behaves differently during training and testing (can cause 
+issues if not careful)
+
+---PAGE---
+67
+Layer Normalization
+▪Another type of normalization is called Layer Normalization (LayerNorm). 
+▪BatchNorm is often the default choice in CNNs because it normalizes per 
+channel using mini-batch (and spatial) statistics, and it often improves 
+training speed and final accuracy when the batch size is reasonably large.
+▪We will discuss LayerNorm in more detail when we cover 
+Transformers/attention, because they use it as the standard normalization 
+in Transformer blocks.
+▪LayerNorm does not rely on batch statistics, which is helpful for variable-
+length sequences and small batches
+▪Because LayerNorm computes its mean/variance within each individual 
+example (batch=1), it still works consistently when:
+• sequences have variable length, and
+• batch size is small (batch statistics become noisy/unreliable).
+
+---PAGE---
+68
+Let’s reflect again on the overall CNN Structure 
+▪Input layer: holds raw pixel values of the image
+▪Convolution layers: compute the output of neurons (connected to 
+local regions in the input).
+▪ReLU layers: apply an elementwise activation function.
+▪Pooling layers: perform downsampling along the spatial dimensions 
+(width, height) of previous layer.
+▪Fully-connected layers: compute category scores
+Source: mathworks
+
+---PAGE---
+70
+Example1: Small Network
+If padding is not mentioned then assume P=0
+
+---PAGE---
+71
+Example2: LeNet-5
+
+---PAGE---
+72
+Demo on CIFAR-10
+▪This demo trains a Convolutional Neural Network on the CIFAR-
+10 dataset in your browser, with nothing but Javascript. python 
+script is used to parse the original files (python version) into 
+batches of images that can be easily loaded into page DOM 
+with img tags.
+▪This dataset is more difficult and it takes longer to train a 
+network. Data augmentation includes random flipping and 
+random image shifts by up to 2px horizontally and vertically.
+▪Report questions/bugs/suggestions to @karpathy.
+http://cs.stanford.edu/people/karpathy/convnetjs/demo/cifar1
+0.html
+
+---PAGE---
+73
+CNN in Action
+
+---PAGE---
+74
+Using Pytorch Framework
+This is coded and run in Google colab
+1. Load and normalize CIFAR10 dataset
+2.  Define a Convolutional Neural Network
+3.  Define a Loss function and optimizer
+4. Train the network
+5. Test the network on the test data
+
+---PAGE---
+75
+# Import necessary libraries
+import torch
+import torchvision
+import torchvision.transforms as transforms
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import matplotlib.pyplot as plt
+import numpy as np
+
+---PAGE---
+76
+▪1. Load and normalize CIFAR10
+import torch
+import torchvision
+import torchvision.transforms as transforms
+The CIFAR-10 dataset 
+consists of 60000 32x32 
+colour images in 10 
+classes, with 6000 
+images per class.
+
+---PAGE---
+77
+# Define transformations for CIFAR-10 dataset
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))   # (mean , std) for each channel
+])
+# Set batch size
+batch_size = 4
+# Load CIFAR-10 training dataset
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
+# Load CIFAR-10 test dataset
+testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
+# Define class labels
+classes = ('plane', 'car', 'bird', 'cat’, 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+transforms.ToTensor(),: It is commonly used to convert an image in the form of 
+a NumPy array
+Normalization: It adjusts the pixel values in an image tensor to have a specific mean and standard 
+deviation for each channel. Normalization is applied using the formula: 
+normalized_value=value−mean/std​ 
+where value is the pixel value, mean is the channel mean, and std is the channel std.
+Normalization ensures that all pixel values are on a consistent scale, which can help models converge faster and 
+improve training stability.
+
+---PAGE---
+78
+▪2. Define a Convolutional Neural Network
+class Net(nn.Module):
+       def __init__(self):
+                super(Net, self).__init__()
+                self.conv1 = nn.Conv2d(3, 6, 5) # First convolutional layer 
+                self.pool = nn.MaxPool2d(2, 2)  # Max pooling layer
+                self.conv2 = nn.Conv2d(6, 16, 5) # Second convolutional layer        
+                self.fc1 = nn.Linear(16 * 5 * 5, 120) # Fully connected layer 1 
+                self.fc2 = nn.Linear(120, 84) # Fully connected layer 2 
+                self.fc3 = nn.Linear(84, 10) # Output layer    
+      def forward(self, x):
+                x = self.pool(F.relu(self.conv1(x))) # Apply first convolution + ReLU + pooling
+                x = self.pool(F.relu(self.conv2(x))) # Apply second convolution + ReLU + pooling        
+                x = torch.flatten(x, 1) # Flatten tensor for FC layers
+                x = F.relu(self.fc1(x)) # Fully connected layer 1 with ReLU
+                x = F.relu(self.fc2(x)) # Fully connected layer 2 with ReLU
+                x = self.fc3(x) # Output layer
+                return x
+# Initialize networknet = Net()
+torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=T
+rue, padding_mode='zeros', device=None, dtype=None)
+in_channels (int) – Number of channels in the input image
+out_channels (int) – Number of channels produced by the convolution
+kernel_size (int or tuple) – Size of the convolving kernel
+stride (int or tuple, optional) – Stride of the convolution. Default: 1
+padding (int, tuple or str, optional) – Padding added to all four sides of the input. Default: 0
+dilation (int or tuple, optional) – Spacing between kernel elements. Default: 1
+groups (int, optional) – Number of blocked connections from input channels to output channels. Default: 1
+bias (bool, optional) – If True, adds a learnable bias to the output. Default: True
+padding_mode (str, optional) – 'zeros', 'reflect', 'replicate' or 'circular'. Default: 'zeros'
+torch.nn.MaxPool2d(kernel_size, stride=None, padding=0, dilation=1, return_indices=False, 
+ceil_mode=False)
+kernel_size (Union[int, Tuple[int, int]]) – the size of the window to take a max over
+torch.nn.Linear(in_features, out_features, bias=True, device=None, dtype=None)
+
+---PAGE---
+79
+▪3. Define a Loss function and optimizer
+criterion = nn.CrossEntropyLoss()
+#lr is the learning rate, and also use momentum with SGD
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
+---PAGE---
+80
+▪
+4. Train the network
+# Train the network 
+print("Starting Training...") 
+for epoch in range(2):  # Loop over dataset multiple times 
+           running_loss = 0.0 
+           for i, data in enumerate(trainloader, 0): 
+ 
+inputs, labels = data  # Get inputs and labels 
+ 
+optimizer.zero_grad() # Zero the gradients 
+ 
+outputs = net(inputs) # Forward pass 
+ 
+loss = criterion(outputs, labels) # Compute loss 
+ 
+loss.backward() # Backpropagation 
+ 
+optimizer.step() # Optimize model weights 
+ 
+running_loss += loss.item() 
+ 
+if i % 2000 == 1999: # Print every 2000 mini-batches 
+ 
+       print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}’) 
+ 
+       running_loss = 0.0 
+print("Finished Training")
+
+---PAGE---
+81
+▪5. Test the network on the test data
+dataiter = iter(testloader)
+images, labels = dataiter.next()
+# Function to show images 
+def imshow(img): 
+         img = img / 2 + 0.5 # Unnormalize 
+         npimg = img.numpy() 
+         plt.imshow(np.transpose(npimg, (1, 2, 0))) 
+         plt.show()
+# Display test images 
+imshow(torchvision.utils.make_grid(images)) 
+print('GroundTruth: ', ' '.join(f'{classes[labels[j]]:5s}' for j in range(4)))
+
+---PAGE---
+82
+Sample output
+
+---PAGE---
+83
+More output
+▪Some other images
+
+---PAGE---
+84
+Batch Normalization Example
+
+---PAGE---
+85
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torchvision
+import torchvision.transforms as transforms
+# Transformations for the MNIST dataset
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
+# Loading MNIST dataset
+trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, 
+transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
+# Define a simple neural network
+class Net(nn.Module):
+  def __init__(self, use_batch_norm=False):
+    super(Net, self).__init__()
+    self.use_batch_norm = use_batch_norm
+    self.fc1 = nn.Linear(28*28, 512)
+    self.fc2 = nn.Linear(512, 256)
+    self.fc3 = nn.Linear(256, 10)
+    # Batch Normalization layers
+    if use_batch_norm:
+      self.bn1 = nn.BatchNorm1d(512)
+      self.bn2 = nn.BatchNorm1d(256)
+ 
+
+---PAGE---
+86
+def forward(self, x):
+   x = x.view(-1, 28*28)
+   x=self.fc1(x)
+   # Apply batch normalization if specified
+   if self.use_batch_norm:
+      x = self.bn1(x)
+   x=torch.relu(x)
+   x=self.fc2(x)  
+   
+   # Apply batch normalization if specified
+   if self.use_batch_norm:
+      x = self.bn2(x)
+   x=torch.relu(x)
+   
+   x = self.fc3(x)
+   return x
+# Function to train the model
+def train_model(model, criterion, optimizer, epochs=3):
+  for epoch in range(epochs):
+    running_loss = 0.0
+    for i, data in enumerate(trainloader, 0):
+      inputs, labels = data
+      optimizer.zero_grad()
+      outputs = model(inputs)
+      loss = criterion(outputs, labels)
+      loss.backward()
+      optimizer.step()
+      running_loss += loss.item()
+      if i % 100 == 99:
+        print('[%d, %5d] loss: %.3f' %
+           (epoch + 1, i + 1, running_loss / 100))
+        running_loss = 0.0
+
+---PAGE---
+87
+# Training without batch normalization
+model_no_bn = Net(use_batch_norm=False)
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model_no_bn.parameters(), lr=0.01, momentum=0.9)
+print("Training without Batch Normalization:")
+train_model(model_no_bn, criterion, optimizer)
+# Training with batch normalization
+model_with_bn = Net(use_batch_norm=True)
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model_with_bn.parameters(), lr=0.01, momentum=0.9)
+print("\nTraining with Batch Normalization:")
+train_model(model_with_bn, criterion, optimizer)
+
+---PAGE---

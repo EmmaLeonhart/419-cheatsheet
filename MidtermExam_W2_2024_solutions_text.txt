@@ -1,0 +1,388 @@
+W2024T2 
+                                                    Student #:                               
+Deep Learning 
+ 
+ 
+Page 1 
+ 
+ 
+ 
+Midterm Exam 
+ 
+Time: 75 minutes 
+ 
+ 
+ 
+ 
+ 
+ 
+  Name: 
+ 
+  Student #: 
+ 
+ 
+ 
+• Answer each question in the space provided or on the back of a page with an indication 
+of where to find the answer. 
+ 
+• Write your name and student number in the space provided on this sheet. Write your 
+student number only in the space provided on other sheets of this paper. 
+ 
+• This is a closed book examination. One page cheat sheet is allowed 
+ 
+• If you find a question to be ambiguous or feel that you must make assumptions in order 
+to complete your answer successfully, please clearly state those assumptions in your 
+answer on the exam paper 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Q1 
+ 
+Q2 
+ 
+Q3 
+ 
+Q4 
+ 
+Total 
+ 
+ 
+ 
+
+---PAGE---
+W2024T2 
+                                                    Student #:                               
+Deep Learning 
+ 
+ 
+Page 2 
+ 
+Question 1 (MCQ): 
+ Please select ALL the correct answers from the choices below.   
+1. Which of the following statements regarding dropout in neural networks is true? 
+a. It is only used during training ✅ 
+b. It is used to increase the training speed  
+c. 
+The probability of dropping is a hyperparameter ✅ 
+d. Dropout is applied differently during training and testing. ✅ 
+2. What is the role of the activation function in a neural network?  
+a. Introduce non-linearity ✅ 
+b. Reduce the dimensionality of data 
+c. 
+Increase model complexity 
+d. Apply regularization 
+3. What was the main benefit of using 1x1 convolutions in Inception modules? 
+a. Reduce dimensionality ✅ 
+b. Introduce non-linearity  
+c. 
+Increase spatial resolution 
+d. Apply batch normalization 
+4. What makes InternImage architecture distinct? 
+a. It uses dynamic convolution kernels ✅ 
+b. Captures global and local dependencies more effectively✅ 
+c. 
+Relies on self-attention mechanisms like transformers 
+d. Shallow architecture with fewer layers 
+5. Which of the following adjustments might improve the performance of an underfitting MLP model?  
+a. Increase the number of hidden layers ✅ 
+b. Reduce the number of neurons in hidden layers  
+c. 
+Reduce the amount of regularization ✅ 
+d. Apply dropout with a high rate 
+6. What is the effect of initializing all weights in an MLP to the same value? 
+a. The model will train normally 
+b. The neurons in each layer will learn the same features ✅ 
+c. 
+It helps with faster convergence 
+d. It prevents overfitting 
+7. What happens if the predicted probability in cross-entropy loss is 1 and the actual label is 0? 
+a. The loss is minimized 
+b. The loss approaches zero 
+c. 
+The loss is undefined 
+d. The loss approaches infinity ✅ 
+8. Why is Mean Squared Error (MSE) not a suitable loss function for classification problems? 
+a. MSE does not penalize incorrect classifications effectively ✅ 
+b. MSE does not provide a probabilistic output like cross-entropy loss ✅ 
+c. 
+MSE leads to poor gradient updates for classification models 
+d. MSE does not allow backpropagation in deep learning models. 
+9. In a one versus all multi-class classifier, which of the following is true 
+a. We train C two-class classifiers first, and then use a fusion rule to fuse the results ✅ 
+b. Learn all sets of weights simultaneously ✅ 
+c. 
+The method guarantees perfect separation between all classes 
+d. One-vs-all requires fewer training examples than one-vs-one 
+10. When using cross-entropy loss with Softmax in a multi-class classification, what is a key requirement? 
+a. The model outputs must sum to 1 ✅ 
+b. The output layer must be linear  
+c. 
+The input features must be normalized 
+d. The loss function should be mean squared error 
+11. Which of the following statements is true regarding Stochastic Gradient Descent (SGD) compared to Full 
+Batch Gradient Descent (BGD)? 
+a. SGD updates weights after every training example, while BGD after processing entire dataset ✅ 
+b. BGD typically converges faster than SGD in non-convex optimization problems  
+c. 
+Using a decaying learning rate can improve SGD convergence stability ✅ 
+d. BGD guarantees convergence to the global minimum in all cases  
+
+---PAGE---
+W2024T2 
+                                                    Student #:                               
+Deep Learning 
+ 
+ 
+Page 3 
+ 
+Question 2 (Debugging) 
+(1) You are training a two-layer MLP with ReLU activations, and you notice that some neurons never activate 
+during training and stop learning. After further analysis you discover that the input to the ReLu is always 
+negative. What is the name of this problem and how could you modify the network to prevent this issue? 
+This issue is known as the dying ReLU problem, where some neurons output zero for all inputs 
+and stop learning because their gradients become zero. This typically happens when the input to 
+the ReLU activation function is always negative, leading to zero output and no gradient updates 
+during backpropagation. 
+To prevent this issue, you can try the following solutions: 
+1. Use Leaky ReLU or Parametric ReLU (PReLU) 
+2. Use better weight initialization:  
+3. Lower the learning rate 
+4. Use batch normalization 
+ 
+ 
+ 
+ 
+(2) You are training a deep neural network and using sigmoid function as your non-linearity. You notice that 
+the activations in the later layers are either all very large or all very close to zero. Your friend tells you that 
+this has to do with the weight initialization. Do you agree with this statement? How  would you solve this 
+issue to improve the network’s performance? 
+ 
+Your friend is correct—improper weight initialization can cause activations in later layers to become 
+either too large or too close to zero, leading to the vanishing gradient problem. This occurs because the 
+sigmoid activation function squashes inputs into the range (0,1), making large positive inputs approach 
+1 and large negative inputs approach 0. This causes gradients to shrink exponentially as they propagate 
+backward through layers, slowing down learning. 
+Use Xavier (Glorot) Initialization for Sigmoid 
+Use Batch Normalization 
+Switch to a Different Activation Function 
+ 
+(3) At the beginning of training a deep neural network, you are trying to train to 100% training accuracy on a 
+small sample of training data (~5-10 minibatches). However, you notice that the loss explodes to inf or 
+NaN. One team member suggests that this has to do with your learning rate, while another suggests that 
+this has to do with weight initialization. Which one is correct (or both or neither)? and explain what is 
+happening and how to fix it. 
+ 
+Both are correct. Learning rate and weight initialization could be responsible for the exploding 
+loss (inf or NaN) 
+1) Reduce the learning rate: If using SGD, try decreasing it (e.g., from 0.1 → 0.01 → 
+0.001). 
+2) Use proper weight initialization: 
+• 
+For ReLU/Leaky ReLU: Use He Initialization 
+• 
+For Sigmoid/Tanh: Use Xavier/Glorot Initialization 
+ 
+
+---PAGE---
+W2024T2 
+                                                    Student #:                               
+Deep Learning 
+ 
+ 
+Page 4 
+ 
+(4) When you are training your new neural network model, you used stochastic gradient descent 
+(SGD) with momentum and L2 weight regularization while testing three different learning rates. 
+The resulting training loss curves are displayed below, but you did not record which curve 
+corresponds to which curve. The learning rates are in creasing order: 
+ 𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙𝑙_𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟= {0.00001,0.0003, 0.4} 
+ 
+ 
+ 
+Your job is figure which learning rate belongs to which curve and justify your answer 
+ 
+The answer is below: 
+Red curve A has a learning rate of 4e-1 
+Blue curve B has a learning rate of 1e-5 
+Orange curve C has a learning rate of 3e-4 
+ 
+ 
+ 
+(5) You are training a feed-forward neural network model for a regression problem. You produced the 
+following curve of training loss over iterations.You used full batch gradient descent and Adam. Which 
+figure belongs to which optimizer and why? 
+ 
+ 
+ 
+
+---PAGE---
+W2024T2 
+                                                    Student #:                               
+Deep Learning 
+ 
+ 
+Page 5 
+ 
+The answer is below: 
+Blue curve X is Full Batch SGD 
+Green curve Y is Adam Optimizer 
+ 
+ 
+ 
+Question 3 (Theory) 
+(1) In the figure below list any TWO CNN networks that we studies in this course. Mention in 1-2 sentences 
+the contribution that was proposed in this architecture 
+ 
+ 
+ 
+See Class notes. Any two should work 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+---PAGE---
+W2024T2 
+                                                    Student #:                               
+Deep Learning 
+ 
+ 
+Page 6 
+ 
+ 
+(2) One way to calculate the downstream gradient in the image below is to explicitly find the Jacobians 
+𝜕𝜕𝜕𝜕
+𝜕𝜕𝜕𝜕 𝑎𝑎𝑎𝑎𝑎𝑎 
+𝜕𝜕𝜕𝜕
+𝜕𝜕𝜕𝜕 . Explain what the downside of this explicit method of Jacobian calculations is and suggest a 
+solution. 
+ 
+1. High Computational Cost & Memory Usage 
+2 Slow Computation in Deep Networks 
+3. Inefficiency in High-Dimensional Spaces 
+Solution: Use Reverse-Mode Autodiff (Backpropagation) or what we called in class implicit Jacobian 
+calculations 
+ 
+Question 4 (Design and Coding) 
+(1) Consider the following dataset below with input features 𝑥𝑥1 𝑎𝑎𝑎𝑎𝑎𝑎 𝑥𝑥2, Each datapoint in the table has a target 
+value 𝑦𝑦. 
+Datapoint 
+𝑥𝑥1 
+𝑥𝑥2 
+𝑦𝑦 
+𝑝𝑝1 
+1 
+3 
+2 
+𝑝𝑝2 
+3 
+2 
+3 
+𝑝𝑝3 
+2 
+2 
+1 
+𝑝𝑝4 
+1 
+1 
+4 
+(a) Write an equation for a linear regression model that fits this dataset 
+(b) Write a python code to find the wights of this model using normal equation (direct solution).  
+ 
+ 
+𝑦𝑦= 𝑤𝑤0 + 𝑤𝑤1𝑥𝑥1 + 𝑤𝑤2𝑥𝑥2 
+ 
+(b) 
+ 
+import numpy as np 
+ 
+X = np.array([ 
+    [1, 1, 3],  # Bias term, x1, x2 
+    [1, 3, 2], 
+    [1, 2, 2], 
+    [1, 1, 1] 
+]) 
+Y = np.array([2, 3, 1, 4]) 
+W = np.linalg.inv(X.T @ X) @ X.T @ Y 
+print("Computed Weights:", W) 
+ 
+ 
+
+---PAGE---
+W2024T2 
+                                                    Student #:                               
+Deep Learning 
+ 
+ 
+Page 7 
+ 
+ 
+ 
+ 
+(2) [4] Assume you have a classification problem with 3 classes, and you come up with a CNN classifier. For each 
+layer, calculate the number of weights, number of biases and the size of the associated feature maps. The 
+notation follows this convention:  
+• 
+CONV-K-N denotes a convolutional layer with N filters, each of them is of size K x K, Padding and 
+stride parameters are always 0 and 1 respectively.  
+• 
+POOL-K indicates a K x K pooling layer with stride K and padding 0.  
+• 
+FC-N stands for a fully-connected layer with N neurons. 
+ 
+Layer 
+Activation map 
+dimensions 
+Number of weights 
+Number of biases 
+INPUT 
+128 × 128 × 3 
+0 
+0 
+CONV-9-32 
+ 
+ 
+ 
+POOL-2 
+ 
+ 
+ 
+CONV-5-64 
+ 
+ 
+ 
+POOL-2 
+ 
+ 
+ 
+CONV-5-64 
+ 
+ 
+ 
+POOL-2 
+ 
+ 
+ 
+FC-128 
+ 
+ 
+ 
+FC-3 
+ 
+ 
+ 
+ 
+See the Table below 
+ 
+ 
+
+---PAGE---
