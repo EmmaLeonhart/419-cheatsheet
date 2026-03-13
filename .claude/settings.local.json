@@ -6,7 +6,9 @@
       "Bash(tail:*)",
       "Bash(\"/c/Users/Immanuelle/AppData/Local/Programs/Python/Python313/python.exe\":*)",
       "Bash(ls:*)",
-      "Bash(\"C:/Users/Immanuelle/AppData/Local/Programs/Python/Python313/python.exe\" -c \"\nimport io, sys\nsys.stdout = io.TextIOWrapper\\(sys.stdout.buffer, encoding='utf-8'\\)\nfrom docx import Document\ndoc = Document\\('C:/Users/Immanuelle/Downloads/notebookLM/Cheat sheet.docx'\\)\nfor i, para in enumerate\\(doc.paragraphs\\):\n    print\\(f'{i}: [{para.style.name}] {para.text}'\\)\n\")"
+      "Bash(\"C:/Users/Immanuelle/AppData/Local/Programs/Python/Python313/python.exe\" -c \"\nimport io, sys\nsys.stdout = io.TextIOWrapper\\(sys.stdout.buffer, encoding='utf-8'\\)\nfrom docx import Document\ndoc = Document\\('C:/Users/Immanuelle/Downloads/notebookLM/Cheat sheet.docx'\\)\nfor i, para in enumerate\\(doc.paragraphs\\):\n    print\\(f'{i}: [{para.style.name}] {para.text}'\\)\n\")",
+      "Bash(\"C:/Users/Immanuelle/AppData/Local/Programs/Python/Python313/python.exe\" -c \"\nimport io, sys\nsys.stdout = io.TextIOWrapper\\(sys.stdout.buffer, encoding='utf-8'\\)\nfrom docx import Document\ndoc = Document\\('C:/Users/Immanuelle/Downloads/notebookLM/Cheat sheet.docx'\\)\nfor i, para in enumerate\\(doc.paragraphs\\):\n    print\\(f'{i}: {para.text}'\\)\n\")",
+      "Bash(\"C:/Users/Immanuelle/AppData/Local/Programs/Python/Python313/python.exe\" -c \"\nimport io, sys\nsys.stdout = io.TextIOWrapper\\(sys.stdout.buffer, encoding='utf-8'\\)\nfrom docx import Document\ndoc = Document\\('C:/Users/Immanuelle/Downloads/notebookLM/Cheat sheet.docx'\\)\nfor i, para in enumerate\\(doc.paragraphs\\):\n    if i >= 72:\n        print\\(f'{i}: {para.text}'\\)\n\")"
     ]
   }
 }
