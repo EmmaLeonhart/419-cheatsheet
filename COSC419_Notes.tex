@@ -266,7 +266,7 @@ INPUT $128\!\times\!128\!\times\!3$, stride 1, pad 0:
 
 $H(x) = F(x) + x$
 
-\section{PyTorch Essentials}
+\section{PyTorch}
 \begin{lstlisting}
 optimizer.zero_grad()  # clear old grads
 loss.backward()        # compute new grads
@@ -282,9 +282,10 @@ optimizer.step()       # update weights
 % ================================================================
 % PAGE 3 --- NUMPY & PYTORCH BASICS
 % ================================================================
-\begin{multicols}{4}
+\lstset{basicstyle=\ttfamily\fontsize{5.5}{6.5}\selectfont, breaklines=true, frame=none, columns=fullflexible}
+\begin{multicols}{3}
 
-\section{NumPy Basics}
+\section{NumPy}
 
 \subsection{Array Creation}
 \begin{lstlisting}
@@ -372,7 +373,7 @@ for i in range(100):
     b -= lr * grad_b(y_hat, y)
 \end{lstlisting}
 
-\section{PyTorch Fundamentals}
+\section{PyTorch}
 
 \subsection{Imports}
 \begin{lstlisting}
@@ -495,7 +496,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(
 % ================================================================
 % PAGE 4 --- CNN & ADVANCED PYTORCH
 % ================================================================
-\begin{multicols}{4}
+\begin{multicols}{3}
 
 \section{CNN with PyTorch}
 
