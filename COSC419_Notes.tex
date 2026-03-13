@@ -280,11 +280,11 @@ optimizer.step()       # update weights
 \newpage
 
 % ================================================================
-% PAGE 3 --- PYTHON / PYTORCH LAB OPERATIONS CHEATSHEET
+% PAGE 3 --- NUMPY & PYTORCH BASICS
 % ================================================================
 \begin{multicols}{4}
 
-\section{NumPy Basics (Lab 1)}
+\section{NumPy Basics}
 
 \subsection{Array Creation}
 \begin{lstlisting}
@@ -344,7 +344,7 @@ stds = np.std(data, axis=0)
 normalized = (data - means) / stds
 \end{lstlisting}
 
-\subsection{Train/Test Split (Manual)}
+\subsection{Train/Test Split}
 \begin{lstlisting}
 train = data[:80]
 test = data[80:]
@@ -362,7 +362,7 @@ def grad_b(y_hat, y):
     return (2/len(y)) * np.sum(y_hat - y)
 \end{lstlisting}
 
-\subsection{Training Loop (NumPy)}
+\subsection{Gradient Descent Loop}
 \begin{lstlisting}
 lr = 0.01
 for i in range(100):
@@ -372,7 +372,7 @@ for i in range(100):
     b -= lr * grad_b(y_hat, y)
 \end{lstlisting}
 
-\section{PyTorch Fundamentals (Lab 2)}
+\section{PyTorch Fundamentals}
 
 \subsection{Imports}
 \begin{lstlisting}
@@ -425,7 +425,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.01)
 \end{lstlisting}
 
-\subsection{Training Loop (PyTorch)}
+\subsection{Training Loop}
 \begin{lstlisting}
 for epoch in range(200):
     optimizer.zero_grad()
@@ -488,9 +488,18 @@ scheduler = torch.optim.lr_scheduler.StepLR(
     scheduler.step()
 \end{lstlisting}
 
-\section{CNN with PyTorch (Lab 3)}
+\end{multicols}
 
-\subsection{Data Loading (FashionMNIST)}
+\newpage
+
+% ================================================================
+% PAGE 4 --- CNN & ADVANCED PYTORCH
+% ================================================================
+\begin{multicols}{4}
+
+\section{CNN with PyTorch}
+
+\subsection{Data Loading}
 \begin{lstlisting}
 import torchvision
 import torchvision.transforms as transforms
@@ -573,7 +582,7 @@ def init_weights(m):
 model.apply(init_weights)
 \end{lstlisting}
 
-\subsection{Full Training Loop (CNN)}
+\subsection{Training Loop (DataLoader)}
 \begin{lstlisting}
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(),
@@ -598,7 +607,7 @@ for epoch in range(10):
     print(f'Loss: {running_loss/n:.4f}')
 \end{lstlisting}
 
-\subsection{Evaluation (Overall)}
+\subsection{Evaluation}
 \begin{lstlisting}
 model.eval()
 correct = 0; total = 0
