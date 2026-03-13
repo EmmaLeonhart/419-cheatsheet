@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "WebSearch",
+      "Bash(which python3 2>/dev/null || which python 2>/dev/null || py --list 2>/dev/null || where python 2>/dev/null)",
+      "Bash(py:*)"
+    ]
+  }
+}
