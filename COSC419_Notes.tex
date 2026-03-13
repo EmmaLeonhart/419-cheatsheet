@@ -54,20 +54,20 @@ Softmax is the activation function that turns raw scores (logits) into a probabi
 \section{Regularization Techniques}
 % ==============================================================
 
-\subsection{L1 Regularization}
-Adds the sum of absolute weights to the loss; it promotes sparsity, effectively performing feature selection by shrinking unimportant weights to exactly zero.
+\subsection{L1 Regularization (Lasso)}
+Adds the sum of absolute weights to the loss; it removes a lot of features, producing a simpler model, and removing more features.
 
-\subsection{L2 Regularization (Weight Decay)}
-Adds the sum of squared weights to the loss; it prefers spreading weight evenly across all features, which improves stability and handles correlated features better than L1.
+\subsection{L2 Regularization (Weight Decay/Ridge)}
+Adds the sum of squared weights to the loss; spreads evenly across features, use it if you want to preserve features because you think they all have some significance.
 
 \subsection{Elastic Net}
-Combines L1 and L2 using separate constants to balance sparsity and stability.
+Combines L1 and L2 using separate constants.
 
 \subsection{Dropout}
 Randomly sets neurons to zero each forward pass. Forces redundant learning.
 
 \subsection{Batch Normalization}
-Normalizes layer inputs using mini-batch mean and variance. It stabilizes training, allows for higher learning rates, and reduces internal covariate shift.
+Shifts the distribution to a mean of zero and a variance of 1. Good for deep CNNs where data is regular and batches are large.
 
 % ==============================================================
 \section{Optimization Algorithms}
@@ -98,6 +98,8 @@ Decouples weight decay from gradient updates in Adam.
 \section{Multi-Layer Perceptrons (MLP)}
 % ==============================================================
 
+Simplest Neural Network. Very robust since everything is connected. Lots of sources means overfitting is a big risk.
+
 \textbf{Feature Transforms:} The process of projecting data into a new geometric space where previously inseparable data becomes linearly separable.
 
 \textbf{Non-linearity:} Activation functions like ReLU or Sigmoid stop it from being linear, letting it learn more.
@@ -106,14 +108,12 @@ Decouples weight decay from gradient updates in Adam.
 
 \textbf{Backpropagation:} Applying the chain rule to compute the partial derivative of the loss with respect to every weight, allowing for model updates.
 
-All nodes are connected on each layer. Lots of sources means overfitting is a big risk.
-
 % ==============================================================
 \section{Convolutional Neural Networks (CNN)}
 % ==============================================================
 
 \subsection{CNN vs.\ MLP}
-CNNs use weight sharing and locality (receptive fields) to handle spatial data efficiently, whereas MLPs are fully connected and require a unique parameter for every single input-output connection.
+CNNs use weight sharing and locality (receptive fields) to handle spatial data, they reuse neurons in a way that MLP does not, so they learn more on spatial data.
 
 \subsection{Different Components}
 Includes Convolutional layers for feature extraction, Pooling layers (Max/Average) for downsampling, and Fully Connected layers for the final classification.
@@ -151,7 +151,7 @@ He initialization is used for ReLU networks, double the variance of Xavier to ma
 Key ``knobs'' include learning rate (most important), batch size, and weight decay (L2 regularization).
 
 % ==============================================================
-\section{Recurrent Neural Networks (RNN)}
+\section{Recurrent Neural Networks (RNN) and Long Short-Term Memory (LSTM)}
 % ==============================================================
 
 \subsection{Language Modeling}
